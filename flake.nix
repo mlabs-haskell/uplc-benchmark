@@ -27,8 +27,6 @@
 
       flake.herculesCI.ciSystems = [ "x86_64-linux" ];
 
-      debug = true;
-
       perSystem =
         { config
         , pkgs
