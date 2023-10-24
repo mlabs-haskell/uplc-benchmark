@@ -16,6 +16,7 @@
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         inputs.pre-commit-hooks-nix.flakeModule
+        (import ./nix/latex)
       ];
 
       # `nix flake show --impure` hack
@@ -26,26 +27,41 @@
 
       flake.herculesCI.ciSystems = [ "x86_64-linux" ];
 
+      debug = true;
+
       perSystem =
         { config
         , pkgs
+        , lib
         , ...
         }: {
           pre-commit.settings = {
             hooks = {
-              nixpkgs-fmt.enable = true;
+              chktex.enable = true;
               deadnix.enable = true;
+              latexindent.enable = true;
+              nixpkgs-fmt.enable = true;
             };
+
             settings = {
               deadnix.edit = true;
             };
+
+            # Override settings to use spaces instead of tabs
+            # Note that multi line string doesn't work here just because.
+            hooks.latexindent.entry = lib.mkForce "${config.pre-commit.settings.tools.latexindent}/bin/latexindent -y=\"defaultIndent:'  ', onlyOneBackUp: 1\" --local --silent --overwrite -g /dev/null";
           };
 
           devShells.default = pkgs.mkShell {
             shellHook = config.pre-commit.installationScript;
             nativeBuildInputs = [
               pkgs.fd
+              pkgs.texlive.combined.scheme-full
             ];
+          };
+
+          latex = {
+            nft-marketplace-specification.src = ./specifications/nft-marketplace;
           };
         };
     };
