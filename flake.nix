@@ -42,12 +42,16 @@
             };
 
             settings = {
+              latexindent.flags = lib.concatStringsSep " "
+                [
+                  "--yaml=\"defaultIndent:'  ', onlyOneBackUp: 1\""
+                  "--local"
+                  "--silent"
+                  "--overwriteIfDifferent"
+                  "--logfile=/dev/null"
+                ];
               deadnix.edit = true;
             };
-
-            # Override settings to use spaces instead of tabs
-            # Note that multi line string doesn't work here just because.
-            hooks.latexindent.entry = lib.mkForce "${config.pre-commit.settings.tools.latexindent}/bin/latexindent -y=\"defaultIndent:'  ', onlyOneBackUp: 1\" --local --silent --overwrite -g /dev/null";
           };
 
           devShells.default = pkgs.mkShell {
