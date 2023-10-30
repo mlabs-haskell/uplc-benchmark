@@ -1,3 +1,0 @@
-# Summary
-
-- [Specifications](specifications.md)
