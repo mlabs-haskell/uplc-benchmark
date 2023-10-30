@@ -17,21 +17,21 @@ in
          , pkgs
          , ...
          }: {
-          options.latex = lib.mkOption {
-            type = types.attrsOf (types.submodule ({ name, ... }: {
+          options.mdbook = lib.mkOption {
+            type = types.attrsOf (types.submodule ({ ... }: {
               options = {
                 src = mkOption {
                   type = types.path;
                   description = ''
-                    The source directory of the LaTeX document.
+                    The source directory of the mdbook source.
                   '';
                 };
 
-                mainFile = mkOption {
+                preBuild = mkOption {
                   type = types.str;
-                  default = "${builtins.baseNameOf config.latex.${name}.src}.tex";
+                  default = "";
                   description = ''
-                    The main LaTeX file to build.
+                    A command to run before building the mdbook.
                   '';
                 };
               };
@@ -40,34 +40,28 @@ in
           config = {
             packages =
               let
-                mkLatexPackage = name: args: pkgs.stdenv.mkDerivation {
+                mkMdbookPackage = name: args: pkgs.stdenv.mkDerivation {
                   inherit name;
                   inherit (args) src;
 
                   nativeBuildInputs = [
-                    pkgs.texlive.combined.scheme-full
+                    pkgs.mdbook
                   ];
 
                   buildPhase = ''
                     runHook preBuild
-                    pdflatex -halt-on-error -interaction=nonstopmode "${args.mainFile}"
+                    ${args.preBuild}
+                    mdbook build . --dest-dir $out
                     runHook postBuild
                   '';
 
                   dontCheck = true;
-
-                  installPhase = ''
-                    runHook preInstall
-                    mkdir -p $out
-                    cp *.pdf $out
-                    runHook postInstall
-                  '';
-
+                  dontInstall = true;
                   dontFixup = true;
                 };
 
               in
-              lib.mapAttrs mkLatexPackage config.latex;
+              lib.mapAttrs mkMdbookPackage config.mdbook;
           };
         });
   };

@@ -11,13 +11,27 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.nixpkgs-stable.follows = "nixpkgs";
     };
+    hci-effects = {
+      url = "github:hercules-ci/hercules-ci-effects";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
   };
   outputs = inputs:
+    let
+      flakeModules = {
+        latex = ./nix/latex;
+        mdbook = ./nix/mdbook;
+      };
+    in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         inputs.pre-commit-hooks-nix.flakeModule
-        (import ./nix/latex)
-      ];
+        inputs.hci-effects.flakeModule
+
+        ./specifications
+        ./website
+      ] ++ (builtins.attrValues flakeModules);
 
       # `nix flake show --impure` hack
       systems =
@@ -25,7 +39,9 @@
         then [ builtins.currentSystem ]
         else inputs.nixpkgs.lib.systems.flakeExposed;
 
-      flake.herculesCI.ciSystems = [ "x86_64-linux" ];
+      herculesCI.ciSystems = [ "x86_64-linux" ];
+
+      flake.flakeModules = flakeModules;
 
       perSystem =
         { config
@@ -42,12 +58,16 @@
             };
 
             settings = {
+              latexindent.flags = lib.concatStringsSep " "
+                [
+                  "--yaml=\"defaultIndent:'  ', onlyOneBackUp: 1\""
+                  "--local"
+                  "--silent"
+                  "--overwriteIfDifferent"
+                  "--logfile=/dev/null"
+                ];
               deadnix.edit = true;
             };
-
-            # Override settings to use spaces instead of tabs
-            # Note that multi line string doesn't work here just because.
-            hooks.latexindent.entry = lib.mkForce "${config.pre-commit.settings.tools.latexindent}/bin/latexindent -y=\"defaultIndent:'  ', onlyOneBackUp: 1\" --local --silent --overwrite -g /dev/null";
           };
 
           devShells.default = pkgs.mkShell {
@@ -56,10 +76,6 @@
               pkgs.fd
               pkgs.texlive.combined.scheme-full
             ];
-          };
-
-          latex = {
-            nft-marketplace-specification.src = ./specifications/nft-marketplace;
           };
         };
     };
