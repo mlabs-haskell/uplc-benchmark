@@ -75,6 +75,7 @@
             nativeBuildInputs = [
               pkgs.fd
               pkgs.texlive.combined.scheme-full
+              pkgs.mdbook
             ];
           };
         };
