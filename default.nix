@@ -9,7 +9,7 @@
         preBuild = ''
           mkdir -p static
           cp ${self'.packages.nft-marketplace-specification}/nft-marketplace.pdf static/nft-marketplace-spec.pdf
-          echo '- [NFT Marketplace](./static/nft-marketplace-spec.pdf)' >> specifications.md
+          cp ${self'.packages.dex-specification}/dex.pdf static/constant-product-dex-spec.pdf
         '';
       };
     };
