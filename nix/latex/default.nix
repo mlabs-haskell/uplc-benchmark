@@ -50,6 +50,12 @@ in
 
                   buildPhase = ''
                     runHook preBuild
+                    pdflatex -halt-on-error -interaction=nonstopmode -draftmode "${args.mainFile}"
+                    pdflatex -halt-on-error -interaction=nonstopmode -draftmode "${args.mainFile}"
+                    if [ -f $(basename "${args.mainFile}" .tex).bib ]; then
+                       bibtex $(basename "${args.mainFile}" .tex)
+                       pdflatex -halt-on-error -interaction=nonstopmode -draftmode "${args.mainFile}"
+                    fi
                     pdflatex -halt-on-error -interaction=nonstopmode "${args.mainFile}"
                     runHook postBuild
                   '';

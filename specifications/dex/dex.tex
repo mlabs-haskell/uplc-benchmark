@@ -1,0 +1,163 @@
+\let\mypdfximage\pdfximage
+\def\pdfximage{\immediate\mypdfximage}
+
+\documentclass{article}
+
+\usepackage{lipsum}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{array}
+\usepackage{tabu}
+\usepackage{amsfonts}
+\usepackage{bold-extra}
+\usepackage{multirow}
+\usepackage[colorlinks=true,linkcolor=webgreen,filecolor=webbrown,citecolor=webgreen]{hyperref}
+\usepackage[capitalise,noabbrev]{cleveref}
+\usepackage{longtable}
+\usepackage{listings}
+\usepackage[a4paper]{geometry}
+
+\tabulinesep=1.2mm
+
+\title{DEX Specification}
+\author{Tomasz Maciosowski}
+\date{}
+
+\begin{document}
+
+\begin{center}
+  \vskip 10mm {\LARGE\bf
+      Constant Product DEX Specification
+    }
+  \vskip 10mm
+  Tomasz Maciosowski \\
+  MLabs\\
+  \href{mailto:tomasz@mlabs.city}{\tt tomasz@mlabs.city} \\
+\end{center}
+
+\vskip 5mm
+
+\begin{abstract}
+  This document describes a simple DEX validator designed for the Cardano blockchain.
+  This validator allows users directly interact with the liquidity pool, and swap tokens at a predetermined fixed price in any Cardano native tokens.
+  The implementation of this validator will be carried out across multiple programming languages, compiled into UPLC, and tested with a uniform test suite.
+  While the validator is engineered with security in mind, certain functionalities necessary for a production environment may be absent.
+\end{abstract}
+
+\section{Introduction}
+
+The validator implements a constant product liquidity pool, where users can swap tokens at a predetermined fixed price interacting with the script-owned UTxO directly, rather than through a batching/escrow contract.
+Users can also deposit and withdraw liquidity from the pool, by providing the necessary pair of tokens to the script-owned UTxO, and receive a proportional amount of the pool's liquidity tokens (LP tokens) in return.
+LP tokens are specific to each pool, and are used to track the amount of liquidity a user has deposited into the pool.
+By burning LP tokens, users can withdraw liquidity from the pool, and receive a proportional amount of the tokens from the pool at the current exchange rate.
+The design does not address concurrency issues, and is not suitable for a production environment, without utilizing tx chaining or batching which are out of scope for this specification.
+
+\section{Pool Validator}
+
+DEX is a constant product, meaning that after every token swap, the product of the amount of each token in the pool remains constant.
+Users can interact with the Pool Validator by swapping tokens, depositing liquidity, and withdrawing liquidity.
+The Pool Validator is parametrized by the following data types:
+
+\subsection{Data Types}
+\begin{lstlisting}[language=Haskell]
+data Redeemer
+  = Swap
+  | DepositLiquidity
+  | WithdrawLiquidity
+
+data Datum = Datum
+  { tokenA :: AssetClass
+  , tokenB :: AssetClass
+  , poolNft :: AssetClass
+  , lpToken :: CurrencySymbol
+  , mintedLpTokens :: Integer
+  , swapFee :: Integer
+  }
+\end{lstlisting}
+
+\subsection{Validation Checks}
+\hspace{0mm}
+
+\textbf{Case 1: Swap}
+\begin{itemize}
+  \item Output datum remains unchanged.
+  \item The product of the amount of tokens in the pool scaled down by fee did not change.
+  \item No LP tokens are minted.
+  \item Pool NFT is returned.
+\end{itemize}
+
+\textbf{Case 2: Deposit Liquidity}
+\begin{itemize}
+  \item Square of minted LP tokens is less than or equal to the product of the tokens deposited.
+  \item Output datum contains the new \verb|mintedLpTokens| value with minted LP amount added.
+  \item Pool NFT is returned.
+\end{itemize}
+
+\textbf{Case 3: Withdraw Liquidity}
+\begin{itemize}
+  \item Output datum contains the new \verb|mintedLpTokens| value with burned LP amount subtracted
+  \item The product of the amount of tokens in the pool equals the square of new \verb|mintedLpTokens| value.
+  \item Pool NFT is returned.
+\end{itemize}
+
+\section{Pool NFT Minting Policy}
+Pool NFT is a state token that validates that the liquid pool UTxO holding it has been properly initialized.
+Pool NFT Minting Policy has one redeemer used to bootstrap a new liquidity pool.
+The redeemer takes the initial spent UTxO as an argument that needs to be spent in order to create a new pool.
+Token name of the NFT is derived from the initial spent UTxO to ensure that only one NFT of each name will be ever created.
+
+\subsection{Data Types}
+\begin{lstlisting}[language=Haskell]
+data Redeemer = CreatePool TxOutRef
+\end{lstlisting}
+
+\subsection{Validation Checks}
+\begin{itemize}
+  \item Initial spent UTxO is spent.
+  \item Only one NFT is minted with name set to initial spent.
+  \item Minted NFT is sent to Pool Validator.
+  \item Pool Validator UTxO has been properly initialized i.e.
+        \begin{itemize}
+          \item Datum is of valid format
+          \item Datum field \verb|mintedLpTokens| is positive and set to amount of minted LP tokens.
+        \end{itemize}
+  \item The product of the amount of tokens in the pool equals the square of \verb|mintedLpTokens| value.
+\end{itemize}
+
+\section{LP Minting Policy}
+
+LP tokens represent ownership of a share of the pool.
+LP tokens are minted when liquidity is deposited into the pool (or pool is created), and burned when liquidity is withdrawn from the pool.
+LP tokens are specific to each pool, and are used to track the amount of liquidity a user has deposited into the pool.
+All minting and burning checks are being performed by Pool Validator and NFT Minting Policy, so LP Minting Policy forwards all checks to them by making sure that they are being invoked.
+Minting policy is parametrized by the Pool NFT.
+
+\subsection{Data Types}
+\begin{lstlisting}[language=Haskell]
+data Redeemer
+  = CreatePool
+  | ForwardCheck
+\end{lstlisting}
+
+\subsection{Validation Checks}
+\hspace{0mm}
+
+\textbf{Case 1: CreatePool}
+\begin{itemize}
+  \item Pool NFT is minted.
+\end{itemize}
+
+\textbf{Case 2: ForwardCheck}
+\begin{itemize}
+  \item Pool NFT is spent.
+\end{itemize}
+
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{bibliography}{}
+
+\end{document}

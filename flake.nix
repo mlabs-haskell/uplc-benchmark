@@ -55,6 +55,7 @@
               deadnix.enable = true;
               latexindent.enable = true;
               nixpkgs-fmt.enable = true;
+              typos.enable = true;
             };
 
             settings = {
