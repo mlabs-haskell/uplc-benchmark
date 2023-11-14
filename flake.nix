@@ -16,12 +16,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
+    haskell-nix = {
+      url = "github:input-output-hk/haskell.nix";
+    };
   };
   outputs = inputs:
     let
       flakeModules = {
         latex = ./nix/latex;
         mdbook = ./nix/mdbook;
+        haskell = ./nix/haskell;
       };
     in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
@@ -69,6 +73,10 @@
                 ];
               deadnix.edit = true;
             };
+
+            excludes = [
+              ".materialized"
+            ];
           };
 
           devShells.default = pkgs.mkShell {
