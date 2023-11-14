@@ -23,17 +23,21 @@
         };
       };
   extras = hackage:
-    { packages = { hello-world = ./.plan.nix/hello-world.nix; }; };
+    {
+      packages = {
+        plutarch-implementation = ./.plan.nix/plutarch-implementation.nix;
+        };
+      };
   modules = [
     ({ lib, ... }:
-      { packages = { "hello-world" = { flags = {}; }; }; })
+      { packages = { "plutarch-implementation" = { flags = {}; }; }; })
     ({ lib, ... }:
       {
         packages = {
           "ghc-prim".components.library.planned = lib.mkOverride 900 true;
           "rts".components.library.planned = lib.mkOverride 900 true;
-          "hello-world".components.exes."hello-world".planned = lib.mkOverride 900 true;
           "ghc-bignum".components.library.planned = lib.mkOverride 900 true;
+          "plutarch-implementation".components.exes."plutarch-implementation".planned = lib.mkOverride 900 true;
           "mtl".components.library.planned = lib.mkOverride 900 true;
           "transformers".components.library.planned = lib.mkOverride 900 true;
           "base".components.library.planned = lib.mkOverride 900 true;

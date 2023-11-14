@@ -1,6 +1,6 @@
 {
   perSystem = { ... }: {
-    haskell.hello = {
+    haskell.plutarch-implementation = {
       src = ./.;
       ghcVersion = "ghc928";
     };

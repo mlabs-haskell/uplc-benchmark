@@ -1,5 +1,5 @@
 cabal-version:      3.4
-name:               hello-world
+name:               plutarch-implementation
 version:            0.1.0.0
 license:            GPL-3.0-or-later
 author:             t4ccer
@@ -11,7 +11,7 @@ extra-doc-files:    CHANGELOG.md
 common warnings
     ghc-options: -Wall
 
-executable hello-world
+executable plutarch-implementation
     import:           warnings
     main-is:          Main.hs
     build-depends:

@@ -11,7 +11,7 @@
     flags = {};
     package = {
       specVersion = "3.4";
-      identifier = { name = "hello-world"; version = "0.1.0.0"; };
+      identifier = { name = "plutarch-implementation"; version = "0.1.0.0"; };
       license = "GPL-3.0-or-later";
       copyright = "";
       maintainer = "t4ccer@gmail.com";
@@ -32,7 +32,7 @@
       };
     components = {
       exes = {
-        "hello-world" = {
+        "plutarch-implementation" = {
           depends = [
             (hsPkgs."base" or (errorHandler.buildDepError "base"))
             (hsPkgs."mtl" or (errorHandler.buildDepError "mtl"))
