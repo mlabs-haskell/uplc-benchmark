@@ -35,6 +35,7 @@
 
         ./specifications
         ./website
+        ./implementations/plutarch
       ] ++ (builtins.attrValues flakeModules);
 
       # `nix flake show --impure` hack

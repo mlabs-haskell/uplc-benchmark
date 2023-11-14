@@ -48,9 +48,9 @@ in
               materializedPath = projectPath + materializedSubDir;
               materializedPathLocal = projectPathLocal + materializedSubDir;
 
-              planNixFile = "/.plan.nix";
-              planNixPath = projectPath + planNixFile;
-              planNixPathLocal = projectPathLocal + planNixFile;
+              planNixFile = "/plan.nix";
+              planNixPath = materializedPath + planNixFile;
+              planNixPathLocal = materializedPathLocal + planNixFile;
 
               project = pkgs.haskell-nix.cabalProject {
                 src = projectPath;
@@ -66,11 +66,12 @@ in
               generateMaterialized = project.plan-nix.passthru.generateMaterialized;
 
               updateScript = pkgs.writeShellScriptBin "update.sh" ''
+                echo 'Materializing build plan to speed up Nix evaluation'
+                ${generateMaterialized} ${materializedPathLocal}
+
                 echo 'Updating plan SHA'
                 echo "{ sha256 = \"`${calculateSha}`\"; }" > ${planNixPathLocal}
 
-                echo 'Materializing build plan to speed up Nix evaluation'
-                ${generateMaterialized} ${materializedPathLocal}
                 echo 'Remember to add newly created files in ${materializedPathLocal} to git!'
                 echo 'You can run `git add ${materializedPathLocal}` to do it'
               '';
@@ -98,14 +99,13 @@ in
                   xs));
 
 
-          getAttrs = attr: flat2With (a: b: "${a}-${b}")
+          getAttrs = attr: flat2With (a: b: "${a}:${b}")
             (lib.mapAttrs
-              (_: project: project.${attr})
+              (_: project: project.${attr} or { })
               projects);
 
         in
         {
-          # debug.hs = lib.mapAttrs (_: p: p.raw) projects;
           packages = getAttrs "packages";
           checks = getAttrs "checks";
           apps = getAttrs "apps";

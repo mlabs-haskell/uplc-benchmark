@@ -15,7 +15,7 @@ executable hello-world
     import:           warnings
     main-is:          Main.hs
     build-depends:
-      base
-      mtl
+      , base
+      , mtl
     hs-source-dirs:   app
     default-language: GHC2021

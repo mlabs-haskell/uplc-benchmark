@@ -23,7 +23,7 @@
       buildType = "Simple";
       isLocal = true;
       detailLevel = "FullDetails";
-      licenseFiles = [ "LICENSE" ];
+      licenseFiles = [];
       dataDir = ".";
       dataFiles = [];
       extraSrcFiles = [];
@@ -33,7 +33,10 @@
     components = {
       exes = {
         "hello-world" = {
-          depends = [ (hsPkgs."base" or (errorHandler.buildDepError "base")) ];
+          depends = [
+            (hsPkgs."base" or (errorHandler.buildDepError "base"))
+            (hsPkgs."mtl" or (errorHandler.buildDepError "mtl"))
+            ];
           buildable = true;
           hsSourceDirs = [ "app" ];
           mainPath = [ "Main.hs" ];
