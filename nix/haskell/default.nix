@@ -23,11 +23,6 @@ in
               example = "ghc945";
             };
 
-            indexState = mkOption {
-              type = types.str;
-              example = "2023-11-01T00:00:00Z";
-            };
-
             externalDependencies = mkOption {
               type = types.listOf (types.oneOf [ types.str types.package ]);
               default = [ ];
@@ -48,6 +43,8 @@ in
       };
       config =
         let
+          # These two lets are important to fetch `iohk-nix` using pure nixpkgs
+          # otherwise you'll get infinite recursion when applying an overlay
           iohk-nix = pkgs.fetchFromGitHub {
             owner = "input-output-hk";
             repo = "iohk-nix";
@@ -68,18 +65,6 @@ in
 
           mkProject = name: args:
             let
-              projectPath = args.src;
-              projectPathLocal = builtins.head
-                (builtins.match "${builtins.storeDir}/[^/]*/?(.*)" (toString projectPath));
-
-              materializedSubDir = "/.materialized";
-              materializedPath = projectPath + materializedSubDir;
-              materializedPathLocal = projectPathLocal + materializedSubDir;
-
-              planNixFile = "/plan.nix";
-              planNixPath = materializedPath + planNixFile;
-              planNixPathLocal = materializedPathLocal + planNixFile;
-
               customHackages = mkHackage {
                 compiler-nix-name = args.ghcVersion;
                 srcs = map toString args.externalDependencies;
@@ -91,10 +76,10 @@ in
               haskellModules = map (m: args @ { ... }: m args) args.haskellModules;
 
               project = pkgs.haskell-nix.cabalProject' {
-                src = projectPath;
+                inherit (args) src;
                 name = name;
-                compiler-nix-name = args.ghcVersion;
 
+                compiler-nix-name = args.ghcVersion;
                 inputMap = lib.mapAttrs (_: toString) args.externalRepositories;
                 modules = customHackages.modules ++ haskellModules;
                 inherit (customHackages) extra-hackages extra-hackage-tarballs;
@@ -108,32 +93,11 @@ in
                     haskell-language-server = { };
                   };
                 };
-
-                index-state = args.indexState;
-                plan-sha256 = (import planNixPath).sha256;
-                materialized = materializedPath;
               };
               projectFlake = project.flake { };
-              calculateSha = project.plan-nix.passthru.calculateMaterializedSha;
-              generateMaterialized = project.plan-nix.passthru.generateMaterialized;
-
-              updateScript = pkgs.writeShellScriptBin "update.sh" ''
-                echo 'Materializing build plan to speed up Nix evaluation'
-                ${generateMaterialized} ${materializedPathLocal}
-
-                echo 'Updating plan SHA'
-                echo "{ sha256 = \"`${calculateSha}`\"; }" > ${planNixPathLocal}
-
-                echo 'Remember to add newly created files in ${materializedPathLocal} to git!'
-                echo 'You can run `git add ${materializedPathLocal}` to do it'
-              '';
             in
             {
-              raw = project;
-              inherit (projectFlake) packages devShell devShells checks;
-              apps = {
-                update.program = updateScript;
-              } // projectFlake.apps;
+              inherit (projectFlake) packages devShell devShells checks apps;
             };
           projects = lib.attrsets.mapAttrs mkProject config.${conifgName};
 

@@ -22,11 +22,6 @@ in
               example = "ghc945";
             };
 
-            indexState = mkOption {
-              type = types.str;
-              example = "2023-11-01T00:00:00Z";
-            };
-
             cardanoPackages = mkOption {
               type = types.nullOr types.package;
               default = null;
@@ -86,7 +81,7 @@ in
 
             in
             {
-              inherit (args) src ghcVersion indexState;
+              inherit (args) src ghcVersion;
 
               externalRepositories = {
                 "https://input-output-hk.github.io/cardano-haskell-packages" = cardanoPackages;
