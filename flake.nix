@@ -49,11 +49,10 @@
 
       flake.flakeModules = flakeModules;
 
-      debug = true;
-
       perSystem =
         { config
         , pkgs
+        , self'
         , lib
         , ...
         }: {
@@ -83,13 +82,18 @@
             ];
           };
 
-          devShells.default = pkgs.mkShell {
-            shellHook = config.pre-commit.installationScript;
-            nativeBuildInputs = [
-              pkgs.fd
-              pkgs.texlive.combined.scheme-full
-              pkgs.mdbook
-            ];
+          devShells = {
+            combined =
+              self'.devShells.plutarch-implementation.overrideAttrs
+                (_finalAttrs: previousAttrs: {
+                  shellHook = config.pre-commit.installationScript;
+                  nativeBuildInputs = [
+                    pkgs.fd
+                    pkgs.texlive.combined.scheme-full
+                    pkgs.mdbook
+                  ] ++ previousAttrs.nativeBuildInputs;
+                });
+            default = self'.devShells.combined;
           };
         };
     };

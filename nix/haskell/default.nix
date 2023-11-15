@@ -130,7 +130,7 @@ in
             in
             {
               raw = project;
-              inherit (projectFlake) packages devShell;
+              inherit (projectFlake) packages devShell devShells checks;
               apps = {
                 update.program = updateScript;
               } // projectFlake.apps;
