@@ -26,6 +26,7 @@
         latex = ./nix/latex;
         mdbook = ./nix/mdbook;
         haskell = ./nix/haskell;
+        plutarch = ./nix/plutarch;
       };
     in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
@@ -47,6 +48,8 @@
       herculesCI.ciSystems = [ "x86_64-linux" ];
 
       flake.flakeModules = flakeModules;
+
+      debug = true;
 
       perSystem =
         { config
