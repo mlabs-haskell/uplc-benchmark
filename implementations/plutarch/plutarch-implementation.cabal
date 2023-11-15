@@ -17,5 +17,9 @@ executable plutarch-implementation
     build-depends:
       , base
       , mtl
+      , plutarch
+      , plutus-core < 1.4
+      , plutus-ledger-api
+      , text
     hs-source-dirs:   app
     default-language: GHC2021

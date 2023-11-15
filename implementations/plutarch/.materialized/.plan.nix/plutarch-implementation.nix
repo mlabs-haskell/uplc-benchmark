@@ -36,6 +36,10 @@
           depends = [
             (hsPkgs."base" or (errorHandler.buildDepError "base"))
             (hsPkgs."mtl" or (errorHandler.buildDepError "mtl"))
+            (hsPkgs."plutarch" or (errorHandler.buildDepError "plutarch"))
+            (hsPkgs."plutus-core" or (errorHandler.buildDepError "plutus-core"))
+            (hsPkgs."plutus-ledger-api" or (errorHandler.buildDepError "plutus-ledger-api"))
+            (hsPkgs."text" or (errorHandler.buildDepError "text"))
             ];
           buildable = true;
           hsSourceDirs = [ "app" ];
