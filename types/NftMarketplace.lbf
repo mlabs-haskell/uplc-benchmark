@@ -1,0 +1,13 @@
+module NftMarketplace
+
+import Prelude
+import Plutus.V1 (PlutusData, AssetClass)
+
+record Example a = {
+  foo : AssetClass,
+  bar : a
+  }
+
+derive Eq (Example a)
+derive Json (Example a)
+derive PlutusData (Example a)

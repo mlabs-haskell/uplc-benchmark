@@ -29,7 +29,8 @@
         plutarch = ./nix/plutarch;
       };
     in
-    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } ({ self, ... }: {
+      debug = true;
       imports = [
         inputs.pre-commit-hooks-nix.flakeModule
         inputs.hci-effects.flakeModule
@@ -37,6 +38,7 @@
         ./specifications
         ./website
         ./implementations/plutarch
+        ./vendor/lambda-buffers
       ] ++ (builtins.attrValues flakeModules);
 
       # `nix flake show --impure` hack
@@ -52,10 +54,15 @@
       perSystem =
         { config
         , pkgs
-        , self'
         , lib
+        , system
         , ...
         }: {
+          _module.args.pkgs = import self.inputs.nixpkgs {
+            inherit system;
+            config.allowBroken = true;
+          };
+
           pre-commit.settings = {
             hooks = {
               chktex.enable = true;
@@ -82,19 +89,19 @@
             ];
           };
 
-          devShells = {
-            combined =
-              self'.devShells.plutarch-implementation.overrideAttrs
-                (_finalAttrs: previousAttrs: {
-                  shellHook = config.pre-commit.installationScript;
-                  nativeBuildInputs = [
-                    pkgs.fd
-                    pkgs.texlive.combined.scheme-full
-                    pkgs.mdbook
-                  ] ++ previousAttrs.nativeBuildInputs;
-                });
-            default = self'.devShells.combined;
-          };
+          # devShells = {
+          #   combined =
+          #     self'.devShells.plutarch-implementation.overrideAttrs
+          #       (_finalAttrs: previousAttrs: {
+          #         shellHook = config.pre-commit.installationScript;
+          #         nativeBuildInputs = [
+          #           pkgs.fd
+          #           pkgs.texlive.combined.scheme-full
+          #           pkgs.mdbook
+          #         ] ++ previousAttrs.nativeBuildInputs;
+          #       });
+          #   default = self'.devShells.combined;
+          # };
         };
-    };
+    });
 }
