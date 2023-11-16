@@ -2,7 +2,7 @@
   perSystem = { config, ... }:
     let
       uplc-benchmark-types-plutarch = config.libLb.mkPlutarchPackage {
-        name = "uplc-benchmark-plutarch";
+        name = "uplc-benchmark-types-plutarch";
         src = ./.;
         files = [ "NftMarketplace.lbf" ];
       };
