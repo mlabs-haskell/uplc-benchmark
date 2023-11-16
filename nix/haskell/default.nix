@@ -15,6 +15,13 @@ in
         ${configName} = lib.mkOption {
           type = types.attrsOf (types.submodule ({ ... }: {
             options = {
+              # ignored
+              name = mkOption {
+                type = types.string;
+                default = "";
+                internal = true;
+              };
+
               src = mkOption {
                 type = types.path;
               };

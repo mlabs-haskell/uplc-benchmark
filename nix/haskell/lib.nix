@@ -18,7 +18,7 @@ in
 
 { name
 , src
-, ghcVersion ? "ghc928"
+, ghcVersion
 , haskellModules ? [ ]
 , externalDependencies ? [ ]
 , externalRepositories ? { }

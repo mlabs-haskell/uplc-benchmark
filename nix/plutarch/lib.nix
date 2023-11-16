@@ -48,7 +48,7 @@ let
 
 in
 {
-  inherit (args) src ghcVersion;
+  inherit (args) name src ghcVersion;
 
   externalRepositories = {
     "https://input-output-hk.github.io/cardano-haskell-packages" = cardanoPackages;
@@ -56,5 +56,5 @@ in
 
   externalDependencies = [
     plutarchPackage
-  ] ++ args.externalDependencies;
+  ] ++ (args.externalDependencies or [ ]);
 }

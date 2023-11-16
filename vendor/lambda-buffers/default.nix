@@ -30,6 +30,7 @@
             rev = "cb73d5029bf2a82098591fe84f6623f31329f1d0";
             hash = "sha256-l0Cu/G/Zh6GDLFUZRKZuhfYEKT0lSeLK26nJooiDFsw=";
           }).outPath + "/proto-lens-protoc";
+          ghcVersion = "ghc928";
         }).packages."proto-lens-protoc:exe:proto-lens-protoc";
 
         haskellProto = pkgs.callPackage ./haskell-proto.nix {
@@ -70,12 +71,14 @@
           compiler = config.libHaskell.mkPackage {
             name = "lambda-buffers-compiler";
             src = "${lambda-buffers-src}/lambda-buffers-compiler";
+            ghcVersion = "ghc928";
             externalDependencies = builtins.attrValues protoLibs;
           };
 
           frontend = config.libHaskell.mkPackage {
             name = "lambda-buffers-frontend";
             src = "${lambda-buffers-src}/lambda-buffers-frontend";
+            ghcVersion = "ghc928";
             externalDependencies = builtins.attrValues protoLibs ++ [
               "${lambda-buffers-src}/lambda-buffers-compiler"
             ];
@@ -84,6 +87,7 @@
           codegen = config.libHaskell.mkPackage {
             name = "lambda-buffers-codegen";
             src = "${lambda-buffers-src}/lambda-buffers-codegen";
+            ghcVersion = "ghc928";
             externalDependencies = builtins.attrValues protoLibs ++ [
               "${lambda-buffers-src}/lambda-buffers-compiler"
             ];
@@ -133,16 +137,42 @@
 
         lbf-plutus-to-plutarch = mkLbfCall {
           gen = "${lbg-plutarch}/bin/lbg-plutarch";
-          imports = [ lbf-prelude lbf-plutus ];
-          classes = [ "Plutus.V1.PlutusData" "Prelude.Json" "Prelude.Eq" ];
-          configs = [ "${codegenConfigs}/plutarch-prelude.json" "${codegenConfigs}/plutarch-plutus.json" ];
+
+          imports = [
+            lbf-prelude
+            lbf-plutus
+          ];
+
+          classes = [
+            "Plutus.V1.PlutusData"
+            "Prelude.Json"
+            "Prelude.Eq"
+          ];
+
+          configs = [
+            "${codegenConfigs}/plutarch-prelude.json"
+            "${codegenConfigs}/plutarch-plutus.json"
+          ];
         };
 
         lbf-plutus-to-haskell = mkLbfCall {
           gen = "${lbg-haskell}/bin/lbg-haskell";
-          imports = [ lbf-prelude lbf-plutus ];
-          classes = [ "Plutus.V1.PlutusData" "Prelude.Json" "Prelude.Eq" ];
-          configs = [ "${codegenConfigs}/haskell-prelude-base.json" "${codegenConfigs}/haskell-plutus-plutustx.json" ];
+
+          imports = [
+            lbf-prelude
+            lbf-plutus
+          ];
+
+          classes = [
+            "Plutus.V1.PlutusData"
+            "Prelude.Json"
+            "Prelude.Eq"
+          ];
+
+          configs = [
+            "${codegenConfigs}/haskell-prelude-base.json"
+            "${codegenConfigs}/haskell-plutus-plutustx.json"
+          ];
         };
 
         mkLbHaskellPackage = pkgs.callPackage ./mk-haskell-lib.nix { };
@@ -176,11 +206,43 @@
           };
         };
 
+        lbf-plutus-plutarch = mkLbHaskellPackage {
+          name = "lbf-plutus-plutarch";
+          src = lbf-plutus;
+          files = [ "Plutus/V1.lbf" "Plutus/V2.lbf" ];
+          exposedModules = [
+            "LambdaBuffers.Plutus.V1.Plutarch"
+            "LambdaBuffers.Plutus.V2.Plutarch"
+          ];
+          cabalBuildDepends = [ "base" "lbr-plutarch" "plutarch" "lbf-prelude-plutarch" ];
+
+          lbfGen = mkLbfCall {
+            gen = "${lbg-plutarch}/bin/lbg-plutarch";
+            imports = [ lbf-prelude ];
+            classes = [ "Prelude.Eq" "Plutus.V1.PlutusData" ];
+            configs = [
+              "${codegenConfigs}/plutarch-prelude.json"
+              "${codegenConfigs}/plutarch-plutus.json"
+            ];
+          };
+        };
+
+        lbr-plutarch = linkToOut {
+          name = "lbr-plutarch";
+          src = "${lambda-buffers-src}/runtimes/haskell/lbr-plutarch";
+        };
+
+        lbr-prelude = linkToOut {
+          name = "lbr-plutarch";
+          src = "${lambda-buffers-src}/runtimes/haskell/lbr-prelude";
+        };
+
       in
       {
         packages = {
-          inherit lbf-prelude-plutarch lbf-prelude-haskell;
+          inherit lbf-prelude-plutarch lbf-prelude-haskell lbf-plutus-plutarch;
           inherit lbf-plutus-to-plutarch lbf-plutus-to-haskell;
+          inherit lbr-plutarch lbr-prelude;
         };
 
         inherit mkLbHaskellPackage mkLbfCall;

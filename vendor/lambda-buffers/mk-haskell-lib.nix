@@ -51,5 +51,6 @@ stdenv.mkDerivation {
     mkdir -p $out
     cp -r ${lbfBuilt} $out/autogen;
     cp ${cabalFile} $out/${name}.cabal
+    cp ${./cabal.project} $out/cabal.project
   '';
 }

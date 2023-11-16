@@ -5,13 +5,13 @@
 let
   inherit (flake-parts-lib) mkPerSystemOption;
   inherit (lib) types mkOption;
-  conifgName = "plutarch";
+  configName = "plutarch";
 in
 {
   options = {
     perSystem = mkPerSystemOption ({ config, pkgs, ... }: {
       options = {
-        ${conifgName} = lib.mkOption {
+        ${configName} = lib.mkOption {
           type = types.attrsOf (types.submodule ({ ... }: {
             options = {
               src = mkOption {
@@ -48,8 +48,11 @@ in
       };
       config =
         let
-          mkPlutarchPackage = _name: pkgs.callPackage ./lib.nix { };
-          projects = lib.attrsets.mapAttrs mkPlutarchPackage config.${conifgName};
+          mkPlutarchPackage = pkgs.callPackage ./lib.nix { };
+          projects =
+            lib.attrsets.mapAttrs
+              (name: args: mkPlutarchPackage (args // { inherit name; }))
+              config.${configName};
         in
         {
           haskell = projects;
