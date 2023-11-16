@@ -1,6 +1,5 @@
 { stdenv
 , writeTextFile
-, mkLbfCall
 }:
 
 { name
@@ -12,8 +11,6 @@
 }:
 
 let
-  lbfGenBin = mkLbfCall lbfGen;
-
   cabalFile = writeTextFile {
     name = "${name}-cabal";
     text = ''
@@ -39,7 +36,7 @@ let
 
     buildPhase = ''
       cp -r $src/* .
-      ${lbfGenBin}/bin/${lbfGenBin.meta.mainProgram} ${builtins.concatStringsSep " " files}
+      ${lbfGen}/bin/${lbfGen.meta.mainProgram} ${builtins.concatStringsSep " " files}
     '';
 
     installPhase = ''

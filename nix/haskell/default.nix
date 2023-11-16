@@ -1,7 +1,6 @@
 { self
 , lib
 , flake-parts-lib
-, config
 , ...
 }:
 let
@@ -11,13 +10,6 @@ let
 in
 {
   options = {
-    options.mkHaskellPackage = lib.mkOption {
-      type = lib.types.anything;
-      default = { };
-    };
-
-    config.mkHaskellPackage = lib.genAttrs config.systems (system: (config.perSystem system).mkHaskellPackage);
-
     perSystem = mkPerSystemOption ({ config, system, pkgs, ... }: {
       options = {
         ${configName} = lib.mkOption {
@@ -50,7 +42,7 @@ in
             };
           }));
         };
-        mkHaskellPackage = lib.mkOption {
+        libHaskell = lib.mkOption {
           type = lib.types.anything;
           default = { };
         };
@@ -105,7 +97,9 @@ in
           checks = getAttrs "checks";
           apps = getAttrs "apps";
 
-          inherit mkHaskellPackage;
+          libHaskell = {
+            mkPackage = mkHaskellPackage;
+          };
         };
     });
   };
