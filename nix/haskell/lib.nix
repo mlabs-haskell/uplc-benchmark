@@ -29,14 +29,21 @@ let
   # https://input-output-hk.github.io/haskell.nix/reference/library.html?highlight=cabalProject#modules
   fixedHaskellModules = map (m: args @ { ... }: m args) haskellModules;
 
+  flatExternalDependencies =
+    lib.lists.concatMap
+      (dep: [ dep ] ++
+        (flatExternalDependencies (dep.passthru or { }).externalDependencies or [ ]));
+  flattenedExternalDependencies = flatExternalDependencies externalDependencies;
+
+  # FIXME: make mkHackage work with empty input as well
   extraDependencies =
-    if builtins.length externalDependencies == 0
+    if builtins.length flattenedExternalDependencies == 0
     then { modules = fixedHaskellModules; }
     else
       let
         customHackages = mkHackage {
           compiler-nix-name = ghcVersion;
-          srcs = map toString externalDependencies;
+          srcs = map toString flattenedExternalDependencies;
         };
       in
       {

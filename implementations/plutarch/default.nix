@@ -6,10 +6,9 @@
           name = "plutarch-implementation";
           src = ./.;
           ghcVersion = "ghc928";
-          externalDependencies =
-            self'.packages.uplc-benchmark-types-plutarch-lib.passthru.externalDependencies ++ [
-              self'.packages.uplc-benchmark-types-plutarch-lib
-            ];
+          externalDependencies = [
+            self'.packages.uplc-benchmark-types-plutarch-lib
+          ];
         });
     in
     {
