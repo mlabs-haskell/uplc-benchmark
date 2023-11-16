@@ -3,12 +3,7 @@
 {
   perSystem = { pkgs, config, ... }: {
     options = {
-      mkLbHaskellPackage = lib.mkOption {
-        type = lib.types.anything;
-        default = { };
-      };
-
-      mkLbfCall = lib.mkOption {
+      libLb = lib.mkOption {
         type = lib.types.anything;
         default = { };
       };
@@ -237,6 +232,48 @@
           src = "${lambda-buffers-src}/runtimes/haskell/lbr-prelude";
         };
 
+        mkPlutarchPackage =
+          { name
+          , src
+          , files
+          }:
+          let
+            raw = mkLbHaskellPackage {
+              name = "${name}-lib";
+              inherit src files;
+              # FIXME: Handle `/`s
+              exposedModules =
+                map (f: "LambdaBuffers.${lib.strings.removeSuffix ".lbf" f}.Plutarch") files;
+              cabalBuildDepends = [
+                "base"
+                "lbr-plutarch"
+                "plutarch"
+                "plutus-core < 1.4" # plutarch is broken so here we go
+                "lbf-prelude-plutarch"
+                "lbf-plutus-plutarch"
+              ];
+              lbfGen = lbf-plutus-to-plutarch;
+            };
+
+            externalDependencies = [
+              lbr-plutarch
+              lbr-prelude
+              lbf-prelude-plutarch
+              lbf-plutus-plutarch
+            ];
+
+            compiled = config.libHaskell.mkPackage (config.libPlutarch.mkPackage {
+              inherit name;
+              src = raw;
+              ghcVersion = "ghc928";
+              inherit externalDependencies;
+            });
+          in
+          {
+            raw = raw // { passthru = { inherit externalDependencies; }; };
+            inherit compiled;
+          };
+
       in
       {
         packages = {
@@ -245,7 +282,9 @@
           inherit lbr-plutarch lbr-prelude;
         };
 
-        inherit mkLbHaskellPackage mkLbfCall;
+        libLb = {
+          inherit mkLbHaskellPackage mkLbfCall mkPlutarchPackage;
+        };
       };
   };
 }
