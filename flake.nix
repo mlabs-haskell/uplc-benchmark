@@ -38,6 +38,7 @@
         ./specifications
         ./website
         ./implementations/plutarch
+        ./types
         ./vendor/lambda-buffers
       ] ++ (builtins.attrValues flakeModules);
 

@@ -1,13 +1,13 @@
 module NftMarketplace
 
 import Prelude
-import Plutus.V1 (PlutusData, AssetClass)
+import Plutus.V1 (PlutusData, Value, Address, PubKeyHash)
 
-record Example a = {
-  foo : AssetClass,
-  bar : a
-  }
+record NftMarketplaceDatum = {
+  price : Value,
+  seller : Address,
+  cancelKey: PubKeyHash
+}
 
-derive Eq (Example a)
-derive Json (Example a)
-derive PlutusData (Example a)
+derive Eq NftMarketplaceDatum
+derive PlutusData NftMarketplaceDatum

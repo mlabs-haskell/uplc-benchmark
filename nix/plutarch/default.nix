@@ -31,6 +31,11 @@ in
               type = types.nullOr types.package;
               default = null;
             };
+
+            externalDependencies = mkOption {
+              type = types.listOf (types.oneOf [ types.str types.package ]);
+              default = [ ];
+            };
           };
         }));
         default = { };
@@ -67,7 +72,7 @@ in
             hash = "sha256-ZTBmOWmgYg8jVDB3VFu3VSpBaKOGOkp/0u+M9tyTalk=";
           };
 
-          mkProject = _name: args:
+          mkHaskellProject = _name: args:
             let
               cardanoPackages =
                 if args.cardanoPackages or null == null
@@ -89,9 +94,9 @@ in
 
               externalDependencies = [
                 plutarchPackage
-              ];
+              ] ++ args.externalDependencies;
             };
-          projects = lib.attrsets.mapAttrs mkProject config.${conifgName};
+          projects = lib.attrsets.mapAttrs mkHaskellProject config.${conifgName};
         in
         {
           haskell = projects;
