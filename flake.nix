@@ -30,7 +30,6 @@
       };
     in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } ({ self, ... }: {
-      debug = true;
       imports = [
         inputs.pre-commit-hooks-nix.flakeModule
         inputs.hci-effects.flakeModule
