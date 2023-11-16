@@ -1,7 +1,5 @@
 packages: ./.
 
-index-state: 2023-11-01T00:00:00Z
-
 repository cardano-haskell-packages
   url: https://input-output-hk.github.io/cardano-haskell-packages
   secure: True

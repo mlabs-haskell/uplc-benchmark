@@ -6,7 +6,6 @@
 , lib
 , protobuf
 , proto-lens-protoc
-, cabal-install
 }:
 
 { src
@@ -48,10 +47,8 @@ stdenv.mkDerivation {
   buildInputs = [
     protobuf
     proto-lens-protoc
-    cabal-install
   ];
   buildPhase = ''
-    set -vox
     mkdir src
     protoc --plugin=protoc-gen-haskell=${proto-lens-protoc}/bin/proto-lens-protoc \
            --proto_path=${src} \

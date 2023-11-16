@@ -176,7 +176,6 @@
           name = "lbf-prelude-plutarch";
           src = lbf-prelude.outPath;
           files = [ "Prelude.lbf" ];
-          exposedModules = [ "LambdaBuffers.Prelude.Plutarch" ];
           cabalBuildDepends = [ "base" "lbr-plutarch" "plutarch" ];
 
           lbfGen = mkLbfCall {
@@ -191,7 +190,6 @@
           name = "lbf-prelude-haskell";
           src = lbf-prelude.outPath;
           files = [ "Prelude.lbf" ];
-          exposedModules = [ "LambdaBuffers.Prelude" ];
           cabalBuildDepends = [ "base" "text" "lbr-prelude" ];
 
           lbfGen = mkLbfCall {
@@ -205,10 +203,6 @@
           name = "lbf-plutus-plutarch";
           src = lbf-plutus;
           files = [ "Plutus/V1.lbf" "Plutus/V2.lbf" ];
-          exposedModules = [
-            "LambdaBuffers.Plutus.V1.Plutarch"
-            "LambdaBuffers.Plutus.V2.Plutarch"
-          ];
           cabalBuildDepends = [ "base" "lbr-plutarch" "plutarch" "lbf-prelude-plutarch" ];
 
           lbfGen = mkLbfCall {
@@ -241,9 +235,6 @@
             src = mkLbHaskellPackage {
               name = "${name}-lib";
               inherit src files;
-              # FIXME: Handle `/`s
-              exposedModules =
-                map (f: "LambdaBuffers.${lib.strings.removeSuffix ".lbf" f}.Plutarch") files;
               cabalBuildDepends = [
                 "base"
                 "lbr-plutarch"
