@@ -1,0 +1,26 @@
+cabal-version:      3.4
+name:               plutarch-implementation
+version:            0.1.0.0
+license:            GPL-3.0-or-later
+author:             t4ccer
+maintainer:         t4ccer@gmail.com
+category:           Testing
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+
+common warnings
+    ghc-options: -Wall
+
+executable plutarch-implementation
+    import:           warnings
+    main-is:          Main.hs
+    build-depends:
+      , base
+      , mtl
+      , plutarch
+      , plutus-core < 1.4
+      , plutus-ledger-api
+      , text
+      , uplc-benchmark-types-plutarch-lib
+    hs-source-dirs:   app
+    default-language: GHC2021

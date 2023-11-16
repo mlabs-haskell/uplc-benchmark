@@ -1,0 +1,55 @@
+diff --git a/Plutarch/FFI.hs b/Plutarch/FFI.hs
+index c08c7f0..22ad781 100644
+--- a/Plutarch/FFI.hs
++++ b/Plutarch/FFI.hs
+@@ -121,12 +121,12 @@ unsafeForeignExport config t = DeserializedCode program Nothing mempty
+   where
+     (Script (UPLC.Program _ version term)) = either (error . T.unpack) id $ compile config t
+     program =
+-      UPLC.Program () version $
+-        UPLC.termMapNames fakeNameDeBruijn term
++      UPLC.Program mempty version $
++        UPLC.termMapNames fakeNameDeBruijn ((const mempty) <$> term)
+ 
+ -- | Seriously unsafe, may fail at run time or result in unexpected behaviour in your on-chain validator.
+ unsafeForeignImport :: CompiledCode t -> ClosedTerm p
+-unsafeForeignImport c = Term $ const $ pure $ TermResult (RCompiled $ UPLC._progTerm $ toNameless $ getPlc c) []
++unsafeForeignImport c = Term $ const $ pure $ TermResult (RCompiled $ UPLC._progTerm $ toNameless $ fmap (const mempty) $ getPlc c) []
+   where
+     toNameless ::
+       UPLC.Program UPLC.NamedDeBruijn UPLC.DefaultUni UPLC.DefaultFun () ->
+diff --git a/Plutarch/Internal.hs b/Plutarch/Internal.hs
+index a53124f..20693a8 100644
+--- a/Plutarch/Internal.hs
++++ b/Plutarch/Internal.hs
+@@ -373,7 +373,7 @@ phoistAcyclic t = Term \_ ->
+   asRawTerm t 0 >>= \case
+     -- Built-ins are smaller than variable references
+     t'@(getTerm -> RBuiltin _) -> pure t'
+-    t' -> case evalScript . Script . UPLC.Program () (PLC.defaultVersion ()) $ compile' t' of
++    t' -> case evalScript . Script . UPLC.Program () PLC.defaultVersion $ compile' t' of
+       (Right _, _, _) ->
+         let hoisted = HoistedTerm (hashRawTerm . getTerm $ t') (getTerm t')
+          in pure $ TermResult (RHoisted hoisted) (hoisted : getDeps t')
+@@ -466,7 +466,7 @@ compile' t =
+ -- | Compile a (closed) Plutus Term to a usable script
+ compile :: Config -> ClosedTerm a -> Either Text Script
+ compile config t = case asClosedRawTerm t of
+-  TermMonad (ReaderT t') -> Script . UPLC.Program () (UPLC.Version () 1 0 0) . compile' <$> t' config
++  TermMonad (ReaderT t') -> Script . UPLC.Program () (UPLC.Version 1 0 0) . compile' <$> t' config
+ 
+ hashTerm :: Config -> ClosedTerm a -> Either Text Dig
+ hashTerm config t = hashRawTerm . getTerm <$> runReaderT (runTermMonad $ asRawTerm t 0) config
+diff --git a/Plutarch/Internal/Evaluate.hs b/Plutarch/Internal/Evaluate.hs
+index 94d24e6..dcd88ce 100644
+--- a/Plutarch/Internal/Evaluate.hs
++++ b/Plutarch/Internal/Evaluate.hs
+@@ -38,7 +38,7 @@ evalScriptHuge = evalScript' budget
+ -- | Evaluate a script with a specific budget, returning the trace log and term result.
+ evalScript' :: ExBudget -> Script -> (Either (Cek.CekEvaluationException PLC.NamedDeBruijn PLC.DefaultUni PLC.DefaultFun) Script, ExBudget, [Text])
+ evalScript' budget (Script (Program _ _ t)) = case evalTerm budget (UPLC.termMapNames UPLC.fakeNameDeBruijn t) of
+-  (res, remaining, logs) -> (Script . Program () (PLC.defaultVersion ()) . UPLC.termMapNames UPLC.unNameDeBruijn <$> res, remaining, logs)
++  (res, remaining, logs) -> (Script . Program () PLC.defaultVersion . UPLC.termMapNames UPLC.unNameDeBruijn <$> res, remaining, logs)
+ 
+ evalTerm ::
+   ExBudget ->

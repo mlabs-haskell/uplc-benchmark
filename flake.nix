@@ -16,21 +16,29 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
+    haskell-nix = {
+      url = "github:input-output-hk/haskell.nix";
+    };
   };
   outputs = inputs:
     let
       flakeModules = {
         latex = ./nix/latex;
         mdbook = ./nix/mdbook;
+        haskell = ./nix/haskell;
+        plutarch = ./nix/plutarch;
       };
     in
-    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } ({ self, ... }: {
       imports = [
         inputs.pre-commit-hooks-nix.flakeModule
         inputs.hci-effects.flakeModule
 
         ./specifications
         ./website
+        ./implementations/plutarch
+        ./types
+        ./vendor/lambda-buffers
       ] ++ (builtins.attrValues flakeModules);
 
       # `nix flake show --impure` hack
@@ -46,9 +54,16 @@
       perSystem =
         { config
         , pkgs
+        , self'
         , lib
+        , system
         , ...
         }: {
+          _module.args.pkgs = import self.inputs.nixpkgs {
+            inherit system;
+            config.allowBroken = true;
+          };
+
           pre-commit.settings = {
             hooks = {
               chktex.enable = true;
@@ -69,16 +84,26 @@
                 ];
               deadnix.edit = true;
             };
-          };
 
-          devShells.default = pkgs.mkShell {
-            shellHook = config.pre-commit.installationScript;
-            nativeBuildInputs = [
-              pkgs.fd
-              pkgs.texlive.combined.scheme-full
-              pkgs.mdbook
+            excludes = [
+              ".materialized"
             ];
           };
+
+          devShells = {
+            combined =
+              self'.devShells.plutarch-implementation.overrideAttrs
+                (_finalAttrs: previousAttrs: {
+                  shellHook = config.pre-commit.installationScript;
+                  nativeBuildInputs = [
+                    pkgs.fd
+                    pkgs.texlive.combined.scheme-full
+                    pkgs.mdbook
+                    self'.packages.lbf-plutus-to-plutarch
+                  ] ++ previousAttrs.nativeBuildInputs;
+                });
+            default = self'.devShells.combined;
+          };
         };
-    };
+    });
 }
