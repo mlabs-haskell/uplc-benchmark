@@ -11,7 +11,7 @@
       packages = {
         uplc-benchmark-types-plutarch-lib = uplc-benchmark-types-plutarch.raw;
         uplc-benchmark-types-plutarch-compiled =
-          uplc-benchmark-types-plutarch.compiled.packages."uplc-benchmark-plutarch-types-lib:lib:uplc-benchmark-plutarch-types-lib";
+          uplc-benchmark-types-plutarch.compiled.packages."uplc-benchmark-types-plutarch-lib:lib:uplc-benchmark-types-plutarch-lib";
       };
     };
 }
