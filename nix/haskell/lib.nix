@@ -31,7 +31,7 @@ let
 
   flatExternalDependencies =
     lib.lists.concatMap
-      (dep: [ dep ] ++
+      (dep: [ (dep.passthru or { }).src or dep ] ++
         (flatExternalDependencies (dep.passthru or { }).externalDependencies or [ ]));
   flattenedExternalDependencies = flatExternalDependencies externalDependencies;
 
@@ -44,6 +44,7 @@ let
         customHackages = mkHackage {
           compiler-nix-name = ghcVersion;
           srcs = map toString flattenedExternalDependencies;
+          inherit name;
         };
       in
       {
@@ -70,4 +71,8 @@ let
   } // extraDependencies);
   projectFlake = project.flake { };
 in
-projectFlake
+projectFlake // {
+  passthru = {
+    inherit src externalDependencies;
+  };
+}

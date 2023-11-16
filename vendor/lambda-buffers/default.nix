@@ -236,9 +236,9 @@
           { name
           , src
           , files
-          }:
-          let
-            raw = mkLbHaskellPackage {
+          }: config.libHaskell.mkPackage (config.libPlutarch.mkPackage {
+            inherit name;
+            src = mkLbHaskellPackage {
               name = "${name}-lib";
               inherit src files;
               # FIXME: Handle `/`s
@@ -254,25 +254,14 @@
               ];
               lbfGen = lbf-plutus-to-plutarch;
             };
-
+            ghcVersion = "ghc928";
             externalDependencies = [
               lbr-plutarch
               lbr-prelude
               lbf-prelude-plutarch
               lbf-plutus-plutarch
             ];
-
-            compiled = config.libHaskell.mkPackage (config.libPlutarch.mkPackage {
-              inherit name;
-              src = raw;
-              ghcVersion = "ghc928";
-              inherit externalDependencies;
-            });
-          in
-          {
-            raw = raw // { passthru = { inherit externalDependencies; }; };
-            inherit compiled;
-          };
+          });
 
       in
       {

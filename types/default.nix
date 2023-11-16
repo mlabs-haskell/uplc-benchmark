@@ -9,9 +9,8 @@
     in
     {
       packages = {
-        uplc-benchmark-types-plutarch-lib = uplc-benchmark-types-plutarch.raw;
-        uplc-benchmark-types-plutarch-compiled =
-          uplc-benchmark-types-plutarch.compiled.packages."uplc-benchmark-types-plutarch-lib:lib:uplc-benchmark-types-plutarch-lib";
+        uplc-benchmark-types-plutarch =
+          uplc-benchmark-types-plutarch.packages."uplc-benchmark-types-plutarch-lib:lib:uplc-benchmark-types-plutarch-lib" // { inherit (uplc-benchmark-types-plutarch) passthru; };
       };
     };
 }

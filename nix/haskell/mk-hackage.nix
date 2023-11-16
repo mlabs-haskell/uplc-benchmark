@@ -1,7 +1,6 @@
 { haskell-nix
 , gzip
 , runCommand
-, runCommandNoCC
 , lib
 }:
 let
@@ -61,22 +60,22 @@ let
       cp ${src}/*.cabal $out/"${pname}"/"${version}"/
     '';
 
-  mkHackageTarballFromDirs = hackageDirs:
-    runCommand "01-index.tar.gz" { } ''
+  mkHackageTarballFromDirs = name: hackageDirs:
+    runCommand "01-${name}-hackage-index.tar.gz" { } ''
       mkdir hackage
       ${builtins.concatStringsSep "" (map (dir: ''
         echo ${dir}
-        ln -s ${dir}/* hackage/
+        ln -sf ${dir}/* hackage/
       '') hackageDirs)}
       cd hackage
       tar --sort=name --owner=root:0 --group=root:0 --mtime='UTC 2009-01-01' -hczvf $out */*/*
     '';
 
-  mkHackageTarball = pkg-specs:
-    mkHackageTarballFromDirs (map mkHackageDir pkg-specs);
+  mkHackageTarball = name: pkg-specs:
+    mkHackageTarballFromDirs name (map mkHackageDir pkg-specs);
 
-  mkHackageNix = compiler-nix-name: hackageTarball:
-    runCommand "hackage-nix" { } ''
+  mkHackageNix = name: compiler-nix-name: hackageTarball:
+    runCommand "${name}-hackage-nix" { } ''
       set -e
       export LC_CTYPE=C.UTF-8
       export LC_ALL=C.UTF-8
@@ -101,33 +100,25 @@ let
       extraHackagePackages);
   };
 
-  mkHackageFromSpec = compiler-nix-name: extraHackagePackages: rec {
-    extra-hackage-tarball = mkHackageTarball extraHackagePackages;
-    extra-hackage = mkHackageNix compiler-nix-name extra-hackage-tarball;
+  mkHackageFromSpec = name: compiler-nix-name: extraHackagePackages: rec {
+    extra-hackage-tarball = mkHackageTarball name extraHackagePackages;
+    extra-hackage = mkHackageNix name compiler-nix-name extra-hackage-tarball;
     module = mkModule extraHackagePackages;
   };
 
 in
 { compiler-nix-name # : string
 , srcs # : [string]
+, name # : string
 }:
 let
-  hackages = [ (mkHackageFromSpec compiler-nix-name (map mkPackageSpec srcs)) ];
-  ifd-parallel =
-    runCommandNoCC "ifd-parallel"
-      { myInputs = builtins.foldl' (b: a: b ++ [ a.extra-hackage a.extra-hackage-tarball ]) [ ] hackages; }
-      "echo $myInputs > $out";
-  ifdseq = x: builtins.seq (builtins.readFile ifd-parallel.outPath) x;
+  hackage = (mkHackageFromSpec name compiler-nix-name (map mkPackageSpec srcs));
 in
 {
-  modules = ifdseq (builtins.map (x: x.module) hackages);
-  extra-hackage-tarballs = ifdseq (
-    lib.listToAttrs (lib.imap0
-      (i: x: {
-        name = "_" + builtins.toString i;
-        value = x.extra-hackage-tarball;
-      })
-      hackages));
-  extra-hackages = ifdseq (builtins.map (x: import x.extra-hackage) hackages);
+  modules = [ hackage.module ];
+  extra-hackage-tarballs = {
+    "_${name}_0" = hackage.extra-hackage-tarball;
+  };
+  extra-hackages = [ (import hackage.extra-hackage) ];
 }
 
