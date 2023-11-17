@@ -11,7 +11,7 @@
 
     config =
       let
-        inherit (config) libHaskell libPlutarch;
+        inherit (config) libHaskell libPlutarch libUtils;
 
         proto-lens-protoc = (libHaskell.mkPackage {
           name = "proto-lens-protoc";
@@ -26,6 +26,7 @@
 
         haskellProto = pkgs.callPackage ./haskell-proto.nix {
           inherit proto-lens-protoc;
+          inherit (libUtils) mkCli;
         };
 
         lambda-buffers-src = "${inputs.lambda-buffers}";
@@ -100,26 +101,28 @@
 
         codegenConfigs = "${lambda-buffers-src}/lambda-buffers-codegen/data";
 
-        mkLbfCall = { gen, scriptName ? "lbf-generic-call", imports ? [ ], classes ? [ ], configs ? [ ] }:
+        mkLbfCall =
+          { gen
+          , scriptName ? "lbf-generic-call"
+          , imports ? [ ]
+          , classes ? [ ]
+          , configs ? [ ]
+          }:
           let
-            # TODO: libUtils.mkCli
-            mkFlag = flag: value: "--${flag}=${value}";
-            mkFlags = flag: values: builtins.concatStringsSep " " (map (value: "--${flag}=${value}") values);
-            flags = builtins.concatStringsSep " " [
-              (mkFlag "gen" gen)
-              (mkFlags "import-path" imports)
-              (mkFlags "gen-class" classes)
-              (mkFlags "gen-opt=--config" configs)
-              "--work-dir=.work"
-              "--gen-dir=autogen"
-              "\"$@\""
-            ];
+            flags = libUtils.mkCli {
+              "gen" = gen;
+              "import-path" = imports;
+              "gen-class" = classes;
+              "gen-opt=--config" = configs;
+              "work-dir" = ".work";
+              "gen-dir" = "autogen";
+            };
           in
           pkgs.writeShellScriptBin scriptName ''
             export LB_COMPILER=${executables.compiler}/bin/lbc
             mkdir autogen
             mkdir .work
-            ${executables.frontend}/bin/lbf build ${flags}
+            ${executables.frontend}/bin/lbf build ${flags} "$@"
           '';
 
         lbf-plutus-to-plutarch = mkLbfCall {

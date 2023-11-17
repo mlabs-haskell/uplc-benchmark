@@ -6,11 +6,12 @@
 , lib
 , protobuf
 , proto-lens-protoc
+, mkCli
 }:
 
 { src
 , proto
-  # TODO: name / pname + version 
+  # TODO: name / pname + version
 , cabalPackageName
 , cabalPackageVersion ? "0.1.0.0"
 , cabalBuildInputs ? [ ]
@@ -50,9 +51,11 @@ stdenv.mkDerivation {
   ];
   buildPhase = ''
     mkdir src
-    protoc --plugin=protoc-gen-haskell=${proto-lens-protoc}/bin/proto-lens-protoc \
-           --proto_path=${src} \
-           --haskell_out=src ${src}/${proto}
+    protoc ${mkCli {
+      "plugin=protoc-gen-haskell" = "${proto-lens-protoc}/bin/proto-lens-protoc";
+      "proto_path" = "${src}";
+      "haskell_out" = "src";
+    }} ${src}/${proto}
 
     EXPOSED_MODULES=$(find src -name "*.hs" | while read f; do grep -Eo 'module\s+\S+\s+' $f | head -n 1 | sed -r 's/module\s+//' | sed -r 's/\s+//'; done | tr '\n' ' ')
     echo "Found generated modules $EXPOSED_MODULES"

@@ -28,10 +28,11 @@
   outputs = inputs:
     let
       flakeModules = {
+        haskell = ./nix/haskell;
         latex = ./nix/latex;
         mdbook = ./nix/mdbook;
-        haskell = ./nix/haskell;
         plutarch = ./nix/plutarch;
+        utils = ./nix/utils;
       };
     in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } ({ self, ... }: {
@@ -39,11 +40,11 @@
         inputs.pre-commit-hooks-nix.flakeModule
         inputs.hci-effects.flakeModule
 
-        ./specifications
-        ./website
         ./implementations/plutarch
+        ./specifications
         ./types
         ./vendor/lambda-buffers
+        ./website
       ] ++ (builtins.attrValues flakeModules);
 
       # `nix flake show --impure` hack
@@ -60,7 +61,6 @@
         { config
         , pkgs
         , self'
-        , lib
         , system
         , ...
         }: {
@@ -79,14 +79,13 @@
             };
 
             settings = {
-              latexindent.flags = lib.concatStringsSep " "
-                [
-                  "--yaml=\"defaultIndent:'  ', onlyOneBackUp: 1\""
-                  "--local"
-                  "--silent"
-                  "--overwriteIfDifferent"
-                  "--logfile=/dev/null"
-                ];
+              latexindent.flags = config.libUtils.mkCli {
+                yaml = "\"defaultIndent:'  ', onlyOneBackUp: 1\"";
+                local = true;
+                silent = true;
+                overwriteIfDifferent = true;
+                logfile = "/dev/null";
+              };
               deadnix.edit = true;
             };
 
