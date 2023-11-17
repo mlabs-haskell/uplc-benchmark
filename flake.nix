@@ -32,6 +32,7 @@
         latex = ./nix/latex;
         mdbook = ./nix/mdbook;
         plutarch = ./nix/plutarch;
+        lambdaBuffers = ./nix/lambda-buffers;
         utils = ./nix/utils;
       };
     in
@@ -43,7 +44,6 @@
         ./implementations/plutarch
         ./specifications
         ./types
-        ./vendor/lambda-buffers
         ./website
       ] ++ (builtins.attrValues flakeModules);
 
