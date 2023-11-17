@@ -91,18 +91,20 @@
           };
 
           devShells = {
-            combined =
-              self'.devShells.plutarch-implementation.overrideAttrs
-                (_finalAttrs: previousAttrs: {
-                  shellHook = config.pre-commit.installationScript;
-                  nativeBuildInputs = [
-                    pkgs.fd
-                    pkgs.texlive.combined.scheme-full
-                    pkgs.mdbook
-                    self'.packages.lbf-plutus-to-plutarch
-                  ] ++ previousAttrs.nativeBuildInputs;
-                });
-            default = self'.devShells.combined;
+            default = pkgs.mkShell {
+              shellHook = config.pre-commit.installationScript;
+
+              nativeBuildInputs = [
+                pkgs.fd
+                pkgs.texlive.combined.scheme-full
+                pkgs.mdbook
+                self'.packages.lbf-plutus-to-plutarch
+              ];
+
+              inputsFrom = [
+                self'.devShells.plutarch-implementation
+              ];
+            };
           };
         };
     });

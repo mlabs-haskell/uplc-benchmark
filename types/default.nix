@@ -4,7 +4,10 @@
       uplc-benchmark-types-plutarch = config.libLb.mkPlutarchPackage {
         name = "uplc-benchmark-types-plutarch";
         src = ./.;
-        files = [ "NftMarketplace.lbf" ];
+        files = [
+          "NftMarketplace.lbf"
+          "Dex.lbf"
+        ];
       };
     in
     {

@@ -115,7 +115,7 @@
           src = "${lambda-buffers-src}/lambda-buffers-codegen/data";
         };
 
-        mkLbfCall = { gen, imports ? [ ], classes ? [ ], configs ? [ ] }:
+        mkLbfCall = { gen, scriptName ? "lbf-call", imports ? [ ], classes ? [ ], configs ? [ ] }:
           let
             genFlag = "--gen=${gen}";
             importPathFlags = builtins.concatStringsSep " " (map (f: "--import-path=${f}") imports);
@@ -123,7 +123,7 @@
             configFlags = builtins.concatStringsSep " " (map (f: "--gen-opt=--config=${f}") configs);
             flags = builtins.concatStringsSep " " [ genFlag importPathFlags classesFlags configFlags ];
           in
-          pkgs.writeShellScriptBin "lbf-call" ''
+          pkgs.writeShellScriptBin scriptName ''
             export LB_COMPILER=${executables.compiler}/bin/lbc
             mkdir autogen
             mkdir .work
@@ -131,6 +131,7 @@
           '';
 
         lbf-plutus-to-plutarch = mkLbfCall {
+          scriptName = "lbf-plutus-to-plutarch";
           gen = "${lbg-plutarch}/bin/lbg-plutarch";
 
           imports = [
@@ -151,6 +152,7 @@
         };
 
         lbf-plutus-to-haskell = mkLbfCall {
+          scriptName = "lbf-plutus-to-haskell";
           gen = "${lbg-haskell}/bin/lbg-haskell";
 
           imports = [
