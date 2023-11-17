@@ -1,30 +1,19 @@
-{ stdenv
-, fetchFromGitHub
+{ fetchFromGitHub
+, applyPatches
 }:
 
 let
-  defaultPlutarchPackage = stdenv.mkDerivation (finalArgs: {
-    pname = "plutarch-src";
-    version = "380df4c8101dd6e0dadc620c1f523f5ae2edbc27"; # branch: master
+  defaultPlutarchPackage = applyPatches {
+    name = "plutarch-src";
     src = fetchFromGitHub {
       owner = "Plutonomicon";
       repo = "plutarch-plutus";
-      rev = finalArgs.version;
+      rev = "380df4c8101dd6e0dadc620c1f523f5ae2edbc27"; # branch: master
       sha256 = "sha256-jPVA4H3ut8umpzVYWxWjzQZQ6q1l8ikAbW3cZZe29VA=";
     };
 
     patches = [ ./fix-plutarch.patch ];
-
-    dontConfigure = true;
-    dontBuild = true;
-
-    installPhase = ''
-      mkdir -p "$out"
-      cp -r * "$out"
-    '';
-
-    dontFixup = true;
-  });
+  };
 
   defaultCardanoPackages = fetchFromGitHub {
     owner = "input-output-hk";

@@ -21,6 +21,6 @@ executable plutarch-implementation
       , plutus-core < 1.4
       , plutus-ledger-api
       , text
-      , uplc-benchmark-types-plutarch-lib
+      , uplc-benchmark-types-plutarch-lb
     hs-source-dirs:   app
     default-language: GHC2021

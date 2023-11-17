@@ -18,15 +18,22 @@
     };
     haskell-nix = {
       url = "github:input-output-hk/haskell.nix";
+      # TODO: Reduce inputs
+    };
+    lambda-buffers = {
+      url = "github:mlabs-haskell/lambda-buffers";
+      flake = false;
     };
   };
   outputs = inputs:
     let
       flakeModules = {
+        haskell = ./nix/haskell;
         latex = ./nix/latex;
         mdbook = ./nix/mdbook;
-        haskell = ./nix/haskell;
         plutarch = ./nix/plutarch;
+        lambdaBuffers = ./nix/lambda-buffers;
+        utils = ./nix/utils;
       };
     in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } ({ self, ... }: {
@@ -34,11 +41,10 @@
         inputs.pre-commit-hooks-nix.flakeModule
         inputs.hci-effects.flakeModule
 
-        ./specifications
-        ./website
         ./implementations/plutarch
+        ./specifications
         ./types
-        ./vendor/lambda-buffers
+        ./website
       ] ++ (builtins.attrValues flakeModules);
 
       # `nix flake show --impure` hack
@@ -55,7 +61,6 @@
         { config
         , pkgs
         , self'
-        , lib
         , system
         , ...
         }: {
@@ -74,14 +79,13 @@
             };
 
             settings = {
-              latexindent.flags = lib.concatStringsSep " "
-                [
-                  "--yaml=\"defaultIndent:'  ', onlyOneBackUp: 1\""
-                  "--local"
-                  "--silent"
-                  "--overwriteIfDifferent"
-                  "--logfile=/dev/null"
-                ];
+              latexindent.flags = config.libUtils.mkCli {
+                yaml = "\"defaultIndent:'  ', onlyOneBackUp: 1\"";
+                local = true;
+                silent = true;
+                overwriteIfDifferent = true;
+                logfile = "/dev/null";
+              };
               deadnix.edit = true;
             };
 
@@ -91,18 +95,20 @@
           };
 
           devShells = {
-            combined =
-              self'.devShells.plutarch-implementation.overrideAttrs
-                (_finalAttrs: previousAttrs: {
-                  shellHook = config.pre-commit.installationScript;
-                  nativeBuildInputs = [
-                    pkgs.fd
-                    pkgs.texlive.combined.scheme-full
-                    pkgs.mdbook
-                    self'.packages.lbf-plutus-to-plutarch
-                  ] ++ previousAttrs.nativeBuildInputs;
-                });
-            default = self'.devShells.combined;
+            default = pkgs.mkShell {
+              shellHook = config.pre-commit.installationScript;
+
+              nativeBuildInputs = [
+                pkgs.fd
+                pkgs.texlive.combined.scheme-full
+                pkgs.mdbook
+                self'.packages.lbf-plutus-to-plutarch
+              ];
+
+              inputsFrom = [
+                self'.devShells.plutarch-implementation
+              ];
+            };
           };
         };
     });

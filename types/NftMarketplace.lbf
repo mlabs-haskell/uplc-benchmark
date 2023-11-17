@@ -3,10 +3,17 @@ module NftMarketplace
 import Prelude
 import Plutus.V1 (PlutusData, Value, Address, PubKeyHash)
 
+sum NftMarketplaceRedeemer
+    = Buy
+    | Cancel
+
+derive Eq NftMarketplaceRedeemer
+derive PlutusData NftMarketplaceRedeemer
+
 record NftMarketplaceDatum = {
   price : Value,
   seller : Address,
-  cancelKey: PubKeyHash
+  cancelKey : PubKeyHash
 }
 
 derive Eq NftMarketplaceDatum
