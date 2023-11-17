@@ -1,5 +1,5 @@
 # Adapted from lambda-buffers repo in a way to reuse the same GHC for everything
-{ lib, ... }:
+{ inputs, lib, ... }:
 {
   perSystem = { pkgs, config, ... }: {
     options = {
@@ -11,13 +11,9 @@
 
     config =
       let
-        linkToOut = { name, src }: pkgs.stdenv.mkDerivation {
-          inherit name src;
-          phases = "installPhase";
-          installPhase = "cp -r $src $out";
-        };
+        inherit (config) libHaskell libPlutarch;
 
-        proto-lens-protoc = (config.libHaskell.mkPackage {
+        proto-lens-protoc = (libHaskell.mkPackage {
           name = "proto-lens-protoc";
           src = (pkgs.fetchFromGitHub {
             owner = "google";
@@ -32,12 +28,7 @@
           inherit proto-lens-protoc;
         };
 
-        lambda-buffers-src = pkgs.fetchFromGitHub {
-          owner = "mlabs-haskell";
-          repo = "lambda-buffers";
-          rev = "c7330e1826c74414d3870a2e511b53da03e8f854";
-          hash = "sha256-jWdPvPpMj9ghM+TyF9NuySQEIf8s7UoEfeaBYwk2quk=";
-        };
+        lambda-buffers-src = "${inputs.lambda-buffers}";
 
         mkProtoLib = { name, cabalBuildInputs ? [ ] }: haskellProto {
           src = "${lambda-buffers-src}/api";
@@ -63,14 +54,14 @@
         };
 
         haskellPackages = {
-          compiler = config.libHaskell.mkPackage {
+          compiler = libHaskell.mkPackage {
             name = "lambda-buffers-compiler";
             src = "${lambda-buffers-src}/lambda-buffers-compiler";
             ghcVersion = "ghc928";
             externalDependencies = builtins.attrValues protoLibs;
           };
 
-          frontend = config.libHaskell.mkPackage {
+          frontend = libHaskell.mkPackage {
             name = "lambda-buffers-frontend";
             src = "${lambda-buffers-src}/lambda-buffers-frontend";
             ghcVersion = "ghc928";
@@ -79,7 +70,7 @@
             ];
           };
 
-          codegen = config.libHaskell.mkPackage {
+          codegen = libHaskell.mkPackage {
             name = "lambda-buffers-codegen";
             src = "${lambda-buffers-src}/lambda-buffers-codegen";
             ghcVersion = "ghc928";
@@ -95,10 +86,7 @@
           codegen = haskellPackages.codegen.packages."lambda-buffers-codegen:exe:lbg";
         };
 
-        mkSimpleLambdaBuffersLibrary = name: linkToOut {
-          name = "lbf-${name}";
-          src = "${lambda-buffers-src}/libs/lbf-${name}";
-        };
+        mkSimpleLambdaBuffersLibrary = name: "${lambda-buffers-src}/libs/lbf-${name}";
 
         lbf-prelude = mkSimpleLambdaBuffersLibrary "prelude";
         lbf-plutus = mkSimpleLambdaBuffersLibrary "plutus";
@@ -110,24 +98,28 @@
         lbg-haskell = mkSimpleGen "haskell";
         lbg-plutarch = mkSimpleGen "plutarch";
 
-        codegenConfigs = linkToOut {
-          name = "codegen-configs";
-          src = "${lambda-buffers-src}/lambda-buffers-codegen/data";
-        };
+        codegenConfigs = "${lambda-buffers-src}/lambda-buffers-codegen/data";
 
-        mkLbfCall = { gen, scriptName ? "lbf-call", imports ? [ ], classes ? [ ], configs ? [ ] }:
+        mkLbfCall = { gen, scriptName ? "lbf-generic-call", imports ? [ ], classes ? [ ], configs ? [ ] }:
           let
-            genFlag = "--gen=${gen}";
-            importPathFlags = builtins.concatStringsSep " " (map (f: "--import-path=${f}") imports);
-            classesFlags = builtins.concatStringsSep " " (map (f: "--gen-class='${f}'") classes);
-            configFlags = builtins.concatStringsSep " " (map (f: "--gen-opt=--config=${f}") configs);
-            flags = builtins.concatStringsSep " " [ genFlag importPathFlags classesFlags configFlags ];
+            # TODO: libUtils.mkCli
+            mkFlag = flag: value: "--${flag}=${value}";
+            mkFlags = flag: values: builtins.concatStringsSep " " (map (value: "--${flag}=${value}") values);
+            flags = builtins.concatStringsSep " " [
+              (mkFlag "gen" gen)
+              (mkFlags "import-path" imports)
+              (mkFlags "gen-class" classes)
+              (mkFlags "gen-opt=--config" configs)
+              "--work-dir=.work"
+              "--gen-dir=autogen"
+              "\"$@\""
+            ];
           in
           pkgs.writeShellScriptBin scriptName ''
             export LB_COMPILER=${executables.compiler}/bin/lbc
             mkdir autogen
             mkdir .work
-            ${executables.frontend}/bin/lbf build ${flags} --work-dir=.work --gen-dir=autogen "$@"
+            ${executables.frontend}/bin/lbf build ${flags}
           '';
 
         lbf-plutus-to-plutarch = mkLbfCall {
@@ -176,7 +168,7 @@
 
         lbf-prelude-plutarch = mkLbHaskellPackage {
           name = "lbf-prelude-plutarch";
-          src = lbf-prelude.outPath;
+          src = "${lbf-prelude}";
           files = [ "Prelude.lbf" ];
           cabalBuildDepends = [ "base" "lbr-plutarch" "plutarch" ];
 
@@ -190,7 +182,7 @@
 
         lbf-prelude-haskell = mkLbHaskellPackage {
           name = "lbf-prelude-haskell";
-          src = lbf-prelude.outPath;
+          src = "${lbf-prelude}";
           files = [ "Prelude.lbf" ];
           cabalBuildDepends = [ "base" "text" "lbr-prelude" ];
 
@@ -218,24 +210,17 @@
           };
         };
 
-        lbr-plutarch = linkToOut {
-          name = "lbr-plutarch";
-          src = "${lambda-buffers-src}/runtimes/haskell/lbr-plutarch";
-        };
-
-        lbr-prelude = linkToOut {
-          name = "lbr-plutarch";
-          src = "${lambda-buffers-src}/runtimes/haskell/lbr-prelude";
-        };
+        lbr-plutarch = "${lambda-buffers-src}/runtimes/haskell/lbr-plutarch";
+        lbr-prelude = "${lambda-buffers-src}/runtimes/haskell/lbr-prelude";
 
         mkPlutarchPackage =
           { name
           , src
-          , files
-          }: config.libHaskell.mkPackage (config.libPlutarch.mkPackage {
+          , files ? null
+          }: libHaskell.mkPackage (libPlutarch.mkPackage {
             inherit name;
             src = mkLbHaskellPackage {
-              name = "${name}-lib";
+              name = "${name}-lb";
               inherit src files;
               cabalBuildDepends = [
                 "base"
@@ -261,7 +246,6 @@
         packages = {
           inherit lbf-prelude-plutarch lbf-prelude-haskell lbf-plutus-plutarch;
           inherit lbf-plutus-to-plutarch lbf-plutus-to-haskell;
-          inherit lbr-plutarch lbr-prelude;
         };
 
         libLb = {

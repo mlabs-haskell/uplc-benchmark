@@ -13,8 +13,6 @@
     in
     {
       devShells.plutarch-implementation = plutarch-implementation.devShell;
-      packages.plutarch-implementation =
-        plutarch-implementation.packages."plutarch-implementation:exe:plutarch-implementation"
-        // { inherit (plutarch-implementation) passthru; };
+      packages.plutarch-implementation = plutarch-implementation.packages."plutarch-implementation:exe:plutarch-implementation";
     };
 }

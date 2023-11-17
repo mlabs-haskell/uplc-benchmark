@@ -4,7 +4,7 @@
 
 { name
 , src
-, files
+, files ? null
 , cabalBuildDepends ? [ ]
 , lbfGen
 }:
@@ -35,7 +35,11 @@ let
 
     buildPhase = ''
       cp -r $src/* .
-      ${lbfGen}/bin/${lbfGen.meta.mainProgram} ${builtins.concatStringsSep " " files}
+      ${lbfGen}/bin/${lbfGen.meta.mainProgram} ${
+        if files == null
+        then "$(find . -type f -name '*.lbf' -printf '%p ')"
+        else builtins.concatStringsSep " " files
+      }
     '';
 
     installPhase = ''

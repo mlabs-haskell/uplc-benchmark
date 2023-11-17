@@ -18,7 +18,7 @@ let
       cabalFile = builtins.readFile cabalPath;
       parse = field:
         let
-          lines = filter (s: if builtins.match "^${field} *:.*$" (toLower s) != null then true else false) (splitString "\n" cabalFile);
+          lines = filter (s: builtins.match "^${field} *:.*$" (toLower s) != null) (splitString "\n" cabalFile);
           line =
             if lines != [ ]
             then head lines
@@ -61,7 +61,7 @@ let
     '';
 
   mkHackageTarballFromDirs = name: hackageDirs:
-    runCommand "01-${name}-hackage-index.tar.gz" { } ''
+    runCommand "${name}-hackage-index.tar.gz" { } ''
       mkdir hackage
       ${builtins.concatStringsSep "" (map (dir: ''
         echo ${dir}
@@ -85,17 +85,13 @@ let
       ${haskell-nix.nix-tools.${compiler-nix-name}}/bin/hackage-to-nix $out 01-index.tar "https://mkHackageNix/"
     '';
 
-  copySrc = src: builtins.path {
-    path = src;
-    name = "copied-src-${builtins.baseNameOf (builtins.unsafeDiscardStringContext src)}";
-  };
-
   mkModule = extraHackagePackages: {
-    # Prevent nix-build from trying to download the packages
     packages = lib.listToAttrs (map
       (spec: {
         name = spec.pname;
-        value = { src = lib.mkOverride 99 (copySrc spec.src); };
+        value = {
+          inherit (spec) src;
+        };
       })
       extraHackagePackages);
   };
@@ -117,8 +113,7 @@ in
 {
   modules = [ hackage.module ];
   extra-hackage-tarballs = {
-    "_${name}_0" = hackage.extra-hackage-tarball;
+    "${name}-hackage-tarball" = hackage.extra-hackage-tarball;
   };
   extra-hackages = [ (import hackage.extra-hackage) ];
 }
-

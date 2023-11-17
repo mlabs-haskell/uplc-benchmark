@@ -70,9 +70,16 @@ let
     };
   } // extraDependencies);
   projectFlake = project.flake { };
+
+  augmentedPackages = builtins.mapAttrs
+    (_: package:
+      package // {
+        passthru = (package.passthru or { }) // {
+          inherit src externalDependencies;
+        };
+      })
+    (projectFlake.packages or { });
 in
 projectFlake // {
-  passthru = {
-    inherit src externalDependencies;
-  };
+  packages = augmentedPackages;
 }

@@ -3,6 +3,7 @@
 }:
 
 let
+  # TODO: libUtils.applyPatches
   defaultPlutarchPackage = stdenv.mkDerivation (finalArgs: {
     pname = "plutarch-src";
     version = "380df4c8101dd6e0dadc620c1f523f5ae2edbc27"; # branch: master

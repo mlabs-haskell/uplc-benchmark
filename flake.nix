@@ -18,6 +18,11 @@
     };
     haskell-nix = {
       url = "github:input-output-hk/haskell.nix";
+      # TODO: Reduce inputs
+    };
+    lambda-buffers = {
+      url = "github:mlabs-haskell/lambda-buffers";
+      flake = false;
     };
   };
   outputs = inputs:

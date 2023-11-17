@@ -457,6 +457,22 @@
         "url": "https://gitlab.haskell.org/hamishmack/iserv-proxy.git"
       }
     },
+    "lambda-buffers": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1700237446,
+        "narHash": "sha256-2ab8bGtjzaUCY5RscBuvoEQCP9zpzhvdZ3elxrHpr5E=",
+        "owner": "mlabs-haskell",
+        "repo": "lambda-buffers",
+        "rev": "9d247acc84dc306723d3216f8f89daa13fe56b11",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mlabs-haskell",
+        "repo": "lambda-buffers",
+        "type": "github"
+      }
+    },
     "lowdown-src": {
       "flake": false,
       "locked": {
@@ -701,6 +717,7 @@
         "flake-parts": "flake-parts",
         "haskell-nix": "haskell-nix",
         "hci-effects": "hci-effects",
+        "lambda-buffers": "lambda-buffers",
         "nixpkgs": "nixpkgs_2",
         "pre-commit-hooks-nix": "pre-commit-hooks-nix"
       }
