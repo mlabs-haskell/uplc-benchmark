@@ -12,6 +12,9 @@ let
     overlays = [
       iohkNixCryptoOverlay
       haskellNixOverlay
+      (final: _prev: {
+        rocm-thunk = final.rocmPackages.rocm-thunk;
+      })
     ];
   };
 in

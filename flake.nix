@@ -18,11 +18,24 @@
     };
     haskell-nix = {
       url = "github:input-output-hk/haskell.nix";
-      # TODO: Reduce inputs
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        nixpkgs-2003.follows = "nixpkgs";
+        nixpkgs-2105.follows = "nixpkgs";
+        nixpkgs-2111.follows = "nixpkgs";
+        nixpkgs-2205.follows = "nixpkgs";
+        nixpkgs-2211.follows = "nixpkgs";
+        nixpkgs-2305.follows = "nixpkgs";
+        nixpkgs-unstable.follows = "nixpkgs";
+        hydra.follows = "empty-flake";
+      };
     };
     lambda-buffers = {
       url = "github:mlabs-haskell/lambda-buffers";
       flake = false;
+    };
+    empty-flake = {
+      url = "github:mlabs-haskell/empty-flake";
     };
   };
   outputs = inputs:
