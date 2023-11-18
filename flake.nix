@@ -55,6 +55,18 @@
 
       herculesCI.ciSystems = [ "x86_64-linux" ];
 
+      hercules-ci.flake-update = {
+        enable = true;
+        updateBranch = "hci/update-flake-lock";
+        createPullRequest = true;
+        autoMergeMethod = null;
+        when = {
+          minute = 45;
+          hour = 12;
+          dayOfWeek = "Sun";
+        };
+      };
+
       flake.flakeModules = flakeModules;
 
       perSystem =
