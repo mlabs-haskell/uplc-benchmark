@@ -112,13 +112,21 @@ in
 { srcs # : [string]
 , name # : string
 }:
-let
-  hackage = mkHackageFromSpec name (map mkPackageSpec srcs);
-in
-{
-  modules = [ hackage.module ];
-  extra-hackage-tarballs = {
-    "${name}-hackage-tarball" = hackage.extra-hackage-tarball;
-  };
-  extra-hackages = [ (import hackage.extra-hackage) ];
+
+if builtins.length srcs == 0
+then {
+  modules = [ ];
+  extra-hackage-tarballs = { };
+  extra-hackages = [ ];
 }
+else
+  let
+    hackage = mkHackageFromSpec name (map mkPackageSpec srcs);
+  in
+  {
+    modules = [ hackage.module ];
+    extra-hackage-tarballs = {
+      "${name}-hackage-tarball" = hackage.extra-hackage-tarball;
+    };
+    extra-hackages = [ (import hackage.extra-hackage) ];
+  }

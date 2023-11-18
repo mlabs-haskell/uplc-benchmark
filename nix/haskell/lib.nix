@@ -40,30 +40,23 @@ let
     lib.lists.concatMap
       (dep: [ (dep.passthru or { }).src or dep ] ++
         (flatExternalDependencies (dep.passthru or { }).externalDependencies or [ ]));
+
   flattenedExternalDependencies = flatExternalDependencies externalDependencies;
 
-  # FIXME: make mkHackage work with empty input as well
-  extraDependencies =
-    if builtins.length flattenedExternalDependencies == 0
-    then { modules = fixedHaskellModules; }
-    else
-      let
-        customHackages = mkHackage {
-          srcs = map toString flattenedExternalDependencies;
-          inherit name;
-        };
-      in
-      {
-        modules = customHackages.modules ++ fixedHaskellModules;
-        inherit (customHackages) extra-hackages extra-hackage-tarballs;
-      };
+  customHackages = mkHackage {
+    srcs = map toString flattenedExternalDependencies;
+    inherit name;
+  };
 
-  project = pkgs.haskell-nix.cabalProject' ({
+  project = pkgs.haskell-nix.cabalProject' {
     inherit src;
     name = name;
 
     compiler-nix-name = ghcVersion;
     inputMap = lib.mapAttrs (_: toString) externalRepositories;
+
+    modules = customHackages.modules ++ fixedHaskellModules;
+    inherit (customHackages) extra-hackages extra-hackage-tarballs;
 
     shell = {
       withHoogle = true;
@@ -74,7 +67,8 @@ let
         haskell-language-server = { };
       };
     };
-  } // extraDependencies);
+  };
+
   projectFlake = project.flake { };
 
   augmentedPackages = builtins.mapAttrs
