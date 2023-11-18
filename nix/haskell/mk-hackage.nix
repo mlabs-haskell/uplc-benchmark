@@ -1,7 +1,7 @@
-{ haskell-nix
-, gzip
+{ gzip
 , runCommand
 , lib
+, nix-tools
 }:
 let
   mkPackageSpec = src:
@@ -74,15 +74,21 @@ let
   mkHackageTarball = name: pkg-specs:
     mkHackageTarballFromDirs name (map mkHackageDir pkg-specs);
 
-  mkHackageNix = name: compiler-nix-name: hackageTarball:
-    runCommand "${name}-hackage-nix" { } ''
+  mkHackageNix = name: hackageTarball:
+    runCommand "${name}-hackage-nix"
+      {
+        nativeBuildInputs = [
+          gzip
+          nix-tools
+        ];
+      } ''
       set -e
       export LC_CTYPE=C.UTF-8
       export LC_ALL=C.UTF-8
       export LANG=C.UTF-8
       cp ${hackageTarball} 01-index.tar.gz
-      ${gzip}/bin/gunzip 01-index.tar.gz
-      ${haskell-nix.nix-tools.${compiler-nix-name}}/bin/hackage-to-nix $out 01-index.tar "https://mkHackageNix/"
+      gunzip 01-index.tar.gz
+      hackage-to-nix $out 01-index.tar "https://mkHackageNix/"
     '';
 
   mkModule = extraHackagePackages: {
@@ -96,24 +102,31 @@ let
       extraHackagePackages);
   };
 
-  mkHackageFromSpec = name: compiler-nix-name: extraHackagePackages: rec {
+  mkHackageFromSpec = name: extraHackagePackages: rec {
     extra-hackage-tarball = mkHackageTarball name extraHackagePackages;
-    extra-hackage = mkHackageNix name compiler-nix-name extra-hackage-tarball;
+    extra-hackage = mkHackageNix name extra-hackage-tarball;
     module = mkModule extraHackagePackages;
   };
 
 in
-{ compiler-nix-name # : string
-, srcs # : [string]
+{ srcs # : [string]
 , name # : string
 }:
-let
-  hackage = (mkHackageFromSpec name compiler-nix-name (map mkPackageSpec srcs));
-in
-{
-  modules = [ hackage.module ];
-  extra-hackage-tarballs = {
-    "${name}-hackage-tarball" = hackage.extra-hackage-tarball;
-  };
-  extra-hackages = [ (import hackage.extra-hackage) ];
+
+if builtins.length srcs == 0
+then {
+  modules = [ ];
+  extra-hackage-tarballs = { };
+  extra-hackages = [ ];
 }
+else
+  let
+    hackage = mkHackageFromSpec name (map mkPackageSpec srcs);
+  in
+  {
+    modules = [ hackage.module ];
+    extra-hackage-tarballs = {
+      "${name}-hackage-tarball" = hackage.extra-hackage-tarball;
+    };
+    extra-hackages = [ (import hackage.extra-hackage) ];
+  }

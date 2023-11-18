@@ -1,3 +1,6 @@
+# NOTE: It does not return a package, but a package specification to be built
+# by the Haskell module
+
 { fetchFromGitHub
 , applyPatches
 }:

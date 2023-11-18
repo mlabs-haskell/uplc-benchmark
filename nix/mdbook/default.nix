@@ -8,6 +8,8 @@ let
     types
     mkOption
     ;
+  configName = "mdBook";
+  libName = "libMdBook";
 in
 {
   options = {
@@ -17,52 +19,49 @@ in
          , pkgs
          , ...
          }: {
-          options.mdbook = lib.mkOption {
-            type = types.attrsOf (types.submodule ({ ... }: {
-              options = {
-                src = mkOption {
-                  type = types.path;
-                  description = ''
-                    The source directory of the mdbook source.
-                  '';
-                };
+          options = {
+            ${configName} = lib.mkOption {
+              type = types.attrsOf (types.submodule ({ ... }: {
+                options = {
+                  src = mkOption {
+                    type = types.path;
+                    description = ''
+                      The source directory of the mdbook source.
+                    '';
+                  };
 
-                preBuild = mkOption {
-                  type = types.str;
-                  default = "";
-                  description = ''
-                    A command to run before building the mdbook.
-                  '';
+                  preBuild = mkOption {
+                    type = types.str;
+                    default = "";
+                    description = ''
+                      A command to run before building the mdbook.
+                    '';
+                  };
                 };
+              }));
+
+              default = { };
+            };
+
+            ${libName} = mkOption {
+              type = types.anything;
+              default = { };
+            };
+          };
+          config =
+            let
+              mkMdBookPackage = pkgs.callPackage ./lib.nix { };
+            in
+            {
+              packages =
+                lib.mapAttrs
+                  (config.libUtils.withNameAttr mkMdBookPackage)
+                  config.${configName};
+
+              ${libName} = {
+                mkPackage = mkMdBookPackage;
               };
-            }));
-          };
-          config = {
-            packages =
-              let
-                mkMdbookPackage = name: args: pkgs.stdenv.mkDerivation {
-                  inherit name;
-                  inherit (args) src;
-
-                  nativeBuildInputs = [
-                    pkgs.mdbook
-                  ];
-
-                  buildPhase = ''
-                    runHook preBuild
-                    ${args.preBuild}
-                    mdbook build . --dest-dir $out
-                    runHook postBuild
-                  '';
-
-                  dontCheck = true;
-                  dontInstall = true;
-                  dontFixup = true;
-                };
-
-              in
-              lib.mapAttrs mkMdbookPackage config.mdbook;
-          };
+            };
         });
   };
 }
