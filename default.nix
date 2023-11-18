@@ -3,7 +3,7 @@
   perSystem = { self', config, ... }: {
     hercules-ci.github-pages.settings.contents = config.packages.website;
 
-    mdbook = {
+    mdBook = {
       website = {
         src = ./.;
         preBuild = ''
