@@ -1,7 +1,7 @@
 {
   perSystem = { config, ... }:
     let
-      uplc-benchmark-types-plutarch = config.libLb.mkPlutarchPackage {
+      uplc-benchmark-types-plutarch = config.libLb.mkLbPlutarchPackage {
         name = "uplc-benchmark-types-plutarch";
         src = ./.;
       };

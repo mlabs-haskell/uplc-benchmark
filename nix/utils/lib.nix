@@ -1,4 +1,6 @@
-{ stdenv, lib }:
+{ stdenv
+, lib
+}:
 
 let
   applyPatches = args @ { patches, ... }: stdenv.mkDerivation ({
@@ -29,7 +31,9 @@ let
           else mkFlag flag "${value}"
         )
         args);
+
+  withNameAttr = f: name: args: f (args // { inherit name; });
 in
 {
-  inherit applyPatches mkCli;
+  inherit applyPatches mkCli withNameAttr;
 }
