@@ -8,6 +8,7 @@ let
     types
     mkOption
     ;
+  configName = "latex";
 in
 {
   options = {
@@ -17,64 +18,43 @@ in
          , pkgs
          , ...
          }: {
-          options.latex = lib.mkOption {
-            type = types.attrsOf (types.submodule ({ name, ... }: {
-              options = {
-                src = mkOption {
-                  type = types.path;
-                  description = ''
-                    The source directory of the LaTeX document.
-                  '';
-                };
+          options = {
+            ${configName} = lib.mkOption {
+              type = types.attrsOf (types.submodule ({ name, ... }: {
+                options = {
+                  src = mkOption {
+                    type = types.path;
+                    description = ''
+                      The source directory of the LaTeX document.
+                    '';
+                  };
 
-                mainFile = mkOption {
-                  type = types.str;
-                  default = "${builtins.baseNameOf config.latex.${name}.src}.tex";
-                  description = ''
-                    The main LaTeX file to build.
-                  '';
+                  mainFile = mkOption {
+                    type = types.str;
+                    default = "${builtins.baseNameOf config.latex.${name}.src}.tex";
+                    description = ''
+                      The main LaTeX file to build.
+                    '';
+                  };
                 };
+              }));
+            };
+            libLatex = lib.mkOption {
+              type = lib.types.anything;
+              default = { };
+            };
+          };
+          config =
+            let
+              mkLatexPackage = pkgs.callPackage ./lib.nix { };
+            in
+            {
+              packages =
+                lib.mapAttrs (config.libUtils.withNameAttr mkLatexPackage) config.${configName};
+              libLatex = {
+                mkPackage = mkLatexPackage;
               };
-            }));
-          };
-          config = {
-            packages =
-              let
-                mkLatexPackage = name: args: pkgs.stdenv.mkDerivation {
-                  inherit name;
-                  inherit (args) src;
-
-                  nativeBuildInputs = [
-                    pkgs.texlive.combined.scheme-full
-                  ];
-
-                  buildPhase = ''
-                    runHook preBuild
-                    pdflatex -halt-on-error -interaction=nonstopmode -draftmode "${args.mainFile}"
-                    pdflatex -halt-on-error -interaction=nonstopmode -draftmode "${args.mainFile}"
-                    if [ -f $(basename "${args.mainFile}" .tex).bib ]; then
-                       bibtex $(basename "${args.mainFile}" .tex)
-                       pdflatex -halt-on-error -interaction=nonstopmode -draftmode "${args.mainFile}"
-                    fi
-                    pdflatex -halt-on-error -interaction=nonstopmode "${args.mainFile}"
-                    runHook postBuild
-                  '';
-
-                  dontCheck = true;
-
-                  installPhase = ''
-                    runHook preInstall
-                    mkdir -p $out
-                    cp *.pdf $out
-                    runHook postInstall
-                  '';
-
-                  dontFixup = true;
-                };
-
-              in
-              lib.mapAttrs mkLatexPackage config.latex;
-          };
+            };
         });
   };
 }

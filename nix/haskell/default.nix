@@ -49,8 +49,9 @@ in
             };
           }));
         };
-        libHaskell = lib.mkOption {
-          type = lib.types.anything;
+
+        libHaskell = mkOption {
+          type = types.anything;
           default = { };
         };
       };
@@ -65,13 +66,15 @@ in
           };
 
           mkHaskellPackage = import ./lib.nix {
-            inherit lib system iohk-nix;
-            haskell-nix = self.inputs.haskell-nix;
+            inherit lib system;
+            iohkNixCryptoOverlay = import "${iohk-nix}/overlays/crypto";
+            haskellNixNixpkgs = self.inputs.haskell-nix.inputs.nixpkgs;
+            haskellNixOverlay = self.inputs.haskell-nix.overlay;
           };
 
           projects =
             lib.attrsets.mapAttrs
-              (name: args: mkHaskellPackage (args // { inherit name; }))
+              (config.libUtils.withNameAttr mkHaskellPackage)
               config.${configName};
 
           flat2With = mkName: xs:

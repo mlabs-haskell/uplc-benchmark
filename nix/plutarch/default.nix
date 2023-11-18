@@ -53,7 +53,7 @@ in
           };
           projects =
             lib.attrsets.mapAttrs
-              (name: args: mkPlutarchPackage (args // { inherit name; }))
+              (config.libUtils.withNameAttr mkPlutarchPackage)
               config.${configName};
         in
         {

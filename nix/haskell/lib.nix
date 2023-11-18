@@ -1,24 +1,27 @@
-{ iohk-nix
-, lib
-, system
-, haskell-nix
+{ lib
+  # e.g. "x86_64-linux"
+, system # : string
+, iohkNixCryptoOverlay # : overlay
+, haskellNixNixpkgs # : nixpkgs
+, haskellNixOverlay # : overlay
 }:
 
 let
-  pkgs = import haskell-nix.inputs.nixpkgs {
+  pkgs = import haskellNixNixpkgs {
     inherit system;
     overlays = [
-      haskell-nix.overlay
-      (import "${iohk-nix}/overlays/crypto")
+      iohkNixCryptoOverlay
+      haskellNixOverlay
     ];
   };
 
   mkHackage = pkgs.callPackage ./mk-hackage.nix { };
 in
 
-{ name
-, src
-, ghcVersion
+{ name # : string
+, src # : path
+  # e.g. ghc928
+, ghcVersion # : string
 , haskellModules ? [ ]
 , externalDependencies ? [ ]
 , externalRepositories ? { }
