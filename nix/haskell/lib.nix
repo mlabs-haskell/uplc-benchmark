@@ -14,8 +14,6 @@ let
       haskellNixOverlay
     ];
   };
-
-  mkHackage = pkgs.callPackage ./mk-hackage.nix { };
 in
 
 { name # : string
@@ -27,6 +25,12 @@ in
 , externalRepositories ? { }
 }:
 let
+  mkHackage = pkgs.callPackage ./mk-hackage.nix {
+    nix-tools = pkgs.haskell-nix.nix-tools-set {
+      compiler-nix-name = ghcVersion;
+    };
+  };
+
   # This looks like a noop but without it haskell.nix throws a runtime
   # error about `pkgs` attribute not being present which is nonsense
   # https://input-output-hk.github.io/haskell.nix/reference/library.html?highlight=cabalProject#modules
@@ -45,7 +49,6 @@ let
     else
       let
         customHackages = mkHackage {
-          compiler-nix-name = ghcVersion;
           srcs = map toString flattenedExternalDependencies;
           inherit name;
         };
