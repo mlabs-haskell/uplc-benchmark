@@ -110,6 +110,7 @@ library
   import:          lang, deps, plutarch-prelude
   exposed-modules:
     UplcBenchmark.NftMarketplace
+    UplcBenchmark.Utils
 
   hs-source-dirs:  lib
 
