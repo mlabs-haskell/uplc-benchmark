@@ -85,6 +85,7 @@
       perSystem =
         { config
         , pkgs
+        , lib
         , self'
         , system
         , ...
@@ -101,6 +102,13 @@
               latexindent.enable = true;
               nixpkgs-fmt.enable = true;
               typos.enable = true;
+              fourmolu.enable = true;
+            };
+
+            tools = {
+              fourmolu = lib.mkForce (pkgs.callPackage ./nix/fourmolu {
+                mkHaskellPackage = config.libHaskell.mkPackage;
+              });
             };
 
             settings = {
