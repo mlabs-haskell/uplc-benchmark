@@ -17,13 +17,13 @@ import Plutarch.Api.V2 (
  )
 import Plutarch.Builtin (pforgetData)
 import Plutarch.Monadic qualified as P
-import UplcBenchmark.Utils (passert, pverifyData)
+import UplcBenchmark.Utils (passert, ptryDecodeData)
 
 pnftMarketplaceValidator :: ClosedTerm PValidator
 pnftMarketplaceValidator = plam $ \rawDatum rawRedeemer ctx' -> P.do
   (NftMarketplaceDatum price seller cancelKey) <-
-    pmatch $ pfromData $ pverifyData @NftMarketplaceDatum rawDatum
-  redeemer <- plet $ pfromData $ pverifyData @NftMarketplaceRedeemer rawRedeemer
+    pmatch $ ptryDecodeData @NftMarketplaceDatum rawDatum
+  redeemer <- plet $ ptryDecodeData @NftMarketplaceRedeemer rawRedeemer
   ctx <- pletFields @'["txInfo", "purpose"] ctx'
 
   pmatch redeemer $ \case

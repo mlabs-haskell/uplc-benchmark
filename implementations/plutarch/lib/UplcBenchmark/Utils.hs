@@ -1,11 +1,11 @@
-module UplcBenchmark.Utils (pverifyData, passert) where
+module UplcBenchmark.Utils (ptryDecodeData, passert) where
 
-pverifyData ::
+ptryDecodeData ::
   forall (a :: PType) (s :: S).
-  (PTryFrom PData (PAsData a)) =>
+  (PTryFrom PData (PAsData a), PIsData a) =>
   Term s PData ->
-  Term s (PAsData a)
-pverifyData = unTermCont . fmap fst . tcont . ptryFrom
+  Term s a
+ptryDecodeData = pfromData . unTermCont . fmap fst . tcont . ptryFrom
 
 passert ::
   forall (a :: PType) (s :: S).
