@@ -119,39 +119,23 @@ data Redeemer = CreatePool TxOutRef
 \begin{itemize}
   \item Initial spent UTxO is spent.
   \item Only one NFT is minted with name set to initial spent.
-  \item Minted NFT is sent to Pool Validator.
-  \item Pool Validator UTxO has been properly initialized i.e.
-        \begin{itemize}
-          \item Datum is of valid format
-          \item Datum field \verb|mintedLpTokens| is positive and set to amount of minted LP tokens.
-        \end{itemize}
-  \item The product of the amount of tokens in the pool equals the square of \verb|mintedLpTokens| value.
 \end{itemize}
 
 \section{LP Minting Policy}
 
 LP tokens represent ownership of a share of the pool.
-LP tokens are minted when liquidity is deposited into the pool (or pool is created), and burned when liquidity is withdrawn from the pool.
+LP tokens are minted when liquidity is deposited into the pool, and burned when liquidity is withdrawn from the pool.
 LP tokens are specific to each pool, and are used to track the amount of liquidity a user has deposited into the pool.
-All minting and burning checks are being performed by Pool Validator and NFT Minting Policy, so LP Minting Policy forwards all checks to them by making sure that they are being invoked.
-Minting policy is parametrized by the Pool NFT.
+All minting and burning checks are being performed by Pool Validator, so LP Minting Policy forwards all checks to it by making sure that they are being invoked.
+Minting policy is parametrized by the symbol of Pool NFT.
 
 \subsection{Data Types}
 \begin{lstlisting}[language=Haskell]
-data Redeemer
-  = CreatePool
-  | ForwardCheck
+data Redeemer = ForwardCheck
 \end{lstlisting}
 
 \subsection{Validation Checks}
-\hspace{0mm}
 
-\textbf{Case 1: CreatePool}
-\begin{itemize}
-  \item Pool NFT is minted.
-\end{itemize}
-
-\textbf{Case 2: ForwardCheck}
 \begin{itemize}
   \item Pool NFT is spent.
 \end{itemize}
