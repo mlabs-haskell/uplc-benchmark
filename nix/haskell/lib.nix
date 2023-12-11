@@ -12,8 +12,17 @@ let
     overlays = [
       iohkNixCryptoOverlay
       haskellNixOverlay
-      (final: _prev: {
+      (final: prev: {
+        # HACK: Fix for haskell.nix bootstrap with new package set
         rocm-thunk = final.rocmPackages.rocm-thunk;
+        libsigcxx12 = final.libsigcxx;
+        haskell = prev.haskell // {
+          compiler = prev.haskell.compiler // {
+            ghc884 = prev.haskell.compiler.ghc810.overrideAttrs (_: {
+              version = "8.8.4";
+            });
+          };
+        };
       })
     ];
   };
