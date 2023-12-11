@@ -13,6 +13,6 @@
     in
     {
       devShells.plutarch-implementation = plutarch-implementation.devShell;
-      packages.plutarch-implementation = plutarch-implementation.packages."plutarch-implementation:exe:plutarch-implementation";
+      packages.plutarch-implementation-export = plutarch-implementation.packages."plutarch-implementation:exe:plutarch-implementation-export";
     };
 }

@@ -1,37 +1,30 @@
-{-# OPTIONS_GHC -Wno-unused-do-bind #-}
-{-# LANGUAGE GHC2021, OverloadedStrings, QualifiedDo, DataKinds #-}
+module Main (main) where
 
-module Main where
+import Data.ByteString qualified as BS (writeFile)
+import Data.ByteString.Short (fromShort)
+import Data.Text qualified as Text
+import Plutarch (ClosedTerm, Config (Config), TracingMode (NoTracing), compile)
+import Plutarch.Script (serialiseScript)
+import System.IO (hPutStrLn, stderr)
 
-import Plutarch.Monadic qualified as P
-import Data.Text.IO qualified as Text
-import Plutarch.Prelude hiding (psingleton)
-import Plutarch.Api.V1.Value (pvalueOf, padaSymbol, padaToken)
-import Plutarch.Api.V2 (PValidator)
-import LambdaBuffers.NftMarketplace.Plutarch (NftMarketplaceDatum (NftMarketplaceDatum))
+import UplcBenchmark.NftMarketplace (pnftMarketplaceValidator)
 
-pverifyData ::
-  forall (a :: PType) (s :: S).
-  PTryFrom PData (PAsData a) =>
-  Term s PData ->
-  Term s (PAsData a)
-pverifyData = unTermCont . fmap fst . tcont . ptryFrom
+ePutStrLn :: String -> IO ()
+ePutStrLn = hPutStrLn stderr
 
-passert ::
-  forall (a :: PType) (s :: S).
-  Term s PString ->
-  Term s PBool ->
-  Term s a ->
-  Term s a
-passert msg cond x = pif cond x $ ptraceError msg
+compilationConfig :: Config
+compilationConfig = Config NoTracing
 
-pdummyValidator :: ClosedTerm PValidator
-pdummyValidator = plam $ \rawDatum _rawRedeemer _ctx -> P.do
-  (NftMarketplaceDatum price _seller _cancelKey) <-
-    pmatch $ pfromData $ pverifyData @NftMarketplaceDatum rawDatum
-
-  passert "Test" (pvalueOf # pfromData price # padaSymbol # padaToken #== 42) 
-  popaque $ pconstant ()
+compileToFile :: ClosedTerm a -> FilePath -> IO ()
+compileToFile term fp = do
+  case compile compilationConfig term of
+    Right script -> do
+      let serialised = fromShort $ serialiseScript script
+      BS.writeFile fp serialised
+    Left err -> do
+      ePutStrLn $ "error: could not compile '" <> fp <> "'."
+      ePutStrLn $ Text.unpack err
 
 main :: IO ()
-main = Text.putStrLn "Hello"
+main = do
+  compileToFile pnftMarketplaceValidator "nft-marketplace-validator.bin"
