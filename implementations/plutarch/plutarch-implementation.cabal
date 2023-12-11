@@ -105,12 +105,15 @@ common deps
     , text
     , uplc-benchmark-types-plutarch-lb
     , pprelude
+    , lbf-plutus-plutarch
 
 library
   import:          lang, deps, plutarch-prelude
   exposed-modules:
     UplcBenchmark.NftMarketplace
     UplcBenchmark.LpMintingPolicy
+    UplcBenchmark.NftMintingPolicy
+    UplcBenchmark.PoolValidator
     UplcBenchmark.Utils
 
   hs-source-dirs:  lib

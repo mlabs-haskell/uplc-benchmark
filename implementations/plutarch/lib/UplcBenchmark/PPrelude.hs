@@ -21,11 +21,11 @@ import Plutarch (compile)
 import Plutarch.Prelude
 
 -- | Flipped version of '(#<=)'
-(#>=) a b = (#<=) b a
+a #>= b = b #<= a
 
 infix 4 #>=
 
 -- | Flipped version of '(#<)'
-(#>) a b = (#<) b a
+a #> b = b #< a
 
 infix 4 #>

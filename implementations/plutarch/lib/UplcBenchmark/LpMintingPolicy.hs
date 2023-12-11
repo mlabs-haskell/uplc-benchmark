@@ -1,40 +1,39 @@
 module UplcBenchmark.LpMintingPolicy (plpMintingPolicy) where
 
-import LambdaBuffers.Dex.Plutarch (
-  LpMintingPolicyRedeemer (
-    LpMintingPolicyRedeemer'CreatePool,
-    LpMintingPolicyRedeemer'ForwardCheck
-  ),
- )
 import Plutarch.Api.V1.Value (pvalueOf)
-import Plutarch.Api.V2 (PCurrencySymbol, PMintingPolicy, PTokenName, PTxInInfo)
+import Plutarch.Api.V2 (
+  PCurrencySymbol,
+  PMintingPolicy,
+  PScriptPurpose (PMinting),
+  PTokenName,
+  PTxInInfo,
+ )
 import Plutarch.Monadic qualified as P
 
-import UplcBenchmark.Utils (passert, ptryDecodeData)
+import UplcBenchmark.Utils (pallBoth, passert, ptryGetOwnMint)
 
-plpMintingPolicy :: ClosedTerm (PAsData PCurrencySymbol :--> PAsData PTokenName :--> PMintingPolicy)
-plpMintingPolicy = plam $ \poolNftCs poolNftTn rawRedeemer ctx' -> P.do
-  redeemer <- plet $ ptryDecodeData @LpMintingPolicyRedeemer rawRedeemer
-  ctx <- pletFields @'["txInfo"] ctx'
-  pmatch redeemer $ \case
-    LpMintingPolicyRedeemer'CreatePool -> P.do
-      txInfo <- pletFields @'["mint"] ctx.txInfo
+plpMintingPolicy :: ClosedTerm (PAsData PCurrencySymbol :--> PMintingPolicy)
+plpMintingPolicy = plam $ \poolNftCs _redeemer ctx' -> P.do
+  ctx <- pletFields @'["txInfo", "purpose"] ctx'
 
-      passert
-        "Must mint one Pool NFT token"
-        (pvalueOf # txInfo.mint # pfromData poolNftCs # pfromData poolNftTn #== 1)
+  PMinting ownSymbol' <- pmatch ctx.purpose
+  ownSymbol <- plet $ pfromData $ pfield @"_0" # ownSymbol'
 
-      popaque $ pconstant ()
-    LpMintingPolicyRedeemer'ForwardCheck -> P.do
-      txInfo <- pletFields @'["inputs"] ctx.txInfo
+  inputHasNft :: Term s (PTokenName :--> PTxInInfo :--> PBool) <- plet $ plam $ \poolNftTn txInInfo' -> P.do
+    txInInfo <- pletFields @'["resolved"] txInInfo'
+    txOut <- pletFields @'["value"] txInInfo.resolved
+    pvalueOf # txOut.value # pfromData poolNftCs # poolNftTn #== 1
 
-      inputHasNft :: Term s (PTxInInfo :--> PBool) <- plet $ plam $ \txInInfo' -> P.do
-        txInInfo <- pletFields @'["resolved"] txInInfo'
-        txOut <- pletFields @'["value"] txInInfo.resolved
-        pvalueOf # txOut.value # pfromData poolNftCs # pfromData poolNftTn #== 1
+  txInfo <- pletFields @'["inputs", "mint"] ctx.txInfo
+  ownMint <- plet $ ptryGetOwnMint # ownSymbol # txInfo.mint
 
-      passert
-        "Must spend one Pool NFT token"
-        (pany # inputHasNft # txInfo.inputs)
+  isValidMint :: Term s (PTokenName :--> PInteger :--> PBool) <- plet $ plam $ \mintedLpName mintedLpAmount ->
+    -- brackets are redundant, but formatter is horrible without
+    (mintedLpAmount #== 1)
+      #&& (pany # (inputHasNft # mintedLpName) # txInfo.inputs)
 
-      popaque $ pconstant ()
+  -- For each entry in minting list, we must mint exactly one token (so no burning as well)
+  -- and spend an input with corresponding NFT
+  passert "NFT corresponding to LP must be spent" (pallBoth # isValidMint # ownMint)
+
+  popaque $ pconstant ()
