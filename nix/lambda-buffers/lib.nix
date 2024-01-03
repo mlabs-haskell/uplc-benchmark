@@ -225,7 +225,7 @@ let
           "base"
           "lbr-plutarch"
           "plutarch"
-          "plutus-core < 1.4" # plutarch is broken so here we go
+          "plutus-core"
           "lbf-prelude-plutarch"
           "lbf-plutus-plutarch"
         ];

@@ -48,9 +48,7 @@ in
       };
       config =
         let
-          mkPlutarchPackage = pkgs.callPackage ./lib.nix {
-            inherit (config.libUtils) applyPatches;
-          };
+          mkPlutarchPackage = pkgs.callPackage ./lib.nix { };
           projects =
             lib.attrsets.mapAttrs
               (config.libUtils.withNameAttr mkPlutarchPackage)

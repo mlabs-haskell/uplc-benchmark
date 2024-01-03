@@ -58,6 +58,7 @@
         ./specifications
         ./types
         ./website
+        ./tests
       ] ++ (builtins.attrValues flakeModules);
 
       # `nix flake show --impure` hack
@@ -136,10 +137,6 @@
                 pkgs.texlive.combined.scheme-full
                 pkgs.mdbook
                 self'.packages.lbf-plutus-to-plutarch
-              ];
-
-              inputsFrom = [
-                self'.devShells.plutarch-implementation
               ];
             };
           };
