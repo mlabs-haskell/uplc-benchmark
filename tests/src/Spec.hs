@@ -2,7 +2,7 @@ module Main (main) where
 
 import Plutarch.Context ()
 import System.FilePath ((</>))
-import Test.Tasty (defaultMain)
+import Test.Tasty (defaultMain, testGroup)
 
 import UplcBenchmark.ScriptLoader (loadScriptFromFile)
 import UplcBenchmark.Spec.NftMarketplace (specForScript)
@@ -10,8 +10,15 @@ import UplcBenchmark.Spec.NftMarketplace (specForScript)
 main :: IO ()
 main = do
   let
+    -- TODO: Get this from env
     baseFilePath :: FilePath
-    baseFilePath = "/nix/store/6hqnhwfn72lxbqy9s9kxr6k2yw8dmv98-plutarch-implementation-compiled"
+    baseFilePath = "../implementations/plutarch"
+
   script <- loadScriptFromFile (baseFilePath </> "nft-marketplace-validator.bin")
-  defaultMain $ specForScript script
+  defaultMain $
+    testGroup
+      "UPLC Benchmark"
+      [ testGroup "Plutarch" [specForScript script]
+      ]
+
   pure ()

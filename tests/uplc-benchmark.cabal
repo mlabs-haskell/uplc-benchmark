@@ -84,16 +84,19 @@ common deps
   build-depends:
     , base
     , bytestring
+    , filepath
     , mtl
     , plutarch
+    , plutarch-context-builder
+    , plutarch-quickcheck
+    , plutarch-unit
+    , plutus-core
     , plutus-core
     , plutus-ledger-api
-    , text
-    , uplc-benchmark-types-plutarch-lb
-    , lbf-plutus-plutarch
-    , plutus-core
-    , filepath
     , tasty
+    , text
+    , uplc-benchmark-types-plutus-lb
+    , optics
 
 test-suite uplc-benchmark-tests
   import:          lang, deps
@@ -103,7 +106,4 @@ test-suite uplc-benchmark-tests
   other-modules:
     UplcBenchmark.ScriptLoader
     UplcBenchmark.Spec.NftMarketplace
-  build-depends:
-    , plutarch-context-builder
-    , plutarch-quickcheck
-    , plutarch-unit
+    

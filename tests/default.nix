@@ -1,11 +1,15 @@
 {
   perSystem = { pkgs, self', config, ... }:
     let
-      liqwid-libs = pkgs.fetchFromGitHub {
-        owner = "Liqwid-Labs";
-        repo = "liqwid-libs";
-        rev = "e45647e49a106d64799193491af4e52553917ead";
-        hash = "sha256-ioUyXgpBGLYjLtMIFRFFtV+h8QoRIi3TaYsb2GgWrg4=";
+      liqwid-libs = config.libUtils.applyPatches {
+        name = "liqwid-libs-patched";
+        src = pkgs.fetchFromGitHub {
+          owner = "Liqwid-Labs";
+          repo = "liqwid-libs";
+          rev = "e45647e49a106d64799193491af4e52553917ead";
+          hash = "sha256-ioUyXgpBGLYjLtMIFRFFtV+h8QoRIi3TaYsb2GgWrg4=";
+        };
+        patches = [ ./liqwid-libs-exports.patch ];
       };
 
       # TODO: Update from PR to master
@@ -23,7 +27,6 @@
           src = ./.;
           ghcVersion = "ghc928";
           externalDependencies = [
-            self'.packages.uplc-benchmark-types-plutarch
             "${liqwid-libs}/liqwid-plutarch-extra"
             "${liqwid-libs}/liqwid-script-export"
             "${liqwid-libs}/plutarch-benchmark"
@@ -32,6 +35,7 @@
             "${liqwid-libs}/plutarch-unit"
             "${ply}/ply-core"
             "${ply}/ply-plutarch"
+            self'.packages.uplc-benchmark-types-plutus
           ];
         });
     in
