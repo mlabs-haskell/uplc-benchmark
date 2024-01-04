@@ -8,12 +8,13 @@
         hash = "sha256-ioUyXgpBGLYjLtMIFRFFtV+h8QoRIi3TaYsb2GgWrg4=";
       };
 
-      # TODO: Update from fork
+      # TODO: Update from PR to master
+      # https://github.com/mlabs-haskell/ply/pull/50
       ply = pkgs.fetchFromGitHub {
-        owner = "t4ccer";
+        owner = "mlabs-haskell";
         repo = "ply";
-        rev = "3449b36306d4193825020a541e4bdb18a113a5d9";
-        hash = "sha256-yp6dkcfgt+r2xhiN+JZirHknCaMNChRpfHhO26Vf620=";
+        rev = "0b58813ad022ea8fd35aa309b935ad5b474a7e1d";
+        hash = "sha256-om9EEGrw09gm0i+i9GYp0KYWQMXAd6ZvAZPzW6cGSLw=";
       };
 
       uplc-benchmark-tests =
