@@ -13,7 +13,7 @@ module UplcBenchmark.Utils (
 where
 
 import LambdaBuffers.Plutus.V1.Plutarch (AssetClass)
-import Plutarch.Api.V1.AssocMap (PMap, pfindWithDefault)
+import Plutarch.Api.V1.AssocMap (PMap, pempty, pfindWithDefault, pforgetSorted)
 import Plutarch.Api.V1.Value (pvalueOf)
 import Plutarch.Api.V2 (
   PCurrencySymbol,
@@ -54,7 +54,7 @@ pallBoth = phoistAcyclic $
 ptryGetOwnMint :: ClosedTerm (PCurrencySymbol :--> PValue anyKey anyValue :--> PMap anyKey PTokenName PInteger)
 ptryGetOwnMint = phoistAcyclic $
   plam $ \ownCurrency mint ->
-    pfindWithDefault # ptraceError "unreachable: only called on mint" # ownCurrency # pto mint
+    pfindWithDefault # pforgetSorted pempty # ownCurrency # pto mint
 
 -- | Convert Integer to ByteString.
 pintegerToByteString :: ClosedTerm (PInteger :--> PByteString)

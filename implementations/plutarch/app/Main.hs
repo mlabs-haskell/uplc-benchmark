@@ -7,7 +7,10 @@ import Plutarch (ClosedTerm, Config (Config), TracingMode (NoTracing), compile)
 import Plutarch.Script (serialiseScript)
 import System.IO (hPutStrLn, stderr)
 
+import UplcBenchmark.LpMintingPolicy (plpMintingPolicy)
 import UplcBenchmark.NftMarketplace (pnftMarketplaceValidator)
+import UplcBenchmark.NftMintingPolicy (pnftMintingPolicy)
+import UplcBenchmark.PoolValidator (ppoolValidator)
 
 ePutStrLn :: String -> IO ()
 ePutStrLn = hPutStrLn stderr
@@ -28,3 +31,6 @@ compileToFile term fp = do
 main :: IO ()
 main = do
   compileToFile pnftMarketplaceValidator "nft-marketplace-validator.bin"
+  compileToFile plpMintingPolicy "lp-minting-policy.bin"
+  compileToFile pnftMintingPolicy "nft-minting-policy.bin"
+  compileToFile ppoolValidator "pool-validator.bin"

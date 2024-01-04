@@ -1,4 +1,4 @@
-module UplcBenchmark.PoolValidator (poolValidator) where
+module UplcBenchmark.PoolValidator (ppoolValidator) where
 
 import LambdaBuffers.Dex.Plutarch (
   DexDatum (DexDatum),
@@ -21,8 +21,8 @@ import UplcBenchmark.Utils (
   pvalueOfAssetClass,
  )
 
-poolValidator :: ClosedTerm PValidator
-poolValidator = plam $ \rawDatum rawRedeemer ctx' -> P.do
+ppoolValidator :: ClosedTerm PValidator
+ppoolValidator = plam $ \rawDatum rawRedeemer ctx' -> P.do
   DexDatum inTokenA inTokenB inPoolNft inLpToken inMintedLpTokens inSwapFee <-
     pmatch $ ptryDecodeData @DexDatum rawDatum
   redeemer <- plet $ ptryDecodeData @DexRedeemer rawRedeemer
