@@ -40,7 +40,11 @@
         });
     in
     {
-      checks.uplc-benchmark = uplc-benchmark-tests.checks."uplc-benchmark:test:uplc-benchmark-tests";
+      checks.uplc-benchmark = uplc-benchmark-tests.checks."uplc-benchmark:test:uplc-benchmark-tests".overrideAttrs (prev: {
+        env = (prev.env or { }) // {
+          UPLC_BENCHMARK_BIN_PLUTARCH = self'.packages.plutarch-implementation-compiled.outPath;
+        };
+      });
 
       devShells.tests = pkgs.mkShell {
         shellHook = config.pre-commit.installationScript;
