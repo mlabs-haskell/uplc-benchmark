@@ -91,12 +91,18 @@ common deps
     , text
     , uplc-benchmark-types-plutarch-lb
     , lbf-plutus-plutarch
+    , plutus-core
+    , filepath
+    , tasty
 
 test-suite uplc-benchmark-tests
   import:          lang, deps
   type:            exitcode-stdio-1.0
   main-is:         Spec.hs
   hs-source-dirs:  src
+  other-modules:
+    UplcBenchmark.ScriptLoader
+    UplcBenchmark.Spec.NftMarketplace
   build-depends:
     , plutarch-context-builder
     , plutarch-quickcheck
