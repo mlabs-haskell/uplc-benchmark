@@ -183,7 +183,7 @@ let
     name = "lbf-prelude-haskell";
     src = "${lbf-prelude}";
     files = [ "Prelude.lbf" ];
-    cabalBuildDepends = [ "base" "text" "lbr-prelude" ];
+    cabalBuildDepends = [ "base" "text" "lbr-prelude" "containers" "bytestring" ];
 
     lbfGen = mkLbfCall {
       gen = "${lbg-haskell}/bin/lbg-haskell";
@@ -211,6 +211,7 @@ let
 
   lbr-plutarch = "${lambda-buffers-src}/runtimes/haskell/lbr-plutarch";
   lbr-prelude = "${lambda-buffers-src}/runtimes/haskell/lbr-prelude";
+  lbr-plutus = "${lambda-buffers-src}/runtimes/haskell/lbr-plutus";
 
   mkLbPlutarchPackage =
     { name
@@ -240,6 +241,51 @@ let
       ];
     });
 
+  test-plutus-prelude = mkLbHaskellPackage {
+    name = "lbr-plutus-prelude";
+    src = lbf-plutus;
+    files = [ "Plutus/V1.lbf" "Plutus/V2.lbf" ];
+    cabalBuildDepends = [
+      "base"
+      "bytestring"
+      "containers"
+      "lbf-prelude-haskell"
+      "lbr-plutus"
+      "lbr-prelude"
+      "plutus-core"
+      "plutus-tx"
+      "plutus-ledger-api"
+    ];
+    lbfGen = lbf-plutus-to-haskell;
+  };
+
+  mkLbPlutusPackage = { name, src, files ? null }: mkHaskellPackage (mkPlutarchPackage {
+    inherit name;
+    src = mkLbHaskellPackage {
+      name = "${name}-lb";
+      inherit src files;
+      cabalBuildDepends = [
+        "base"
+        "bytestring"
+        "containers"
+        "lbf-prelude-haskell"
+        "lbr-plutus"
+        "lbr-plutus-prelude"
+        "lbr-prelude"
+        "plutus-core"
+        "plutus-tx"
+      ];
+      lbfGen = lbf-plutus-to-haskell;
+    };
+    ghcVersion = "ghc928";
+    externalDependencies = [
+      test-plutus-prelude
+      lbf-prelude-haskell
+      lbr-plutus
+      lbr-prelude
+    ];
+  });
+
 in
 {
   packages = {
@@ -248,6 +294,6 @@ in
   };
 
   lib = {
-    inherit mkLbHaskellPackage mkLbfCall mkLbPlutarchPackage;
+    inherit mkLbHaskellPackage mkLbfCall mkLbPlutarchPackage mkLbPlutusPackage;
   };
 }
