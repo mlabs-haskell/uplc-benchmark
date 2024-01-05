@@ -22,9 +22,9 @@ getScript (Script program) = program
 
 uncheckedApplyDataToScript :: (ToData argument) => argument -> Script -> Script
 uncheckedApplyDataToScript argument unappliedScript =
-  let Program ann version unappliedTerm = getScript unappliedScript
+  let Program () version unappliedTerm = getScript unappliedScript
    in Script
-        . Program ann version
+        . Program () version
         . Apply () unappliedTerm
         . Constant ()
         . PLC.someValue

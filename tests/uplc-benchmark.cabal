@@ -106,4 +106,5 @@ test-suite uplc-benchmark-tests
   other-modules:
     UplcBenchmark.ScriptLoader
     UplcBenchmark.Spec.NftMarketplace
+    UplcBenchmark.Spec.ContextBuilder.Utils
     

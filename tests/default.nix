@@ -38,16 +38,19 @@
             self'.packages.uplc-benchmark-types-plutus
           ];
         });
+
+      binSources = {
+        UPLC_BENCHMARK_BIN_PLUTARCH = self'.packages.plutarch-implementation-compiled.outPath;
+      };
     in
     {
       checks.uplc-benchmark = uplc-benchmark-tests.checks."uplc-benchmark:test:uplc-benchmark-tests".overrideAttrs (prev: {
-        env = (prev.env or { }) // {
-          UPLC_BENCHMARK_BIN_PLUTARCH = self'.packages.plutarch-implementation-compiled.outPath;
-        };
+        env = (prev.env or { }) // binSources;
       });
 
       devShells.tests = pkgs.mkShell {
         shellHook = config.pre-commit.installationScript;
+        env = binSources;
         inputsFrom = [
           uplc-benchmark-tests.devShell
         ];

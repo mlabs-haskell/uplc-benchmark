@@ -1,13 +1,9 @@
 module UplcBenchmark.Spec.NftMarketplace (specForScript) where
 
-import Data.ByteString qualified as ByteString
-import Data.ByteString.Hash (blake2b_256)
-import Data.Word (Word8)
 import LambdaBuffers.NftMarketplace (
   NftMarketplaceDatum (NftMarketplaceDatum),
-  NftMarketplaceRedeemer (NftMarketplaceRedeemer'Buy),
+  NftMarketplaceRedeemer (NftMarketplaceRedeemer'Buy, NftMarketplaceRedeemer'Cancel),
  )
-import Optics (set)
 import Plutarch (Script)
 import Plutarch.Context (
   UTXO,
@@ -15,11 +11,11 @@ import Plutarch.Context (
   buildSpending',
   input,
   output,
+  signedWith,
   withRef,
   withSpendingUTXO,
   withValue,
  )
-import Plutarch.Context.Base (DatumType (InlineDatum))
 import Plutarch.Test.Script (
   ScriptCase (ScriptCase),
   ScriptResult (ScriptFailure, ScriptSuccess),
@@ -28,59 +24,81 @@ import Plutarch.Test.Script (
 import PlutusLedgerApi.V1.Address (pubKeyHashAddress)
 import PlutusLedgerApi.V2 (
   Address,
-  BuiltinByteString,
   PubKeyHash (PubKeyHash),
   ScriptContext,
-  ToData,
   TxId (TxId),
   TxOutRef (TxOutRef),
   adaSymbol,
   adaToken,
   singleton,
-  toBuiltin,
-  toData,
  )
 import Test.Tasty (TestTree, testGroup)
 import UplcBenchmark.ScriptLoader (uncheckedApplyDataToScript)
-
-mkHash32 :: Word8 -> BuiltinByteString
-mkHash32 idx = toBuiltin $ blake2b_256 $ ByteString.pack [idx]
-
-mkHash28 :: Word8 -> BuiltinByteString
-mkHash28 idx = toBuiltin $ ByteString.take 28 $ blake2b_256 $ ByteString.pack [idx]
-
-mkTxId :: Word8 -> TxId
-mkTxId = TxId . mkHash32
-
-withRedeemer' :: (ToData redeemer) => redeemer -> UTXO
-withRedeemer' r = set #redeemer (Just $ toData r) (mempty :: UTXO)
-
-withInlineDatum' :: (ToData datum) => datum -> UTXO
-withInlineDatum' dat = set #data (pure . InlineDatum . toData $ dat) (mempty :: UTXO)
+import UplcBenchmark.Spec.ContextBuilder.Utils (
+  junkSymbol,
+  junkToken,
+  mkHash28,
+  mkHash32,
+  withHashDatum,
+  withInlineDatum,
+  withRedeemer,
+ )
 
 validatedUTxORef :: TxOutRef
-validatedUTxORef = TxOutRef (mkTxId 0) 42
+validatedUTxORef = TxOutRef (TxId $ mkHash32 0) 42
 
 validatedOrderUTxO :: UTXO
 validatedOrderUTxO =
   mconcat
     [ withRef validatedUTxORef
-    , withRedeemer' NftMarketplaceRedeemer'Buy
+    , withRedeemer NftMarketplaceRedeemer'Buy
     ]
 
 validPaymentUTxO :: UTXO
 validPaymentUTxO =
   mconcat
-    [ withValue (singleton adaSymbol adaToken 100_000_000)
+    [ withValue $ singleton adaSymbol adaToken 100_000_000
     , address validSellerAddress
-    , withInlineDatum' validatedUTxORef
+    , withInlineDatum validatedUTxORef
     ]
 
 invalidPaymentUTxONoDatum :: UTXO
 invalidPaymentUTxONoDatum =
   mconcat
-    [ withValue (singleton adaSymbol adaToken 100_000_000)
+    [ withValue $ singleton adaSymbol adaToken 100_000_000
     , address validSellerAddress
+    ]
+
+invalidPaymentUTxOHashDatum :: UTXO
+invalidPaymentUTxOHashDatum =
+  mconcat
+    [ withValue $ singleton adaSymbol adaToken 100_000_000
+    , address validSellerAddress
+    , withHashDatum validatedUTxORef
+    ]
+
+invalidPaymentUTxOTooLittle :: UTXO
+invalidPaymentUTxOTooLittle =
+  mconcat
+    [ withValue $ singleton adaSymbol adaToken 90_000_000
+    , address validSellerAddress
+    , withInlineDatum validatedUTxORef
+    ]
+
+invalidPaymentUTxOTooMuch :: UTXO
+invalidPaymentUTxOTooMuch =
+  mconcat
+    [ withValue $ singleton adaSymbol adaToken 110_000_000
+    , address validSellerAddress
+    , withInlineDatum validatedUTxORef
+    ]
+
+invalidPaymentUTxOWithJunk :: UTXO
+invalidPaymentUTxOWithJunk =
+  mconcat
+    [ withValue $ singleton adaSymbol adaToken 100_000_000 <> singleton junkSymbol junkToken 42
+    , address validSellerAddress
+    , withInlineDatum validatedUTxORef
     ]
 
 validSellerAddress :: Address
@@ -89,6 +107,9 @@ validSellerAddress = pubKeyHashAddress validCancelPubKeyHash
 validCancelPubKeyHash :: PubKeyHash
 validCancelPubKeyHash = PubKeyHash $ mkHash28 1
 
+junkPubKeyHash :: PubKeyHash
+junkPubKeyHash = PubKeyHash $ mkHash28 2
+
 validatedOrderDatum :: NftMarketplaceDatum
 validatedOrderDatum =
   NftMarketplaceDatum
@@ -96,8 +117,8 @@ validatedOrderDatum =
     validSellerAddress
     validCancelPubKeyHash
 
-validSpendOne :: ScriptContext
-validSpendOne =
+validBuyOne :: ScriptContext
+validBuyOne =
   buildSpending' $
     mconcat
       [ input validatedOrderUTxO
@@ -114,22 +135,106 @@ invalidOneNoDatum =
       , output invalidPaymentUTxONoDatum
       ]
 
+invalidOneHashDatum :: ScriptContext
+invalidOneHashDatum =
+  buildSpending' $
+    mconcat
+      [ input validatedOrderUTxO
+      , withSpendingUTXO validatedOrderUTxO
+      , output invalidPaymentUTxOHashDatum
+      ]
+
+invalidOnePayTooLittle :: ScriptContext
+invalidOnePayTooLittle =
+  buildSpending' $
+    mconcat
+      [ input validatedOrderUTxO
+      , withSpendingUTXO validatedOrderUTxO
+      , output invalidPaymentUTxOTooLittle
+      ]
+
+invalidOnePayTooMuch :: ScriptContext
+invalidOnePayTooMuch =
+  buildSpending' $
+    mconcat
+      [ input validatedOrderUTxO
+      , withSpendingUTXO validatedOrderUTxO
+      , output invalidPaymentUTxOTooMuch
+      ]
+
+invalidOnePayWithJunk :: ScriptContext
+invalidOnePayWithJunk =
+  buildSpending' $
+    mconcat
+      [ input validatedOrderUTxO
+      , withSpendingUTXO validatedOrderUTxO
+      , output invalidPaymentUTxOWithJunk
+      ]
+
+invalidNoPayment :: ScriptContext
+invalidNoPayment =
+  buildSpending' $
+    mconcat
+      [ input validatedOrderUTxO
+      , withSpendingUTXO validatedOrderUTxO
+      ]
+
+validCancelOne :: ScriptContext
+validCancelOne =
+  buildSpending' $
+    mconcat
+      [ input validatedOrderUTxO
+      , withSpendingUTXO validatedOrderUTxO
+      , signedWith validCancelPubKeyHash
+      ]
+
+invalidCancelOneWrongKey :: ScriptContext
+invalidCancelOneWrongKey =
+  buildSpending' $
+    mconcat
+      [ input validatedOrderUTxO
+      , withSpendingUTXO validatedOrderUTxO
+      , signedWith junkPubKeyHash
+      ]
+
+invalidCancelOneNoKey :: ScriptContext
+invalidCancelOneNoKey =
+  buildSpending' $
+    mconcat
+      [ input validatedOrderUTxO
+      , withSpendingUTXO validatedOrderUTxO
+      ]
+
 specForScript :: Script -> TestTree
 specForScript script =
   let
-    mkTest :: String -> ScriptContext -> ScriptResult -> TestTree
-    mkTest testName context expectedResult =
+    mkTest :: NftMarketplaceRedeemer -> String -> ScriptContext -> ScriptResult -> TestTree
+    mkTest redeemer testName context expectedResult =
       let
         apply =
           uncheckedApplyDataToScript context
-            . uncheckedApplyDataToScript NftMarketplaceRedeemer'Buy
+            . uncheckedApplyDataToScript redeemer
             . uncheckedApplyDataToScript validatedOrderDatum
         applied = apply script
        in
         testScript $ ScriptCase testName expectedResult applied applied
+
+    mkBuyTest :: String -> ScriptContext -> ScriptResult -> TestTree
+    mkBuyTest = mkTest NftMarketplaceRedeemer'Buy
+
+    mkCancelTest :: String -> ScriptContext -> ScriptResult -> TestTree
+    mkCancelTest = mkTest NftMarketplaceRedeemer'Cancel
    in
     testGroup
       "NFT Marketplace"
-      [ mkTest "Valid one spend" validSpendOne ScriptSuccess
-      , mkTest "Invalid one spend - no datum" invalidOneNoDatum ScriptFailure
+      [ mkBuyTest "Buy one" validBuyOne ScriptSuccess
+      , mkBuyTest "Invalid buy one - no datum" invalidOneNoDatum ScriptFailure
+      , mkBuyTest "Invalid buy one - hash datum" invalidOneHashDatum ScriptFailure
+      , mkBuyTest "Invalid buy one - pay too little" invalidOnePayTooLittle ScriptFailure
+      , mkBuyTest "Invalid buy one - pay too much" invalidOnePayTooMuch ScriptFailure
+      , mkBuyTest "Invalid buy one - pay with junk" invalidOnePayWithJunk ScriptFailure
+      , mkBuyTest "Invalid buy one - no payment" invalidNoPayment ScriptFailure
+      , mkCancelTest "Cancel one" validCancelOne ScriptSuccess
+      , mkCancelTest "Cancel one - wrong key" invalidCancelOneWrongKey ScriptFailure
+      , mkCancelTest "Cancel one - no key" invalidCancelOneNoKey ScriptFailure
       ]
