@@ -87,7 +87,6 @@
         { config
         , pkgs
         , lib
-        , self'
         , system
         , ...
         }: {
@@ -136,7 +135,6 @@
                 pkgs.fd
                 pkgs.texlive.combined.scheme-full
                 pkgs.mdbook
-                self'.packages.lbf-plutus-to-plutarch
               ];
             };
           };

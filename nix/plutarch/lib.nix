@@ -22,16 +22,8 @@ in
 
 args:
 let
-  cardanoPackages =
-    if args.cardanoPackages or null == null
-    then defaultCardanoPackages
-    else args.cardanoPackages;
-
-  plutarchPackage =
-    if args.plutarchPackage or null == null
-    then defaultPlutarchPackage
-    else args.plutarchPackage;
-
+  cardanoPackages = args.cardanoPackages or defaultCardanoPackages;
+  plutarchPackage = args.plutarchPackage or defaultPlutarchPackage;
 in
 {
   inherit (args) name src ghcVersion;

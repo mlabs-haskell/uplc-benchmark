@@ -20,7 +20,6 @@
 
       in
       {
-        inherit (lb) packages;
         libLb = lb.lib;
       };
   };
