@@ -296,7 +296,5 @@ let
 
 in
 {
-  lib = {
-    inherit mkLbPlutarchPackage mkLbPlutusPackage;
-  };
+  inherit mkLbPlutarchPackage mkLbPlutusPackage;
 }
