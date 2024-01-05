@@ -21,23 +21,21 @@
         hash = "sha256-om9EEGrw09gm0i+i9GYp0KYWQMXAd6ZvAZPzW6cGSLw=";
       };
 
-      uplc-benchmark-tests =
-        config.libHaskell.mkPackage (config.libPlutarch.mkPackage {
-          name = "uplc-benchmark-tests";
-          src = ./.;
-          ghcVersion = "ghc928";
-          externalDependencies = [
-            "${liqwid-libs}/liqwid-plutarch-extra"
-            "${liqwid-libs}/liqwid-script-export"
-            "${liqwid-libs}/plutarch-benchmark"
-            "${liqwid-libs}/plutarch-context-builder"
-            "${liqwid-libs}/plutarch-quickcheck"
-            "${liqwid-libs}/plutarch-unit"
-            "${ply}/ply-core"
-            "${ply}/ply-plutarch"
-            self'.packages.uplc-benchmark-types-plutus
-          ];
-        });
+      uplc-benchmark-tests = config.libPlutarch.mkPackage {
+        name = "uplc-benchmark-tests";
+        src = ./.;
+        externalDependencies = [
+          "${liqwid-libs}/liqwid-plutarch-extra"
+          "${liqwid-libs}/liqwid-script-export"
+          "${liqwid-libs}/plutarch-benchmark"
+          "${liqwid-libs}/plutarch-context-builder"
+          "${liqwid-libs}/plutarch-quickcheck"
+          "${liqwid-libs}/plutarch-unit"
+          "${ply}/ply-core"
+          "${ply}/ply-plutarch"
+          self'.packages.uplc-benchmark-types-plutus
+        ];
+      };
 
       binSources = {
         UPLC_BENCHMARK_BIN_PLUTARCH = self'.packages.plutarch-implementation-compiled.outPath;

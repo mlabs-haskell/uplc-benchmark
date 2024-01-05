@@ -18,7 +18,6 @@ let
       rev = "cb73d5029bf2a82098591fe84f6623f31329f1d0";
       hash = "sha256-l0Cu/G/Zh6GDLFUZRKZuhfYEKT0lSeLK26nJooiDFsw=";
     }).outPath + "/proto-lens-protoc";
-    ghcVersion = "ghc928";
   }).packages."proto-lens-protoc:exe:proto-lens-protoc";
 
   haskellProto = callPackage ./haskell-proto.nix {
@@ -54,14 +53,12 @@ let
     compiler = mkHaskellPackage {
       name = "lambda-buffers-compiler";
       src = "${lambda-buffers-src}/lambda-buffers-compiler";
-      ghcVersion = "ghc928";
       externalDependencies = builtins.attrValues protoLibs;
     };
 
     frontend = mkHaskellPackage {
       name = "lambda-buffers-frontend";
       src = "${lambda-buffers-src}/lambda-buffers-frontend";
-      ghcVersion = "ghc928";
       externalDependencies = builtins.attrValues protoLibs ++ [
         "${lambda-buffers-src}/lambda-buffers-compiler"
       ];
@@ -70,7 +67,6 @@ let
     codegen = mkHaskellPackage {
       name = "lambda-buffers-codegen";
       src = "${lambda-buffers-src}/lambda-buffers-codegen";
-      ghcVersion = "ghc928";
       externalDependencies = builtins.attrValues protoLibs ++ [
         "${lambda-buffers-src}/lambda-buffers-compiler"
       ];
@@ -249,35 +245,30 @@ let
   };
 
 
-  mkLbPlutarchPackage =
-    { name
-    , src
-    , files ? null
-    }: mkHaskellPackage (mkPlutarchPackage {
-      inherit name;
-      src = mkLbHaskellPackage {
-        name = "${name}-lb";
-        inherit src files;
-        cabalBuildDepends = [
-          "base"
-          "lbr-plutarch"
-          "plutarch"
-          "plutus-core"
-          "lbf-prelude-plutarch"
-          "lbf-plutus-plutarch"
-        ];
-        lbfGen = lbf-plutus-to-plutarch;
-      };
-      ghcVersion = "ghc928";
-      externalDependencies = [
-        plutus.plutarch
-        prelude.plutarch
-        runtimes.plutarch
-        runtimes.prelude
+  mkLbPlutarchPackage = { name, src, files ? null }: mkPlutarchPackage {
+    inherit name;
+    src = mkLbHaskellPackage {
+      name = "${name}-lb";
+      inherit src files;
+      cabalBuildDepends = [
+        "base"
+        "lbr-plutarch"
+        "plutarch"
+        "plutus-core"
+        "lbf-prelude-plutarch"
+        "lbf-plutus-plutarch"
       ];
-    });
+      lbfGen = lbf-plutus-to-plutarch;
+    };
+    externalDependencies = [
+      plutus.plutarch
+      prelude.plutarch
+      runtimes.plutarch
+      runtimes.prelude
+    ];
+  };
 
-  mkLbPlutusPackage = { name, src, files ? null }: mkHaskellPackage (mkPlutarchPackage {
+  mkLbPlutusPackage = { name, src, files ? null }: mkPlutarchPackage {
     inherit name;
     src = mkLbHaskellPackage {
       name = "${name}-lb";
@@ -295,14 +286,13 @@ let
       ];
       lbfGen = lbf-plutus-to-haskell;
     };
-    ghcVersion = "ghc928";
     externalDependencies = [
       plutus.haskell
       prelude.haskell
       runtimes.plutus
       runtimes.prelude
     ];
-  });
+  };
 
 in
 {

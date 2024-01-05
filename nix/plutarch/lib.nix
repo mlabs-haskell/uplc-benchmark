@@ -1,18 +1,16 @@
-# NOTE: It does not return a package, but a package specification to be built
-# by the Haskell module
-
 { fetchFromGitHub
+, mkHaskellPackage
 }:
 
 let
-  defaultPlutarchPackage = fetchFromGitHub {
+  plutarchPackage = fetchFromGitHub {
     owner = "Plutonomicon";
     repo = "plutarch-plutus";
     rev = "288d9140468ae98abe1c9a4c0bb1c19a82eb7cd6"; # branch: master
     hash = "sha256-aeaZMW5Y3r5GdSyrfrrKOuGahcL5MVkDUNggunbmtv0=";
   };
 
-  defaultCardanoPackages = fetchFromGitHub {
+  cardanoPackages = fetchFromGitHub {
     owner = "input-output-hk";
     repo = "cardano-haskell-packages";
     rev = "3df392af2a61d61bdac1afd9c3674f27d6aa8efc"; # branch: repo
@@ -21,19 +19,13 @@ let
 in
 
 args:
-let
-  cardanoPackages = args.cardanoPackages or defaultCardanoPackages;
-  plutarchPackage = args.plutarchPackage or defaultPlutarchPackage;
-in
-{
-  inherit (args) name src ghcVersion;
-
+mkHaskellPackage (args // {
   externalRepositories = {
     "https://input-output-hk.github.io/cardano-haskell-packages" = cardanoPackages;
-  };
+  } // (args.externalRepositories or { });
 
   externalDependencies = [
-    plutarchPackage
+    "${plutarchPackage}"
     "${plutarchPackage}/plutarch-extra"
   ] ++ (args.externalDependencies or [ ]);
-}
+})
