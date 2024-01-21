@@ -6,11 +6,14 @@ import Data.ByteString qualified as ByteString
 import Data.ByteString.Hash (blake2b_256)
 import Data.Word (Word8)
 import Optics (set)
-import Plutarch.Context (UTXO)
-import Plutarch.Context.Base (DatumType (ContextDatum, InlineDatum))
+import Plutarch (Script)
+import Plutarch.Api.V2 (scriptHash)
+import Plutarch.Context (BaseBuilder, Builder (pack), UTXO)
+import Plutarch.Context.Base (DatumType (ContextDatum, InlineDatum), mkMint)
 import PlutusLedgerApi.V2 (
   BuiltinByteString,
   CurrencySymbol (CurrencySymbol),
+  ScriptHash (getScriptHash),
   ToData,
   TokenName (TokenName),
   toBuiltin,
@@ -37,3 +40,17 @@ withInlineDatum dat = set #data (pure . InlineDatum . toData $ dat) (mempty :: U
 
 withHashDatum :: (ToData datum) => datum -> UTXO
 withHashDatum dat = set #data (pure . ContextDatum . toData $ dat) (mempty :: UTXO)
+
+scriptSymbol :: Script -> CurrencySymbol
+scriptSymbol = CurrencySymbol . getScriptHash . scriptHash
+
+mintWithRedeemer ::
+  (ToData redeemer, Builder builder) =>
+  redeemer ->
+  CurrencySymbol ->
+  TokenName ->
+  Integer ->
+  builder
+mintWithRedeemer r cs tn amt =
+  pack . set #mints (pure $ mkMint cs [(tn, amt)] (toData r)) $
+    (mempty :: BaseBuilder)

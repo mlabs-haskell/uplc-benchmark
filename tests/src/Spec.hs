@@ -8,6 +8,7 @@ import System.FilePath ((</>))
 import System.IO (hPutStrLn, stderr)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import UplcBenchmark.ScriptLoader (loadScriptFromFile)
+import UplcBenchmark.Spec.LpPolicy qualified as LpPolicy (specForScript)
 import UplcBenchmark.Spec.NftMarketplace qualified as NftMarketplace (specForScript)
 
 ePutStrLn :: String -> IO ()
@@ -28,11 +29,21 @@ data Implementation = Implementation String FilePath
 mkTestForImplementation :: Implementation -> IO TestTree
 mkTestForImplementation (Implementation testName baseFilePathEnv) = do
   baseFilePath <- getEnv baseFilePathEnv
-  nftMarketplaceScript <- loadScriptFromFile (baseFilePath </> "nft-marketplace-validator.bin")
+  let loadScript script = loadScriptFromFile (baseFilePath </> script)
+
+  nftMarketplaceScript <- loadScript "nft-marketplace-validator.bin"
+  lpMintingPolicyScript <- loadScript "lp-minting-policy.bin"
+  _nftMintingPolicyScript <- loadScript "nft-minting-policy.bin"
+  _poolValidatorScript <- loadScript "pool-validator.bin"
+
   pure $
     testGroup
       testName
       [ NftMarketplace.specForScript nftMarketplaceScript
+      , testGroup
+          "DEX"
+          [ LpPolicy.specForScript lpMintingPolicyScript
+          ]
       ]
 
 implementations :: [Implementation]
