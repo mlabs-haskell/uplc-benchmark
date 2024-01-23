@@ -98,6 +98,7 @@ common deps
     , uplc-benchmark-types-plutus-lb
     , optics
     , acc
+    , plutus-tx
 
 test-suite uplc-benchmark-tests
   import:          lang, deps
@@ -108,5 +109,6 @@ test-suite uplc-benchmark-tests
     UplcBenchmark.ScriptLoader
     UplcBenchmark.Spec.NftMarketplace
     UplcBenchmark.Spec.LpPolicy
+    UplcBenchmark.Spec.PoolNftPolicy
     UplcBenchmark.Spec.ContextBuilder.Utils
     

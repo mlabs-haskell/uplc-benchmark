@@ -10,6 +10,7 @@ import Test.Tasty (TestTree, defaultMain, testGroup)
 import UplcBenchmark.ScriptLoader (loadScriptFromFile)
 import UplcBenchmark.Spec.LpPolicy qualified as LpPolicy (specForScript)
 import UplcBenchmark.Spec.NftMarketplace qualified as NftMarketplace (specForScript)
+import UplcBenchmark.Spec.PoolNftPolicy qualified as PoolNftPolicy (specForScript)
 
 ePutStrLn :: String -> IO ()
 ePutStrLn = hPutStrLn stderr
@@ -33,7 +34,7 @@ mkTestForImplementation (Implementation testName baseFilePathEnv) = do
 
   nftMarketplaceScript <- loadScript "nft-marketplace-validator.bin"
   lpMintingPolicyScript <- loadScript "lp-minting-policy.bin"
-  _nftMintingPolicyScript <- loadScript "nft-minting-policy.bin"
+  nftMintingPolicyScript <- loadScript "nft-minting-policy.bin"
   _poolValidatorScript <- loadScript "pool-validator.bin"
 
   pure $
@@ -43,6 +44,7 @@ mkTestForImplementation (Implementation testName baseFilePathEnv) = do
       , testGroup
           "DEX"
           [ LpPolicy.specForScript lpMintingPolicyScript
+          , PoolNftPolicy.specForScript nftMintingPolicyScript
           ]
       ]
 

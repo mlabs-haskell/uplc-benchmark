@@ -1,3 +1,10 @@
-# Plutarch Implementation
+# Unified test bench
 
-It is just a template to test compilation setup. Nothing to see here
+This project contains language-agnostic unit tests.
+
+## Usage
+
+```console
+$ cabal test
+```
+
