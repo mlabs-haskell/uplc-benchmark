@@ -86,6 +86,7 @@ common deps
     , bytestring
     , filepath
     , mtl
+    , optics
     , plutarch
     , plutarch-context-builder
     , plutarch-quickcheck
@@ -93,12 +94,10 @@ common deps
     , plutus-core
     , plutus-core
     , plutus-ledger-api
+    , plutus-tx
     , tasty
     , text
     , uplc-benchmark-types-plutus-lb
-    , optics
-    , acc
-    , plutus-tx
 
 test-suite uplc-benchmark-tests
   import:          lang, deps
@@ -107,8 +106,9 @@ test-suite uplc-benchmark-tests
   hs-source-dirs:  src
   other-modules:
     UplcBenchmark.ScriptLoader
-    UplcBenchmark.Spec.NftMarketplace
-    UplcBenchmark.Spec.LpPolicy
-    UplcBenchmark.Spec.PoolNftPolicy
     UplcBenchmark.Spec.ContextBuilder.Utils
+    UplcBenchmark.Spec.LpPolicy
+    UplcBenchmark.Spec.NftMarketplace
+    UplcBenchmark.Spec.PoolNftPolicy
+    UplcBenchmark.Spec.PoolValidator
     
