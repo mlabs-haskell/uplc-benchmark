@@ -10,13 +10,14 @@ import LambdaBuffers.Dex (
     dexDatum'tokenA,
     dexDatum'tokenB
   ),
-  DexRedeemer (DexRedeemer'Swap),
+  DexRedeemer (DexRedeemer'DepositLiquidity, DexRedeemer'Swap),
  )
 import Plutarch (Script)
 import Plutarch.Context (
   UTXO,
   buildSpending',
   input,
+  mint,
   output,
   withSpendingUTXO,
   withValue,
@@ -26,10 +27,15 @@ import Plutarch.Test.Script (
   ScriptResult (ScriptFailure, ScriptSuccess),
   testScript,
  )
-import PlutusLedgerApi.V1.Value (AssetClass (AssetClass), assetClassValue)
+import PlutusLedgerApi.V1.Value (
+  AssetClass (AssetClass),
+  assetClassValue,
+  singleton,
+ )
 import PlutusLedgerApi.V2 (
   CurrencySymbol (CurrencySymbol),
   ScriptContext,
+  TokenName,
  )
 import Test.Tasty (TestTree, testGroup)
 import UplcBenchmark.ScriptLoader (uncheckedApplyDataToScript)
@@ -47,8 +53,11 @@ tokenA = AssetClass (CurrencySymbol $ mkHash28 2, "A")
 tokenB :: AssetClass
 tokenB = AssetClass (CurrencySymbol $ mkHash28 3, "B")
 
+poolNftName :: TokenName
+poolNftName = "NFT"
+
 poolNft :: AssetClass
-poolNft = AssetClass (CurrencySymbol $ mkHash28 4, "NFT")
+poolNft = AssetClass (CurrencySymbol $ mkHash28 4, poolNftName)
 
 poolDatum :: DexDatum
 poolDatum =
@@ -57,7 +66,7 @@ poolDatum =
     , dexDatum'tokenB = tokenB
     , dexDatum'poolNft = poolNft
     , dexDatum'lpToken = lpToken
-    , dexDatum'mintedLpTokens = 1000
+    , dexDatum'mintedLpTokens = 1415
     , dexDatum'swapFee = 3
     }
 
@@ -194,6 +203,104 @@ invalidSwapNoSelfOutput =
       , withSpendingUTXO poolUTxO
       ]
 
+validDeposit :: ScriptContext
+validDeposit =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName 140
+      , output $
+          mconcat
+            [ withInlineDatum $ poolDatum {dexDatum'mintedLpTokens = 1415 + 140}
+            , withValue $ assetClassValue poolNft 1
+            , withValue $ assetClassValue tokenA 1100
+            , withValue $ assetClassValue tokenB 2200
+            ]
+      ]
+
+invalidDepositNoDeposit :: ScriptContext
+invalidDepositNoDeposit =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName 140
+      , output $
+          mconcat
+            [ withInlineDatum $ poolDatum {dexDatum'mintedLpTokens = 1415 + 140}
+            , withValue $ assetClassValue poolNft 1
+            , withValue $ assetClassValue tokenA 1000
+            , withValue $ assetClassValue tokenB 2000
+            ]
+      ]
+
+invalidDepositNotEnough :: ScriptContext
+invalidDepositNotEnough =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName 140
+      , output $
+          mconcat
+            [ withInlineDatum $ poolDatum {dexDatum'mintedLpTokens = 1415 + 140}
+            , withValue $ assetClassValue poolNft 1
+            , withValue $ assetClassValue tokenA 1050
+            , withValue $ assetClassValue tokenB 2100
+            ]
+      ]
+
+invalidDepositStealNft :: ScriptContext
+invalidDepositStealNft =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName 140
+      , output $
+          mconcat
+            [ withInlineDatum $ poolDatum {dexDatum'mintedLpTokens = 1415 + 140}
+            , withValue $ assetClassValue tokenA 1100
+            , withValue $ assetClassValue tokenB 2200
+            ]
+      ]
+
+invalidDepositNoDatum :: ScriptContext
+invalidDepositNoDatum =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName 140
+      , output $
+          mconcat
+            [ withValue $ assetClassValue poolNft 1
+            , withValue $ assetClassValue tokenA 1100
+            , withValue $ assetClassValue tokenB 2200
+            ]
+      ]
+
+invalidDepositModifiedDatum :: ScriptContext
+invalidDepositModifiedDatum =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName 140
+      , output $
+          mconcat
+            [ withInlineDatum $
+                poolDatum
+                  { dexDatum'mintedLpTokens = 1415 + 140
+                  , dexDatum'tokenA = tokenB
+                  }
+            , withValue $ assetClassValue poolNft 1
+            , withValue $ assetClassValue tokenA 1100
+            , withValue $ assetClassValue tokenB 2200
+            ]
+      ]
+
 specForScript :: Script -> TestTree
 specForScript script =
   let
@@ -210,16 +317,31 @@ specForScript script =
 
     mkSwapTest :: String -> ScriptContext -> ScriptResult -> TestTree
     mkSwapTest = mkTest DexRedeemer'Swap
+
+    mkDepositTest :: String -> ScriptContext -> ScriptResult -> TestTree
+    mkDepositTest = mkTest DexRedeemer'DepositLiquidity
    in
     testGroup
       "Pool Validator"
-      [ mkSwapTest "Valid Swap - A for B" validSwapAForB ScriptSuccess
-      , mkSwapTest "Valid Swap - B for A" validSwapBForA ScriptSuccess
-      , mkSwapTest "Invalid Swap - no fee" invalidSwapNoFee ScriptFailure
-      , mkSwapTest "Invalid Swap - steal NFT" invalidSwapStealNft ScriptFailure
-      , mkSwapTest "Invalid Swap - no datum" invalidSwapNoDatum ScriptFailure
-      , mkSwapTest "Invalid Swap - modified datum" invalidSwapModifiedDatum ScriptFailure
-      , mkSwapTest "Invalid Swap - unit datum" invalidSwapUnitDatum ScriptFailure
-      , mkSwapTest "Invalid Swap - drain pool" invalidSwapDrainPool ScriptFailure
-      , mkSwapTest "Invalid Swap - no self output" invalidSwapNoSelfOutput ScriptFailure
+      [ testGroup
+          "Swap"
+          [ mkSwapTest "Valid Swap - A for B" validSwapAForB ScriptSuccess
+          , mkSwapTest "Valid Swap - B for A" validSwapBForA ScriptSuccess
+          , mkSwapTest "Invalid Swap - no fee" invalidSwapNoFee ScriptFailure
+          , mkSwapTest "Invalid Swap - steal NFT" invalidSwapStealNft ScriptFailure
+          , mkSwapTest "Invalid Swap - no datum" invalidSwapNoDatum ScriptFailure
+          , mkSwapTest "Invalid Swap - modified datum" invalidSwapModifiedDatum ScriptFailure
+          , mkSwapTest "Invalid Swap - unit datum" invalidSwapUnitDatum ScriptFailure
+          , mkSwapTest "Invalid Swap - drain pool" invalidSwapDrainPool ScriptFailure
+          , mkSwapTest "Invalid Swap - no self output" invalidSwapNoSelfOutput ScriptFailure
+          ]
+      , testGroup
+          "Deposit"
+          [ mkDepositTest "Valid Deposit" validDeposit ScriptSuccess
+          , mkDepositTest "Invalid Deposit - mint but no deposit" invalidDepositNoDeposit ScriptFailure
+          , mkDepositTest "Invalid Deposit - not deposit enough" invalidDepositNotEnough ScriptFailure
+          , mkDepositTest "Invalid Deposit - steal NFT" invalidDepositStealNft ScriptFailure
+          , mkDepositTest "Invalid Deposit - no datum" invalidDepositNoDatum ScriptFailure
+          , mkDepositTest "Invalid Deposit - modified datum" invalidDepositModifiedDatum ScriptFailure
+          ]
       ]

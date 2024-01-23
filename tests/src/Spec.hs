@@ -1,7 +1,6 @@
 module Main (main) where
 
 import Data.Kind (Type)
-import Plutarch.Context ()
 import System.Environment (lookupEnv)
 import System.Exit (exitFailure)
 import System.FilePath ((</>))
