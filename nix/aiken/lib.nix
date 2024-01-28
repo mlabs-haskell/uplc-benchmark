@@ -73,22 +73,6 @@ let
         
         runHook postConfigure
       '';
-
-      buildPhase = ''
-        runHook preBuild
-
-        aiken build
-
-        runHook postBuild
-      '';
-
-      installPhase = ''
-        runHook preInstall
-
-        cp plutus.json $out
-
-        runHook postInstall
-      '';
     });
 in
 {

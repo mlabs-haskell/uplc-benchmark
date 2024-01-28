@@ -2,9 +2,12 @@
   perSystem = { pkgs, config, ... }:
     let
       aiken-implementation = config.libAiken.mkPackage {
-        aikenLock = ./aiken-nix.lock;
         name = "aiken-implementation";
         src = ./.;
+        aikenLock = ./aiken-nix.lock;
+
+        nativeBuildInputs = [ pkgs.python3 ];
+        makeFlags = [ "PREFIX=${placeholder "out"}" ];
       };
     in
     {
@@ -14,6 +17,7 @@
         nativeBuildInputs = [
           config.libAiken.aiken
           config.libAiken.aiken2nix
+          pkgs.python3
         ];
       };
       packages = {
