@@ -82,6 +82,7 @@ common exe-opts
 
 common deps
   build-depends:
+    , aeson
     , base
     , bytestring
     , filepath
