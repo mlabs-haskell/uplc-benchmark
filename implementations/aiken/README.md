@@ -5,8 +5,8 @@
 ### Nix
 
 ```
-$ nix run .#aiken2nix
-$ nix build .#aiken-implementation
+$ nix run .#aiken2nix # only if 'aiken.lock' changed
+$ nix build .#aiken-implementation-compiled
 ```
 
 ### Native 
@@ -14,5 +14,5 @@ $ nix build .#aiken-implementation
 Only for development
 
 ```
-$ aiken build
+$ make
 ```
