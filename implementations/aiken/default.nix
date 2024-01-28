@@ -1,15 +1,5 @@
 {
   perSystem = { pkgs, config, ... }:
-    let
-      aiken-implementation = config.libAiken.mkPackage {
-        name = "aiken-implementation";
-        src = ./.;
-        aikenLock = ./aiken-nix.lock;
-
-        nativeBuildInputs = [ pkgs.python3 ];
-        makeFlags = [ "PREFIX=${placeholder "out"}" ];
-      };
-    in
     {
       devShells.aiken-implementation = pkgs.mkShell {
         shellHook = config.pre-commit.installationScript;
@@ -20,8 +10,14 @@
           pkgs.python3
         ];
       };
-      packages = {
-        inherit aiken-implementation;
+
+      packages.aiken-implementation-compiled = config.libAiken.mkPackage {
+        name = "aiken-implementation";
+        src = ./.;
+        aikenLock = ./aiken-nix.lock;
+
+        nativeBuildInputs = [ pkgs.python3 ];
+        makeFlags = [ "PREFIX=${placeholder "out"}" ];
       };
     };
 }

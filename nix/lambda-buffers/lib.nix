@@ -25,7 +25,6 @@ let
     inherit mkCli;
   };
 
-
   mkProtoLib = { name, cabalBuildInputs ? [ ] }: haskellProto {
     src = "${lambda-buffers-src}/api";
     proto = "${name}.proto";
@@ -185,7 +184,14 @@ let
         name = "lbf-prelude-haskell";
         inherit src files;
 
-        cabalBuildDepends = [ "base" "text" "lbr-prelude" "containers" "bytestring" ];
+        cabalBuildDepends = [
+          "aeson"
+          "base"
+          "text"
+          "lbr-prelude"
+          "containers"
+          "bytestring"
+        ];
 
         lbfGen = mkLbfCall {
           gen = "${lbg-haskell}/bin/lbg-haskell";
@@ -223,6 +229,7 @@ let
         inherit src files;
 
         cabalBuildDepends = [
+          "aeson"
           "base"
           "bytestring"
           "containers"
@@ -274,6 +281,7 @@ let
       name = "${name}-lb";
       inherit src files;
       cabalBuildDepends = [
+        "aeson < 2.2"
         "base"
         "bytestring"
         "containers"
