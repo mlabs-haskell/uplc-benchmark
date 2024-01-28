@@ -41,11 +41,12 @@
   outputs = inputs:
     let
       flakeModules = {
+        aiken = ./nix/aiken;
         haskell = ./nix/haskell;
+        lambdaBuffers = ./nix/lambda-buffers;
         latex = ./nix/latex;
         mdbook = ./nix/mdbook;
         plutarch = ./nix/plutarch;
-        lambdaBuffers = ./nix/lambda-buffers;
         utils = ./nix/utils;
       };
     in
@@ -54,6 +55,7 @@
         inputs.pre-commit-hooks-nix.flakeModule
         inputs.hci-effects.flakeModule
 
+        ./implementations/aiken
         ./implementations/plutarch
         ./specifications
         ./types
