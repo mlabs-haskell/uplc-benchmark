@@ -10,7 +10,11 @@ import LambdaBuffers.Dex (
     dexDatum'tokenA,
     dexDatum'tokenB
   ),
-  DexRedeemer (DexRedeemer'DepositLiquidity, DexRedeemer'Swap),
+  DexRedeemer (
+    DexRedeemer'DepositLiquidity,
+    DexRedeemer'Swap,
+    DexRedeemer'WithdrawLiquidity
+  ),
  )
 import Plutarch (Script)
 import Plutarch.Context (
@@ -301,6 +305,102 @@ invalidDepositModifiedDatum =
             ]
       ]
 
+validWithdraw :: ScriptContext
+validWithdraw =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName (-150)
+      , output $
+          mconcat
+            [ withInlineDatum $ poolDatum {dexDatum'mintedLpTokens = 1415 - 150}
+            , withValue $ assetClassValue poolNft 1
+            , withValue $ assetClassValue tokenA 900
+            , withValue $ assetClassValue tokenB 1800
+            ]
+      ]
+
+invalidWithdrawNoWithdraw :: ScriptContext
+invalidWithdrawNoWithdraw =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName (-150)
+      , output $
+          mconcat
+            [ withInlineDatum $ poolDatum {dexDatum'mintedLpTokens = 1415 - 150}
+            , withValue $ assetClassValue poolNft 1
+            ]
+      ]
+
+invalidWithdrawTooMuch :: ScriptContext
+invalidWithdrawTooMuch =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName (-150)
+      , output $
+          mconcat
+            [ withInlineDatum $ poolDatum {dexDatum'mintedLpTokens = 1415 - 150}
+            , withValue $ assetClassValue poolNft 1
+            , withValue $ assetClassValue tokenA 500
+            , withValue $ assetClassValue tokenB 1000
+            ]
+      ]
+
+invalidWithdrawStealNft :: ScriptContext
+invalidWithdrawStealNft =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName (-150)
+      , output $
+          mconcat
+            [ withInlineDatum $ poolDatum {dexDatum'mintedLpTokens = 1415 - 150}
+            , withValue $ assetClassValue tokenA 900
+            , withValue $ assetClassValue tokenB 1800
+            ]
+      ]
+
+invalidWithdrawNoDatum :: ScriptContext
+invalidWithdrawNoDatum =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName (-150)
+      , output $
+          mconcat
+            [ withValue $ assetClassValue poolNft 1
+            , withValue $ assetClassValue tokenA 900
+            , withValue $ assetClassValue tokenB 1800
+            ]
+      ]
+
+invalidWithdrawModifiedDatum :: ScriptContext
+invalidWithdrawModifiedDatum =
+  buildSpending' $
+    mconcat
+      [ input poolUTxO
+      , withSpendingUTXO poolUTxO
+      , mint $ singleton lpToken poolNftName (-150)
+      , output $
+          mconcat
+            [ withInlineDatum $
+                poolDatum
+                  { dexDatum'mintedLpTokens = 1415 - 150
+                  , dexDatum'tokenA = tokenB
+                  }
+            , withValue $ assetClassValue poolNft 1
+            , withValue $ assetClassValue tokenA 900
+            , withValue $ assetClassValue tokenB 1800
+            ]
+      ]
+
 specForScript :: Script -> TestTree
 specForScript script =
   let
@@ -320,6 +420,9 @@ specForScript script =
 
     mkDepositTest :: String -> ScriptContext -> ScriptResult -> TestTree
     mkDepositTest = mkTest DexRedeemer'DepositLiquidity
+
+    mkWithdrawTest :: String -> ScriptContext -> ScriptResult -> TestTree
+    mkWithdrawTest = mkTest DexRedeemer'WithdrawLiquidity
    in
     testGroup
       "Pool Validator"
@@ -343,5 +446,14 @@ specForScript script =
           , mkDepositTest "Invalid Deposit - steal NFT" invalidDepositStealNft ScriptFailure
           , mkDepositTest "Invalid Deposit - no datum" invalidDepositNoDatum ScriptFailure
           , mkDepositTest "Invalid Deposit - modified datum" invalidDepositModifiedDatum ScriptFailure
+          ]
+      , testGroup
+          "Withdraw"
+          [ mkWithdrawTest "Valid Withdraw" validWithdraw ScriptSuccess
+          , mkWithdrawTest "Invalid Withdraw - mint but no withdraw" invalidWithdrawNoWithdraw ScriptFailure
+          , mkWithdrawTest "Invalid Withdraw - withdraw too much" invalidWithdrawTooMuch ScriptFailure
+          , mkWithdrawTest "Invalid Withdraw - steal NFT" invalidWithdrawStealNft ScriptFailure
+          , mkWithdrawTest "Invalid Withdraw - no datum" invalidWithdrawNoDatum ScriptFailure
+          , mkWithdrawTest "Invalid Withdraw - modified datum" invalidWithdrawModifiedDatum ScriptFailure
           ]
       ]
