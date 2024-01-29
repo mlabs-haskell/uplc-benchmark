@@ -105,6 +105,12 @@
               nixpkgs-fmt.enable = true;
               typos.enable = true;
               fourmolu.enable = true;
+              aiken-fmt = {
+                enable = true;
+                name = "aiken-fmt";
+                files = "\\.ak$";
+                entry = "${config.libAiken.aiken}/bin/aiken fmt";
+              };
             };
 
             tools = {
