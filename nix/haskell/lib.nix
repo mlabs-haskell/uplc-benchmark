@@ -1,16 +1,23 @@
 { lib
+, fetchFromGitHub
   # e.g. "x86_64-linux"
 , system # : string
-, iohkNixCryptoOverlay # : overlay
 , haskellNixNixpkgs # : nixpkgs
 , haskellNixOverlay # : overlay
 }:
 
 let
+  iohk-nix = fetchFromGitHub {
+    owner = "input-output-hk";
+    repo = "iohk-nix";
+    rev = "4848df60660e21fbb3fe157d996a8bac0a9cf2d6";
+    hash = "sha256-ediFkDOBP7yVquw1XtHiYfuXKoEnvKGjTIAk9mC6qxo=";
+  };
+
   pkgs = import haskellNixNixpkgs {
     inherit system;
     overlays = [
-      iohkNixCryptoOverlay
+      (import "${iohk-nix}/overlays/crypto")
       haskellNixOverlay
       (final: _prev: {
         rocm-thunk = final.rocmPackages.rocm-thunk;
@@ -21,8 +28,7 @@ in
 
 { name # : string
 , src # : path
-  # e.g. ghc928
-, ghcVersion # : string
+, ghcVersion ? "ghc928" # : string
 , haskellModules ? [ ]
 , externalDependencies ? [ ]
 , externalRepositories ? { }

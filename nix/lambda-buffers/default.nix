@@ -9,19 +9,13 @@
       };
     };
 
-    config =
-      let
-        lb = pkgs.callPackage ./lib.nix {
-          lambda-buffers-src = "${inputs.lambda-buffers}";
-          mkPlutarchPackage = config.libPlutarch.mkPackage;
-          mkHaskellPackage = config.libHaskell.mkPackage;
-          inherit (config.libUtils) mkCli;
-        };
-
-      in
-      {
-        inherit (lb) packages;
-        libLb = lb.lib;
+    config = {
+      libLb = pkgs.callPackage ./lib.nix {
+        lambda-buffers-src = "${inputs.lambda-buffers}";
+        mkPlutarchPackage = config.libPlutarch.mkPackage;
+        mkHaskellPackage = config.libHaskell.mkPackage;
+        inherit (config.libUtils) mkCli;
       };
+    };
   };
 }

@@ -1,52 +1,44 @@
-# NOTE: It does not return a package, but a package specification to be built
-# by the Haskell module
-
 { fetchFromGitHub
+, mkHaskellPackage
 , applyPatches
+, fetchpatch
 }:
 
 let
-  defaultPlutarchPackage = applyPatches {
-    name = "plutarch-src";
+  plutarchPackage = applyPatches {
+    name = "plutarch-patched";
     src = fetchFromGitHub {
       owner = "Plutonomicon";
       repo = "plutarch-plutus";
-      rev = "380df4c8101dd6e0dadc620c1f523f5ae2edbc27"; # branch: master
-      sha256 = "sha256-jPVA4H3ut8umpzVYWxWjzQZQ6q1l8ikAbW3cZZe29VA=";
+      rev = "288d9140468ae98abe1c9a4c0bb1c19a82eb7cd6"; # branch: master
+      hash = "sha256-aeaZMW5Y3r5GdSyrfrrKOuGahcL5MVkDUNggunbmtv0=";
     };
 
-    patches = [ ./fix-plutarch.patch ];
+    patches = [
+      # https://github.com/Plutonomicon/plutarch-plutus/pull/650
+      (fetchpatch {
+        url = "https://github.com/Plutonomicon/plutarch-plutus/commit/7256acb8db3230d2453460f0358582283c69da5f.patch";
+        hash = "sha256-y/F1ZwLDC5E4vh8F+JTQStHJsQ1ZEe9LIZcwSGMSUek=";
+      })
+    ];
   };
 
-  defaultCardanoPackages = fetchFromGitHub {
+  cardanoPackages = fetchFromGitHub {
     owner = "input-output-hk";
     repo = "cardano-haskell-packages";
-    rev = "835af81be5bd76342191bd64875dbcbc2c45a39f"; # branch: repo
-    hash = "sha256-ZTBmOWmgYg8jVDB3VFu3VSpBaKOGOkp/0u+M9tyTalk=";
+    rev = "3df392af2a61d61bdac1afd9c3674f27d6aa8efc"; # branch: repo
+    hash = "sha256-vvm56KzA6jEkG3mvwh1LEdK4H4FKxeoOJNz90H8l8dQ=";
   };
 in
 
 args:
-let
-  cardanoPackages =
-    if args.cardanoPackages or null == null
-    then defaultCardanoPackages
-    else args.cardanoPackages;
-
-  plutarchPackage =
-    if args.plutarchPackage or null == null
-    then defaultPlutarchPackage
-    else args.plutarchPackage;
-
-in
-{
-  inherit (args) name src ghcVersion;
-
+mkHaskellPackage (args // {
   externalRepositories = {
     "https://input-output-hk.github.io/cardano-haskell-packages" = cardanoPackages;
-  };
+  } // (args.externalRepositories or { });
 
   externalDependencies = [
-    plutarchPackage
+    "${plutarchPackage}"
+    "${plutarchPackage}/plutarch-extra"
   ] ++ (args.externalDependencies or [ ]);
-}
+})

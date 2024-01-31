@@ -1,0 +1,27 @@
+diff --git a/plutarch-context-builder/plutarch-context-builder.cabal b/plutarch-context-builder/plutarch-context-builder.cabal
+index 515494d..0e28217 100644
+--- a/plutarch-context-builder/plutarch-context-builder.cabal
++++ b/plutarch-context-builder/plutarch-context-builder.cabal
+@@ -94,8 +94,8 @@ common common-tests
+ 
+ library
+   import:          common-lang
+-  exposed-modules: Plutarch.Context
+-  other-modules:
++  exposed-modules:
++    Plutarch.Context
+     Plutarch.Context.Base
+     Plutarch.Context.Certifying
+     Plutarch.Context.Check
+diff --git a/plutarch-context-builder/src/Plutarch/Context/Base.hs b/plutarch-context-builder/src/Plutarch/Context/Base.hs
+index 7e691a1..87cff4d 100644
+--- a/plutarch-context-builder/src/Plutarch/Context/Base.hs
++++ b/plutarch-context-builder/src/Plutarch/Context/Base.hs
+@@ -17,6 +17,7 @@
+ module Plutarch.Context.Base (
+   -- * Types
+   Builder (..),
++  DatumType (..),
+   BaseBuilder,
+   UTXO,
+   Mint,

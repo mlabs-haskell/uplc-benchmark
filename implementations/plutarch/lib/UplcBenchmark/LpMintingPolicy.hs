@@ -27,10 +27,9 @@ plpMintingPolicy = plam $ \poolNftCs _redeemer ctx' -> P.do
   txInfo <- pletFields @'["inputs", "mint"] ctx.txInfo
   ownMint <- plet $ ptryGetOwnMint # ownSymbol # txInfo.mint
 
-  isValidMint :: Term s (PTokenName :--> PInteger :--> PBool) <- plet $ plam $ \mintedLpName mintedLpAmount ->
+  isValidMint :: Term s (PTokenName :--> PInteger :--> PBool) <- plet $ plam $ \mintedLpName _mintedLpAmount ->
     -- brackets are redundant, but formatter is horrible without
-    (mintedLpAmount #== 1)
-      #&& (pany # (inputHasNft # mintedLpName) # txInfo.inputs)
+    pany # (inputHasNft # mintedLpName) # txInfo.inputs
 
   -- For each entry in minting list, we must mint exactly one token (so no burning as well)
   -- and spend an input with corresponding NFT

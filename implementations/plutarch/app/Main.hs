@@ -3,17 +3,20 @@ module Main (main) where
 import Data.ByteString qualified as BS (writeFile)
 import Data.ByteString.Short (fromShort)
 import Data.Text qualified as Text
-import Plutarch (ClosedTerm, Config (Config), TracingMode (NoTracing), compile)
+import Plutarch (ClosedTerm, Config (Config), TracingMode (DoTracingAndBinds), compile)
 import Plutarch.Script (serialiseScript)
 import System.IO (hPutStrLn, stderr)
 
+import UplcBenchmark.LpMintingPolicy (plpMintingPolicy)
 import UplcBenchmark.NftMarketplace (pnftMarketplaceValidator)
+import UplcBenchmark.NftMintingPolicy (pnftMintingPolicy)
+import UplcBenchmark.PoolValidator (ppoolValidator)
 
 ePutStrLn :: String -> IO ()
 ePutStrLn = hPutStrLn stderr
 
 compilationConfig :: Config
-compilationConfig = Config NoTracing
+compilationConfig = Config DoTracingAndBinds
 
 compileToFile :: ClosedTerm a -> FilePath -> IO ()
 compileToFile term fp = do
@@ -28,3 +31,6 @@ compileToFile term fp = do
 main :: IO ()
 main = do
   compileToFile pnftMarketplaceValidator "nft-marketplace-validator.bin"
+  compileToFile plpMintingPolicy "lp-minting-policy.bin"
+  compileToFile pnftMintingPolicy "nft-minting-policy.bin"
+  compileToFile ppoolValidator "pool-validator.bin"
