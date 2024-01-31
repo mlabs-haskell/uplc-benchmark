@@ -99,18 +99,14 @@
 
           pre-commit.settings = {
             hooks = {
+              aiken-fmt = config.libAiken.preCommit.aikenFmt { enable = true; };
+              black.enable = true;
               chktex.enable = true;
               deadnix.enable = true;
+              fourmolu.enable = true;
               latexindent.enable = true;
               nixpkgs-fmt.enable = true;
               typos.enable = true;
-              fourmolu.enable = true;
-              aiken-fmt = {
-                enable = true;
-                name = "aiken-fmt";
-                files = "\\.ak$";
-                entry = "${config.libAiken.aiken}/bin/aiken fmt";
-              };
             };
 
             tools = {

@@ -22,8 +22,6 @@ in
 
         config = {
           inherit libAiken;
-          packages.aiken = libAiken.aiken;
-          apps.aiken2nix.program = libAiken.aiken2nix;
         };
       });
   };
