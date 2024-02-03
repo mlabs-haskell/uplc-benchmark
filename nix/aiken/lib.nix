@@ -1,5 +1,4 @@
-{ fetchFromGitHub
-, rustPlatform
+{ rustPlatform
 , openssl
 , pkg-config
 , stdenv
@@ -9,27 +8,15 @@
 , fetchzip
 , yj
 , jq
-, aiken-src ? {
-    version = "1.0.23-alpha";
-    hash = "sha256-MmEQVX66zXaK+rOOhaSHQm5kSDIfQTzmWozfsJIzt/M=";
-  }
+, aiken-src
 }:
 
 let
-  aiken = rustPlatform.buildRustPackage rec {
+  aiken = rustPlatform.buildRustPackage ({
     pname = "aiken";
-    inherit (aiken-src) version;
+    version = "unstable-${aiken-src.shortRev or "unknown"}";
 
-    src = fetchFromGitHub {
-      owner = "aiken-lang";
-      repo = "aiken";
-      rev = aiken-src.rev or "v${aiken-src.version}";
-      inherit (aiken-src) hash;
-    };
-
-    cargoLock = {
-      lockFile = "${src}/Cargo.lock";
-    };
+    src = aiken-src;
 
     buildInputs = [
       openssl
@@ -38,7 +25,14 @@ let
     nativeBuildInputs = [
       pkg-config
     ];
-  };
+  } // (if aiken-src ? cargoHash then {
+    inherit (aiken-src) cargoHash;
+  } else
+    lib.warn "`aiken-src.cargoHash` was not provided. Using IFD instead to obtain cargo dependencies." {
+      cargoLock = {
+        lockFile = "${aiken-src}/Cargo.lock";
+      };
+    }));
 
   mkPythonApplication = name: path: writeShellApplication {
     inherit name;

@@ -20,12 +20,6 @@
       url = "github:input-output-hk/haskell.nix";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        nixpkgs-2003.follows = "nixpkgs";
-        nixpkgs-2105.follows = "nixpkgs";
-        nixpkgs-2111.follows = "nixpkgs";
-        nixpkgs-2205.follows = "nixpkgs";
-        nixpkgs-2211.follows = "nixpkgs";
-        nixpkgs-2305.follows = "nixpkgs";
         nixpkgs-unstable.follows = "nixpkgs";
         hydra.follows = "empty-flake";
       };
@@ -36,6 +30,10 @@
     };
     empty-flake = {
       url = "github:mlabs-haskell/empty-flake";
+    };
+    aiken = {
+      url = "github:aiken-lang/aiken";
+      flake = false;
     };
   };
   outputs = inputs:
