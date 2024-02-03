@@ -24,6 +24,18 @@
         hydra.follows = "empty-flake";
       };
     };
+    iohk-nix = {
+      url = "github:input-output-hk/iohk-nix";
+    };
+    cardanoPackages = {
+      url = "github:input-output-hk/cardano-haskell-packages";
+      flake = false;
+    };
+    plutarch = {
+      # TODO: remove rev lock
+      url = "github:Plutonomicon/plutarch-plutus/288d9140468ae98abe1c9a4c0bb1c19a82eb7cd6";
+      flake = false;
+    };
     lambda-buffers = {
       url = "github:mlabs-haskell/lambda-buffers";
       flake = false;
