@@ -1,17 +1,24 @@
 { lib
-, iohk-nix
-, haskell-nix
+, fetchFromGitHub
   # e.g. "x86_64-linux"
 , system # : string
+, haskellNixNixpkgs # : nixpkgs
+, haskellNixOverlay # : overlay
 }:
 
 let
-  pkgs = import haskell-nix.inputs.nixpkgs {
+  iohk-nix = fetchFromGitHub {
+    owner = "input-output-hk";
+    repo = "iohk-nix";
+    rev = "4848df60660e21fbb3fe157d996a8bac0a9cf2d6";
+    hash = "sha256-ediFkDOBP7yVquw1XtHiYfuXKoEnvKGjTIAk9mC6qxo=";
+  };
+
+  pkgs = import haskellNixNixpkgs {
     inherit system;
     overlays = [
-      iohk-nix.overlays.crypto
-      iohk-nix.overlays.haskell-nix-crypto
-      haskell-nix.overlay
+      (import "${iohk-nix}/overlays/crypto")
+      haskellNixOverlay
       (final: _prev: {
         rocm-thunk = final.rocmPackages.rocm-thunk;
       })

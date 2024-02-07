@@ -1,6 +1,6 @@
-{ lib
+{ self
+, lib
 , flake-parts-lib
-, inputs
 , ...
 }:
 let
@@ -21,7 +21,8 @@ in
         let
           mkHaskellPackage = pkgs.callPackage ./lib.nix {
             inherit lib system;
-            inherit (inputs) iohk-nix haskell-nix;
+            haskellNixNixpkgs = self.inputs.haskell-nix.inputs.nixpkgs;
+            haskellNixOverlay = self.inputs.haskell-nix.overlay;
           };
 
         in

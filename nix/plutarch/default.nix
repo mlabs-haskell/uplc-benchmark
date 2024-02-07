@@ -1,6 +1,5 @@
 { lib
 , flake-parts-lib
-, inputs
 , ...
 }:
 let
@@ -20,7 +19,6 @@ in
         libPlutarch = {
           mkPackage = pkgs.callPackage ./lib.nix {
             mkHaskellPackage = config.libHaskell.mkPackage;
-            inherit (inputs) cardanoPackages plutarch;
             inherit (config.libUtils) applyPatches;
           };
         };
