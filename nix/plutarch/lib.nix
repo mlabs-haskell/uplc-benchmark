@@ -24,7 +24,7 @@ args:
 let
   finalArgs = args // {
     externalRepositories = {
-      "https://input-output-hk.github.io/cardano-haskell-packages" = cardanoPackages;
+      "https://input-output-hk.github.io/cardano-haskell-packages" = "${cardanoPackages}";
     } // (args.externalRepositories or { });
 
     externalDependencies = [

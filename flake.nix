@@ -28,7 +28,7 @@
       url = "github:input-output-hk/iohk-nix";
     };
     cardanoPackages = {
-      url = "github:input-output-hk/cardano-haskell-packages";
+      url = "github:IntersectMBO/cardano-haskell-packages?ref=repo";
       flake = false;
     };
     plutarch = {
