@@ -20,12 +20,6 @@
       url = "github:input-output-hk/haskell.nix";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        nixpkgs-2003.follows = "nixpkgs";
-        nixpkgs-2105.follows = "nixpkgs";
-        nixpkgs-2111.follows = "nixpkgs";
-        nixpkgs-2205.follows = "nixpkgs";
-        nixpkgs-2211.follows = "nixpkgs";
-        nixpkgs-2305.follows = "nixpkgs";
         nixpkgs-unstable.follows = "nixpkgs";
         hydra.follows = "empty-flake";
       };
@@ -37,15 +31,20 @@
     empty-flake = {
       url = "github:mlabs-haskell/empty-flake";
     };
+    aiken = {
+      url = "github:aiken-lang/aiken";
+      flake = false;
+    };
   };
   outputs = inputs:
     let
       flakeModules = {
+        aiken = ./nix/aiken;
         haskell = ./nix/haskell;
+        lambdaBuffers = ./nix/lambda-buffers;
         latex = ./nix/latex;
         mdbook = ./nix/mdbook;
         plutarch = ./nix/plutarch;
-        lambdaBuffers = ./nix/lambda-buffers;
         utils = ./nix/utils;
       };
     in
@@ -54,6 +53,7 @@
         inputs.pre-commit-hooks-nix.flakeModule
         inputs.hci-effects.flakeModule
 
+        ./implementations/aiken
         ./implementations/plutarch
         ./specifications
         ./types
@@ -97,12 +97,14 @@
 
           pre-commit.settings = {
             hooks = {
+              aiken-fmt = config.libAiken.preCommit.aikenFmt { enable = true; };
+              black.enable = true;
               chktex.enable = true;
               deadnix.enable = true;
+              fourmolu.enable = true;
               latexindent.enable = true;
               nixpkgs-fmt.enable = true;
               typos.enable = true;
-              fourmolu.enable = true;
             };
 
             tools = {

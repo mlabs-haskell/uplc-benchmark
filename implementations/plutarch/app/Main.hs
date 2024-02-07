@@ -3,7 +3,7 @@ module Main (main) where
 import Data.ByteString qualified as BS (writeFile)
 import Data.ByteString.Short (fromShort)
 import Data.Text qualified as Text
-import Plutarch (ClosedTerm, Config (Config), TracingMode (DoTracingAndBinds), compile)
+import Plutarch (ClosedTerm, Config (Config), TracingMode (NoTracing), compile)
 import Plutarch.Script (serialiseScript)
 import System.IO (hPutStrLn, stderr)
 
@@ -16,7 +16,7 @@ ePutStrLn :: String -> IO ()
 ePutStrLn = hPutStrLn stderr
 
 compilationConfig :: Config
-compilationConfig = Config DoTracingAndBinds
+compilationConfig = Config NoTracing
 
 compileToFile :: ClosedTerm a -> FilePath -> IO ()
 compileToFile term fp = do

@@ -85,6 +85,7 @@ common deps
     , aeson
     , base
     , bytestring
+    , directory
     , filepath
     , mtl
     , optics
@@ -96,6 +97,7 @@ common deps
     , plutus-core
     , plutus-ledger-api
     , plutus-tx
+    , tagged
     , tasty
     , text
     , uplc-benchmark-types-plutus-lb
