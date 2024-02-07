@@ -14,5 +14,5 @@ $ nix build .#aiken-implementation-compiled
 Only for development
 
 ```
-$ make
+$ aiken build
 ```

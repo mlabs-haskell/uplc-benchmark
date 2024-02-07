@@ -55,6 +55,7 @@
 
         ./implementations/aiken
         ./implementations/plutarch
+        ./implementations/plutus-tx
         ./specifications
         ./types
         ./website
