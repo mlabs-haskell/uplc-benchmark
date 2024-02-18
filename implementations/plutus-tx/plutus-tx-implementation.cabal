@@ -88,6 +88,8 @@ common deps
     , plutarch
     , plutus-core
     , plutus-ledger-api
+    , plutus-tx
+    , plutus-tx-plugin
     , text
     , uplc-benchmark-types-plutus-lb
 

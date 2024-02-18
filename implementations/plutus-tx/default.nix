@@ -10,7 +10,11 @@
       };
     in
     {
-      devShells.plutus-tx-implementation = plutus-tx-implementation.devShell;
+      devShells.plutus-tx-implementation = pkgs.mkShell {
+        shellHook = config.pre-commit.installationScript;
+        inputsFrom = [ plutus-tx-implementation.devShell ];
+      };
+
       packages = {
         plutus-tx-implementation-export =
           plutus-tx-implementation.packages."plutus-tx-implementation:exe:plutus-tx-implementation-export";
