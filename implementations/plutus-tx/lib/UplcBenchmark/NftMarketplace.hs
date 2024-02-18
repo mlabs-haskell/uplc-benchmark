@@ -19,15 +19,8 @@ import PlutusLedgerApi.V2 (
   TxOut (txOutAddress, txOutDatum, txOutValue),
   UnsafeFromData (unsafeFromBuiltinData),
  )
-import PlutusTx.Base (($))
-import PlutusTx.Bool (Bool (False), (&&))
-import PlutusTx.Maybe (Maybe (Just, Nothing))
-import PlutusTx.Prelude (BuiltinString, Eq ((==)), any, check, elem, traceError, traceIfFalse)
-
-{-# INLINE fromJustTrace #-}
-fromJustTrace :: BuiltinString -> Maybe a -> a
-fromJustTrace _ (Just a) = a
-fromJustTrace err Nothing = traceError err
+import PlutusTx.Prelude (Bool (False), Eq ((==)), any, check, elem, traceIfFalse, ($), (&&))
+import UplcBenchmark.Utils (fromJustTrace)
 
 {-# INLINE nftMarketplaceValidator #-}
 nftMarketplaceValidator :: BuiltinData -> BuiltinData -> BuiltinData -> ()

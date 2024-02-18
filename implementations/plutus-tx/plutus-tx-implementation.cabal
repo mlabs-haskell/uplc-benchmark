@@ -97,6 +97,9 @@ library
   import:          lang, deps
   exposed-modules:
     UplcBenchmark.NftMarketplace
+    UplcBenchmark.LpMintingPolicy
+  other-modules:
+    UplcBenchmark.Utils
   hs-source-dirs:  lib
 
 executable plutus-tx-implementation-export
