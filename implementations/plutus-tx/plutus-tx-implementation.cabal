@@ -98,6 +98,8 @@ library
   exposed-modules:
     UplcBenchmark.NftMarketplace
     UplcBenchmark.LpMintingPolicy
+    UplcBenchmark.PoolValidator
+    UplcBenchmark.NftMintingPolicy
   other-modules:
     UplcBenchmark.Utils
   hs-source-dirs:  lib
