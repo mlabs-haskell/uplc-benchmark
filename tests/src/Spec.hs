@@ -71,6 +71,7 @@ implementations :: [Implementation]
 implementations =
   [ Implementation "Plutarch" "UPLC_BENCHMARK_BIN_PLUTARCH"
   , Implementation "Aiken" "UPLC_BENCHMARK_BIN_AIKEN"
+  , Implementation "PlutusTx" "UPLC_BENCHMARK_BIN_PLUTUS_TX"
   ]
 
 main :: IO ()

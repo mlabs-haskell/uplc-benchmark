@@ -40,6 +40,7 @@
       binSources = {
         UPLC_BENCHMARK_BIN_PLUTARCH = self'.packages.plutarch-implementation-compiled.outPath;
         UPLC_BENCHMARK_BIN_AIKEN = self'.packages.aiken-implementation-compiled.outPath;
+        UPLC_BENCHMARK_BIN_PLUTUS_TX = self'.packages.plutus-tx-implementation-compiled.outPath;
       };
     in
     {
