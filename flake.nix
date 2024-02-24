@@ -44,6 +44,7 @@
         lambdaBuffers = ./nix/lambda-buffers;
         latex = ./nix/latex;
         mdbook = ./nix/mdbook;
+        opshin = ./nix/opshin;
         plutarch = ./nix/plutarch;
         utils = ./nix/utils;
       };
