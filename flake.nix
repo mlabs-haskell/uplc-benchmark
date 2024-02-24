@@ -54,6 +54,7 @@
         inputs.hci-effects.flakeModule
 
         ./implementations/aiken
+        ./implementations/opshin
         ./implementations/plutarch
         ./implementations/plutus-tx
         ./specifications
