@@ -4,6 +4,7 @@
       shellHook = config.pre-commit.installationScript;
       nativeBuildInputs = [
         config.libOpshin.packages.opshin
+        pkgs.xxd
       ];
     };
 
@@ -11,7 +12,10 @@
       name = "opshin-implementation-compiled";
       src = ./.;
 
-      nativeBuildInputs = [ config.libOpshin.packages.opshin ];
+      nativeBuildInputs = [
+        config.libOpshin.packages.opshin
+        pkgs.xxd
+      ];
 
       enableParallelBuilding = true;
     };

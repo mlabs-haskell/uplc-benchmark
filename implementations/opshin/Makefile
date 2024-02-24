@@ -14,8 +14,9 @@ all: build/lp_minting_policy         \
 .PHONY: install
 install: all
 	mkdir -p $$out
-	for script in build/*/*.cbor ; do \
-		cp -v $$script $$out/$$(basename $$(dirname $$script)).bin ; \
+	for script in build/*/*.cbor ; do                                     \
+		outfile=$$out/$$(basename $$(dirname $$script) | tr _ -).bin; \
+		xxd -r -p $$script $$outfile ;                                \
 	done
 
 .PHONY: clean
