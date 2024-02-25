@@ -7,7 +7,7 @@
 
 python3.pkgs.buildPythonPackage rec {
   pname = "uplc";
-  version = "1.0.2";
+  version = "0.6.9";
 
   format = "pyproject";
 
@@ -15,7 +15,7 @@ python3.pkgs.buildPythonPackage rec {
     owner = "OpShin";
     repo = "uplc";
     rev = version;
-    hash = "sha256-8fC+83gkurKZnUjGAVtA1TG+vXZVf2dR2NSkH+cE/B0=";
+    hash = "sha256-djJMNXijMVzMVzw8NZSe3YFRGyAPqdvr0P374Za5XkU=";
   };
 
   propagatedBuildInputs = with python3.pkgs; [
