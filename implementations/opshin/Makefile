@@ -3,6 +3,7 @@ SRC_DIR := src
 
 build/%: $(SRC_DIR)/%.py
 	opshin build spending $^ $(OPSHIN_FLAGS)
+	touch $@
 
 .DEFAULT_GOAL := all
 .PHONY: all
