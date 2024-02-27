@@ -16,20 +16,21 @@ import LambdaBuffers.Dex (
     DexRedeemer'WithdrawLiquidity
   ),
  )
-import Plutarch (Script)
-import Plutarch.Context (
+import Plutarch (Script (Script))
+import Plutarch.Test.Program (
+  ScriptCase (ScriptCase),
+  ScriptResult (ScriptFailure, ScriptSuccess),
+  testScript,
+ )
+import Plutus.ContextBuilder (
   UTXO,
   buildSpending',
   input,
   mint,
   output,
+  withInlineDatum,
   withSpendingUTXO,
   withValue,
- )
-import Plutarch.Test.Script (
-  ScriptCase (ScriptCase),
-  ScriptResult (ScriptFailure, ScriptSuccess),
-  testScript,
  )
 import PlutusLedgerApi.V1.Value (
   AssetClass (AssetClass),
@@ -43,10 +44,7 @@ import PlutusLedgerApi.V2 (
  )
 import Test.Tasty (TestTree, testGroup)
 import UplcBenchmark.ScriptLoader (uncheckedApplyDataToScript)
-import UplcBenchmark.Spec.ContextBuilder.Utils (
-  mkHash28,
-  withInlineDatum,
- )
+import UplcBenchmark.Spec.ContextBuilder.Utils (mkHash28)
 
 lpToken :: CurrencySymbol
 lpToken = CurrencySymbol $ mkHash28 1
@@ -411,7 +409,7 @@ specForScript script =
           uncheckedApplyDataToScript context
             . uncheckedApplyDataToScript redeemer
             . uncheckedApplyDataToScript poolDatum
-        applied = apply script
+        Script applied = apply script
        in
         testScript $ ScriptCase testName expectedResult applied applied
 

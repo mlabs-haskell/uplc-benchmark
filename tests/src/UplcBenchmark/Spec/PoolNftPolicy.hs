@@ -1,12 +1,19 @@
 module UplcBenchmark.Spec.PoolNftPolicy (specForScript) where
 
 import LambdaBuffers.Dex (NftMintingPolicyRedeemer (NftMintingPolicyRedeemer'CreatePool))
-import Plutarch (Script)
-import Plutarch.Context (MintingBuilder, buildMinting', input, withMinting, withRef)
-import Plutarch.Test.Script (
+import Plutarch (Script (Script))
+import Plutarch.Test.Program (
   ScriptCase (ScriptCase),
   ScriptResult (ScriptFailure, ScriptSuccess),
   testScript,
+ )
+import Plutus.ContextBuilder (
+  MintingBuilder,
+  buildMinting',
+  input,
+  mintSingletonWith,
+  withMinting,
+  withRef,
  )
 import PlutusLedgerApi.V2 (
   BuiltinByteString,
@@ -19,7 +26,7 @@ import PlutusLedgerApi.V2 (
 import PlutusTx.Builtins (consByteString, emptyByteString)
 import Test.Tasty (TestTree, testGroup)
 import UplcBenchmark.ScriptLoader (uncheckedApplyDataToScript)
-import UplcBenchmark.Spec.ContextBuilder.Utils (mintWithRedeemer, mkHash32, scriptSymbol)
+import UplcBenchmark.Spec.ContextBuilder.Utils (mkHash32, scriptSymbol)
 
 redeemer :: NftMintingPolicyRedeemer
 redeemer = NftMintingPolicyRedeemer'CreatePool initialSpend
@@ -45,7 +52,7 @@ validMint :: CurrencySymbol -> ScriptContext
 validMint ownSymbol =
   withNftMinting
     ownSymbol
-    [ mintWithRedeemer redeemer ownSymbol (deriveNftName initialSpend) 1
+    [ mintSingletonWith redeemer ownSymbol (deriveNftName initialSpend) 1
     , input $
         mconcat
           [ withRef initialSpend
@@ -56,7 +63,7 @@ invalidMintMoreThanOne :: CurrencySymbol -> ScriptContext
 invalidMintMoreThanOne ownSymbol =
   withNftMinting
     ownSymbol
-    [ mintWithRedeemer redeemer ownSymbol (deriveNftName initialSpend) 42
+    [ mintSingletonWith redeemer ownSymbol (deriveNftName initialSpend) 42
     , input $
         mconcat
           [ withRef initialSpend
@@ -67,7 +74,7 @@ invalidMintInvalidName :: CurrencySymbol -> ScriptContext
 invalidMintInvalidName ownSymbol =
   withNftMinting
     ownSymbol
-    [ mintWithRedeemer redeemer ownSymbol "I'm invalid" 1
+    [ mintSingletonWith redeemer ownSymbol "I'm invalid" 1
     , input $
         mconcat
           [ withRef initialSpend
@@ -78,14 +85,14 @@ invalidMintNoInitialSpend :: CurrencySymbol -> ScriptContext
 invalidMintNoInitialSpend ownSymbol =
   withNftMinting
     ownSymbol
-    [ mintWithRedeemer redeemer ownSymbol (deriveNftName initialSpend) 1
+    [ mintSingletonWith redeemer ownSymbol (deriveNftName initialSpend) 1
     ]
 
 invalidMintWrongId :: CurrencySymbol -> ScriptContext
 invalidMintWrongId ownSymbol =
   withNftMinting
     ownSymbol
-    [ mintWithRedeemer redeemer ownSymbol (deriveNftName initialSpend) 1
+    [ mintSingletonWith redeemer ownSymbol (deriveNftName initialSpend) 1
     , input $
         mconcat
           [ withRef $ TxOutRef (TxId $ mkHash32 1) 42
@@ -96,7 +103,7 @@ invalidMintWrongIdx :: CurrencySymbol -> ScriptContext
 invalidMintWrongIdx ownSymbol =
   withNftMinting
     ownSymbol
-    [ mintWithRedeemer redeemer ownSymbol (deriveNftName initialSpend) 1
+    [ mintSingletonWith redeemer ownSymbol (deriveNftName initialSpend) 1
     , input $
         mconcat
           [ withRef $ TxOutRef (TxId $ mkHash32 0) 123
@@ -108,7 +115,7 @@ invalidMintIdxTooHigh ownSymbol =
   let invalidInitialSpend = TxOutRef (TxId $ mkHash32 0) 256
    in withNftMinting
         ownSymbol
-        [ mintWithRedeemer redeemer ownSymbol (deriveNftName invalidInitialSpend) 1
+        [ mintSingletonWith redeemer ownSymbol (deriveNftName invalidInitialSpend) 1
         , input $
             mconcat
               [ withRef invalidInitialSpend
@@ -127,7 +134,7 @@ specForScript script =
           uncheckedApplyDataToScript (context ownSymbol)
             . uncheckedApplyDataToScript redeemer
 
-        applied = apply script
+        Script applied = apply script
        in
         testScript $ ScriptCase testName expectedResult applied applied
    in

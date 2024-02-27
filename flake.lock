@@ -721,6 +721,22 @@
         "type": "github"
       }
     },
+    "plutus-test": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1709003344,
+        "narHash": "sha256-e+oxdB+fZ9lpI1zB/iYpFMjopIXxy1DcmOozz3/fc6g=",
+        "owner": "mlabs-haskell",
+        "repo": "plutus-test",
+        "rev": "7af5233305c4eb804d0442e7df6a45e52d61cb26",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mlabs-haskell",
+        "repo": "plutus-test",
+        "type": "github"
+      }
+    },
     "pre-commit-hooks-nix": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -754,6 +770,7 @@
         "hci-effects": "hci-effects",
         "lambda-buffers": "lambda-buffers",
         "nixpkgs": "nixpkgs",
+        "plutus-test": "plutus-test",
         "pre-commit-hooks-nix": "pre-commit-hooks-nix",
         "simpleHaskellNix": "simpleHaskellNix"
       }

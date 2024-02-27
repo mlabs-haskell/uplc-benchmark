@@ -90,10 +90,8 @@ common deps
     , mtl
     , optics
     , plutarch
-    , plutarch-context-builder
-    , plutarch-quickcheck
-    , plutarch-unit
-    , plutus-core
+    , plutus-context-builder
+    , plutus-unit
     , plutus-core
     , plutus-ledger-api
     , plutus-tx

@@ -32,6 +32,10 @@
       url = "github:aiken-lang/aiken";
       flake = false;
     };
+    plutus-test = {
+      url = "github:mlabs-haskell/plutus-test";
+      flake = false;
+    };
   };
   outputs = inputs:
     let
