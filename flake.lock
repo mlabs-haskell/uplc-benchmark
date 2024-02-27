@@ -774,11 +774,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1708998512,
-        "narHash": "sha256-5zfHtf6pOtyNFe0AtXtqaLUGW2y92QzkYgz7CHqGx+M=",
+        "lastModified": 1709001320,
+        "narHash": "sha256-yXF1X6IlIe8fKNblgfPNN7H08n8dgsUnbMKw/nODd6k=",
         "owner": "mlabs-haskell",
         "repo": "simple-haskell-nix",
-        "rev": "70c19afeaeb0b4134f6943e6f6168305db869bdb",
+        "rev": "2e235ebcffece7e957c9bff58164f55c284c932d",
         "type": "github"
       },
       "original": {
