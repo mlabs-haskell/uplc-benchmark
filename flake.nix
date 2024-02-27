@@ -16,20 +16,17 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
-    haskell-nix = {
-      url = "github:input-output-hk/haskell.nix";
+    simpleHaskellNix = {
+      url = "github:mlabs-haskell/simple-haskell-nix";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        nixpkgs-unstable.follows = "nixpkgs";
-        hydra.follows = "empty-flake";
+        pre-commit-hooks-nix.follows = "pre-commit-hooks-nix";
+        hci-effects.follows = "hci-effects";
       };
     };
     lambda-buffers = {
       url = "github:mlabs-haskell/lambda-buffers";
       flake = false;
-    };
-    empty-flake = {
-      url = "github:mlabs-haskell/empty-flake";
     };
     aiken = {
       url = "github:aiken-lang/aiken";
@@ -40,7 +37,6 @@
     let
       flakeModules = {
         aiken = ./nix/aiken;
-        haskell = ./nix/haskell;
         lambdaBuffers = ./nix/lambda-buffers;
         latex = ./nix/latex;
         mdbook = ./nix/mdbook;
@@ -53,6 +49,7 @@
       imports = [
         inputs.pre-commit-hooks-nix.flakeModule
         inputs.hci-effects.flakeModule
+        inputs.simpleHaskellNix.flakeModules.simpleHaskellNix
 
         ./implementations/aiken
         ./implementations/opshin
@@ -91,6 +88,7 @@
         , pkgs
         , lib
         , system
+        , simpleHaskellNix
         , ...
         }: {
           _module.args.pkgs = import self.inputs.nixpkgs {
@@ -112,7 +110,7 @@
 
             tools = {
               fourmolu = lib.mkForce (pkgs.callPackage ./nix/fourmolu {
-                mkHaskellPackage = config.libHaskell.mkPackage;
+                mkHaskellPackage = simpleHaskellNix.mkPackage;
               });
             };
 
