@@ -4,22 +4,25 @@ import LambdaBuffers.NftMarketplace (
   NftMarketplaceDatum (NftMarketplaceDatum),
   NftMarketplaceRedeemer (NftMarketplaceRedeemer'Buy, NftMarketplaceRedeemer'Cancel),
  )
-import Plutarch (Script)
-import Plutarch.Context (
+import Plutarch (Script (Script))
+import Plutarch.Test.Program (
+  ScriptCase (ScriptCase),
+  ScriptResult (ScriptFailure, ScriptSuccess),
+  testScript,
+ )
+import Plutus.ContextBuilder (
   UTXO,
   address,
   buildSpending',
   input,
   output,
   signedWith,
+  withHashDatum,
+  withInlineDatum,
+  withRedeemer,
   withRef,
   withSpendingUTXO,
   withValue,
- )
-import Plutarch.Test.Script (
-  ScriptCase (ScriptCase),
-  ScriptResult (ScriptFailure, ScriptSuccess),
-  testScript,
  )
 import PlutusLedgerApi.V1.Address (pubKeyHashAddress)
 import PlutusLedgerApi.V2 (
@@ -39,9 +42,6 @@ import UplcBenchmark.Spec.ContextBuilder.Utils (
   junkToken,
   mkHash28,
   mkHash32,
-  withHashDatum,
-  withInlineDatum,
-  withRedeemer,
  )
 
 validatedUTxORef :: TxOutRef
@@ -215,7 +215,7 @@ specForScript script =
           uncheckedApplyDataToScript context
             . uncheckedApplyDataToScript redeemer
             . uncheckedApplyDataToScript validatedOrderDatum
-        applied = apply script
+        Script applied = apply script
        in
         testScript $ ScriptCase testName expectedResult applied applied
 

@@ -7,7 +7,7 @@ let
 in
 {
   options = {
-    perSystem = mkPerSystemOption ({ config, pkgs, ... }: {
+    perSystem = mkPerSystemOption ({ simpleHaskellNix, config, pkgs, ... }: {
       options = {
         libPlutarch = lib.mkOption {
           type = lib.types.anything;
@@ -18,7 +18,7 @@ in
       config = {
         libPlutarch = {
           mkPackage = pkgs.callPackage ./lib.nix {
-            mkHaskellPackage = config.libHaskell.mkPackage;
+            mkHaskellPackage = simpleHaskellNix.mkPackage;
             inherit (config.libUtils) applyPatches;
           };
         };

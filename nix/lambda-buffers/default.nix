@@ -1,7 +1,7 @@
 # Adapted from lambda-buffers repo in a way to reuse the same GHC for everything
 { inputs, lib, ... }:
 {
-  perSystem = { pkgs, config, ... }: {
+  perSystem = { simpleHaskellNix, pkgs, config, ... }: {
     options = {
       libLb = lib.mkOption {
         type = lib.types.anything;
@@ -13,7 +13,7 @@
       libLb = pkgs.callPackage ./lib.nix {
         lambda-buffers-src = "${inputs.lambda-buffers}";
         mkPlutarchPackage = config.libPlutarch.mkPackage;
-        mkHaskellPackage = config.libHaskell.mkPackage;
+        mkHaskellPackage = simpleHaskellNix.mkPackage;
         inherit (config.libUtils) mkCli;
       };
     };

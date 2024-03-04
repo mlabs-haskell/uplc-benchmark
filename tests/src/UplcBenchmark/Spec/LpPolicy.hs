@@ -1,11 +1,18 @@
 module UplcBenchmark.Spec.LpPolicy (specForScript) where
 
-import Plutarch (Script)
-import Plutarch.Context (MintingBuilder, buildMinting', input, withMinting, withValue)
-import Plutarch.Test.Script (
+import Plutarch (Script (Script))
+import Plutarch.Test.Program (
   ScriptCase (ScriptCase),
   ScriptResult (ScriptFailure, ScriptSuccess),
   testScript,
+ )
+import Plutus.ContextBuilder (
+  MintingBuilder,
+  buildMinting',
+  input,
+  mintSingletonWith,
+  withMinting,
+  withValue,
  )
 import PlutusLedgerApi.V2 (
   CurrencySymbol (CurrencySymbol),
@@ -17,7 +24,7 @@ import PlutusLedgerApi.V2 (
  )
 import Test.Tasty (TestTree, testGroup)
 import UplcBenchmark.ScriptLoader (uncheckedApplyDataToScript)
-import UplcBenchmark.Spec.ContextBuilder.Utils (mintWithRedeemer, mkHash28, scriptSymbol)
+import UplcBenchmark.Spec.ContextBuilder.Utils (mkHash28, scriptSymbol)
 
 poolNftSymbol :: CurrencySymbol
 poolNftSymbol = CurrencySymbol $ mkHash28 1
@@ -39,7 +46,7 @@ validMint :: CurrencySymbol -> ScriptContext
 validMint ownSymbol =
   withLpMinting
     ownSymbol
-    [ mintWithRedeemer unitRedeemer ownSymbol poolNftName1 42
+    [ mintSingletonWith unitRedeemer ownSymbol poolNftName1 42
     , input $
         mconcat
           [ withValue $
@@ -52,8 +59,8 @@ validMintTwoNfts :: CurrencySymbol -> ScriptContext
 validMintTwoNfts ownSymbol =
   withLpMinting
     ownSymbol
-    [ mintWithRedeemer unitRedeemer ownSymbol poolNftName1 42
-    , mintWithRedeemer unitRedeemer ownSymbol poolNftName2 42
+    [ mintSingletonWith unitRedeemer ownSymbol poolNftName1 42
+    , mintSingletonWith unitRedeemer ownSymbol poolNftName2 42
     , input $
         mconcat
           [ withValue $
@@ -67,7 +74,7 @@ invalidMintNoNft :: CurrencySymbol -> ScriptContext
 invalidMintNoNft ownSymbol =
   withLpMinting
     ownSymbol
-    [ mintWithRedeemer unitRedeemer ownSymbol poolNftName1 42
+    [ mintSingletonWith unitRedeemer ownSymbol poolNftName1 42
     , input $
         mconcat
           [ withValue $
@@ -79,8 +86,8 @@ invalidMintOneOfTwoNfts :: CurrencySymbol -> ScriptContext
 invalidMintOneOfTwoNfts ownSymbol =
   withLpMinting
     ownSymbol
-    [ mintWithRedeemer unitRedeemer ownSymbol poolNftName1 42
-    , mintWithRedeemer unitRedeemer ownSymbol poolNftName2 42
+    [ mintSingletonWith unitRedeemer ownSymbol poolNftName1 42
+    , mintSingletonWith unitRedeemer ownSymbol poolNftName2 42
     , input $
         mconcat
           [ withValue $
@@ -93,7 +100,7 @@ invalidMintWrongName :: CurrencySymbol -> ScriptContext
 invalidMintWrongName ownSymbol =
   withLpMinting
     ownSymbol
-    [ mintWithRedeemer unitRedeemer ownSymbol poolNftName1 42
+    [ mintSingletonWith unitRedeemer ownSymbol poolNftName1 42
     , input $
         mconcat
           [ withValue $
@@ -116,7 +123,7 @@ specForScript script =
           uncheckedApplyDataToScript (context ownSymbol)
             . uncheckedApplyDataToScript unitRedeemer
 
-        applied = apply withParameter
+        Script applied = apply withParameter
        in
         testScript $ ScriptCase testName expectedResult applied applied
    in
