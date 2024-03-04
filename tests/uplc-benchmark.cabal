@@ -112,4 +112,5 @@ test-suite uplc-benchmark-tests
     UplcBenchmark.Spec.NftMarketplace
     UplcBenchmark.Spec.PoolNftPolicy
     UplcBenchmark.Spec.PoolValidator
+    UplcBenchmark.ScriptSize
     

@@ -1,2 +1,6 @@
 dist-newstyle
 *.bin
+*.csv
+*.png
+*.svg
+result*

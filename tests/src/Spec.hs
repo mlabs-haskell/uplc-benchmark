@@ -12,6 +12,7 @@ import Test.Tasty.Providers (IsTest (run, testOptions))
 import Test.Tasty.Providers.ConsoleFormat (ResultDetailsPrinter (ResultDetailsPrinter))
 import Test.Tasty.Runners (FailureReason (TestFailed), Outcome (Failure), Result (Result), TestTree (SingleTest))
 import UplcBenchmark.ScriptLoader (loadScriptFromFile)
+import UplcBenchmark.ScriptSize (BinPath (BinPath), mkSizeReport, sizeReportsToGnuPlotDat)
 import UplcBenchmark.Spec.LpPolicy qualified as LpPolicy (specForScript)
 import UplcBenchmark.Spec.NftMarketplace qualified as NftMarketplace (specForScript)
 import UplcBenchmark.Spec.PoolNftPolicy qualified as PoolNftPolicy (specForScript)
@@ -67,6 +68,11 @@ mkTestForImplementation (Implementation testName baseFilePathEnv) = do
           ]
       ]
 
+getBinPath :: Implementation -> IO BinPath
+getBinPath (Implementation testName baseFilePathEnv) = do
+  baseFilePath <- getEnv baseFilePathEnv
+  pure $ BinPath testName baseFilePath
+
 implementations :: [Implementation]
 implementations =
   [ Implementation "Plutarch" "UPLC_BENCHMARK_BIN_PLUTARCH"
@@ -77,5 +83,7 @@ implementations =
 
 main :: IO ()
 main = do
+  -- TODO: Move to separate binary
+  traverse getBinPath implementations >>= traverse mkSizeReport >>= writeFile "script_size.csv" . sizeReportsToGnuPlotDat
   allTests <- traverse mkTestForImplementation implementations
   defaultMain $ testGroup "UPLC Benchmark" allTests

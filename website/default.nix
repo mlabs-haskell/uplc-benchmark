@@ -10,6 +10,7 @@
           mkdir -p static
           cp ${self'.packages.nft-marketplace-specification}/nft-marketplace.pdf static/nft-marketplace-spec.pdf
           cp ${self'.packages.dex-specification}/dex.pdf static/constant-product-dex-spec.pdf
+          cp ${self'.packages.data-files}/* .
         '';
       };
     };

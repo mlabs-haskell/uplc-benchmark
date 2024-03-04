@@ -96,7 +96,6 @@ let
 
         mkdir -p $out
         aiken2bin
-        mv plutus.json $out
 
         runHook postInstall
       '';
