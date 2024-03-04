@@ -11,6 +11,8 @@
           cp ${self'.packages.nft-marketplace-specification}/nft-marketplace.pdf static/nft-marketplace-spec.pdf
           cp ${self'.packages.dex-specification}/dex.pdf static/constant-product-dex-spec.pdf
           cp ${self'.packages.data-files}/* .
+
+          sed --in-place '/<!-- SCRIPT_SIZE_TABLE -->/r script_size.md' comparison.md
         '';
       };
     };
