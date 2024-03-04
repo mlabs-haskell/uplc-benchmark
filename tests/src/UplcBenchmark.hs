@@ -1,4 +1,6 @@
-module Main (main) where
+{-# OPTIONS_GHC -Wno-missing-export-lists #-}
+
+module UplcBenchmark where
 
 import Data.Kind (Type)
 import Data.Tagged (Tagged (Tagged))
@@ -7,12 +9,13 @@ import System.Environment (lookupEnv)
 import System.Exit (exitFailure)
 import System.FilePath ((</>))
 import System.IO (hPutStrLn, stderr)
-import Test.Tasty (TestTree, defaultMain, testGroup)
+import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Providers (IsTest (run, testOptions))
 import Test.Tasty.Providers.ConsoleFormat (ResultDetailsPrinter (ResultDetailsPrinter))
 import Test.Tasty.Runners (FailureReason (TestFailed), Outcome (Failure), Result (Result), TestTree (SingleTest))
+
 import UplcBenchmark.ScriptLoader (loadScriptFromFile)
-import UplcBenchmark.ScriptSize (BinPath (BinPath), mkSizeReport, sizeReportsToGnuPlotDat)
+import UplcBenchmark.ScriptSize (BinPath (BinPath))
 import UplcBenchmark.Spec.LpPolicy qualified as LpPolicy (specForScript)
 import UplcBenchmark.Spec.NftMarketplace qualified as NftMarketplace (specForScript)
 import UplcBenchmark.Spec.PoolNftPolicy qualified as PoolNftPolicy (specForScript)
@@ -80,10 +83,3 @@ implementations =
   , Implementation "PlutusTx" "UPLC_BENCHMARK_BIN_PLUTUS_TX"
   , Implementation "Opshin" "UPLC_BENCHMARK_BIN_OPSHIN"
   ]
-
-main :: IO ()
-main = do
-  -- TODO: Move to separate binary
-  traverse getBinPath implementations >>= traverse mkSizeReport >>= writeFile "script_size.csv" . sizeReportsToGnuPlotDat
-  allTests <- traverse mkTestForImplementation implementations
-  defaultMain $ testGroup "UPLC Benchmark" allTests

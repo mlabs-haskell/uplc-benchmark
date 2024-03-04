@@ -19,7 +19,7 @@
         UPLC_BENCHMARK_BIN_OPSHIN = self'.packages.opshin-implementation-compiled.outPath;
       };
 
-      uplc-benchmark-test-runner = uplc-benchmark-tests.packages."uplc-benchmark:test:uplc-benchmark-tests";
+      uplc-benchmark-data = uplc-benchmark-tests.packages."uplc-benchmark:exe:uplc-benchmark-data";
     in
     {
       checks.uplc-benchmark = uplc-benchmark-tests.checks."uplc-benchmark:test:uplc-benchmark-tests".overrideAttrs (prev: {
@@ -32,7 +32,7 @@
             nativeBuildInputs = [ pkgs.gnuplot ];
             env = binSources;
           } ''
-          ${uplc-benchmark-test-runner}/bin/uplc-benchmark-tests
+          ${uplc-benchmark-data}/bin/uplc-benchmark-data
 
           cp ${./script_size.plt} ./script_size.plt
           gnuplot script_size.plt
