@@ -127,6 +127,7 @@
                 logfile = "/dev/null";
               };
               deadnix.edit = true;
+              typos.ignored-words = [ "wheres" ];
             };
 
             excludes = [
