@@ -29,7 +29,7 @@
       flake = false;
     };
     aiken = {
-      url = "github:aiken-lang/aiken";
+      url = "github:aiken-lang/aiken?ref=v1.0.24-alpha";
       flake = false;
     };
     plutus-test = {
@@ -104,7 +104,6 @@
             hooks = {
               aiken-fmt = config.libAiken.preCommit.aikenFmt { enable = true; };
               black.enable = true;
-              chktex.enable = true;
               deadnix.enable = true;
               fourmolu.enable = true;
               latexindent.enable = true;

@@ -19,15 +19,16 @@
     "aiken": {
       "flake": false,
       "locked": {
-        "lastModified": 1711041619,
-        "narHash": "sha256-Xrfm7bURrfc5GC+LirweFADc2nhGJW+XsdrztGY8y2U=",
+        "lastModified": 1706726900,
+        "narHash": "sha256-MJJuqP/2b9qQp7GkDxFCz5MPU14lXJIL4q51/4krQ88=",
         "owner": "aiken-lang",
         "repo": "aiken",
-        "rev": "0f9dbfd874a0efe688e256cc504f558c39c88f8c",
+        "rev": "982eff449e02c0346e3db66223d983c90cd6ee9c",
         "type": "github"
       },
       "original": {
         "owner": "aiken-lang",
+        "ref": "v1.0.24-alpha",
         "repo": "aiken",
         "type": "github"
       }
