@@ -29,7 +29,7 @@
       flake = false;
     };
     aiken = {
-      url = "github:aiken-lang/aiken";
+      url = "github:aiken-lang/aiken?ref=v1.0.24-alpha";
       flake = false;
     };
     plutus-test = {
@@ -44,7 +44,6 @@
         lambdaBuffers = ./nix/lambda-buffers;
         latex = ./nix/latex;
         mdbook = ./nix/mdbook;
-        opshin = ./nix/opshin;
         plutarch = ./nix/plutarch;
         utils = ./nix/utils;
       };
@@ -104,7 +103,6 @@
             hooks = {
               aiken-fmt = config.libAiken.preCommit.aikenFmt { enable = true; };
               black.enable = true;
-              chktex.enable = true;
               deadnix.enable = true;
               fourmolu.enable = true;
               latexindent.enable = true;
@@ -127,6 +125,7 @@
                 logfile = "/dev/null";
               };
               deadnix.edit = true;
+              typos.ignored-words = [ "wheres" ];
             };
 
             excludes = [

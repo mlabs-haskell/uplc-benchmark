@@ -18,11 +18,34 @@
         UPLC_BENCHMARK_BIN_PLUTUS_TX = self'.packages.plutus-tx-implementation-compiled.outPath;
         UPLC_BENCHMARK_BIN_OPSHIN = self'.packages.opshin-implementation-compiled.outPath;
       };
+
+      uplc-benchmark-data = uplc-benchmark-tests.packages."uplc-benchmark:exe:uplc-benchmark-data";
+
+      # TODO: Remove when upstreamed to nixpkgs
+      csv2md = pkgs.python3.pkgs.callPackage ./csv2md { };
     in
     {
       checks.uplc-benchmark = uplc-benchmark-tests.checks."uplc-benchmark:test:uplc-benchmark-tests".overrideAttrs (prev: {
         env = (prev.env or { }) // binSources;
       });
+
+      packages = {
+        data-files = pkgs.runCommand "data-files"
+          {
+            nativeBuildInputs = [ pkgs.gnuplot csv2md ];
+            env = binSources;
+          } ''
+          ${uplc-benchmark-data}/bin/uplc-benchmark-data
+
+          cp ${./script_size.plt} ./script_size.plt
+          gnuplot script_size.plt
+          mkdir $out
+          cp *.png *.csv $out
+          for f in *.csv ; do
+              csv2md $f > $out/$(basename --suffix=.csv $f).md
+          done
+        '';
+      };
 
       devShells.tests = pkgs.mkShell {
         shellHook = config.pre-commit.installationScript;

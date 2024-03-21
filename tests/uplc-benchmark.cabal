@@ -100,16 +100,30 @@ common deps
     , text
     , uplc-benchmark-types-plutus-lb
 
-test-suite uplc-benchmark-tests
+library
   import:          lang, deps
-  type:            exitcode-stdio-1.0
-  main-is:         Spec.hs
   hs-source-dirs:  src
-  other-modules:
+  exposed-modules:
+    UplcBenchmark
     UplcBenchmark.ScriptLoader
     UplcBenchmark.Spec.ContextBuilder.Utils
     UplcBenchmark.Spec.LpPolicy
     UplcBenchmark.Spec.NftMarketplace
     UplcBenchmark.Spec.PoolNftPolicy
     UplcBenchmark.Spec.PoolValidator
+    UplcBenchmark.ScriptSize
     
+test-suite uplc-benchmark-tests
+  import:          lang, deps
+  type:            exitcode-stdio-1.0
+  build-depends:   uplc-benchmark
+  main-is:         Spec.hs
+  hs-source-dirs:  test
+
+executable uplc-benchmark-data
+  import:           lang, deps
+  main-is:          Main.hs
+  build-depends:    uplc-benchmark
+  hs-source-dirs:   app
+  default-language: GHC2021
+  
