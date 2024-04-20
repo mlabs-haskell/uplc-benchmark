@@ -47,22 +47,34 @@ let
   aiken2nix = mkPythonApplication "aiken2nix" ./aiken2nix.py;
   aiken2bin = mkPythonApplication "aiken2bin" ./aiken2bin.py;
 
+  fetchPackage = { url, hash }: fetchzip {
+    inherit url hash;
+  };
+
+  vendorPackage = name: p: ''
+    cp --no-preserve=all -r ${fetchPackage p} ./build/packages/${name}
+  '';
+
+  vendorAikenPackages = lock: ''
+    if ! echo '${lock.aiken_lock_hash} aiken.lock' | sha256sum --check; then
+      echo "aiken2nix: error: aiken.lock file has been modified. Run aiken2nix again to regenerate the aiken-nix.lock file."
+      exit 1
+    fi
+
+    mkdir -p ./build/packages
+    cat aiken.lock | yj -tj | jq '{packages: .requirements}' | yj -jt > ./build/packages/packages.toml
+    ${builtins.concatStringsSep "\n" (lib.mapAttrsToList vendorPackage lock.sources)}
+  '';
+
   mkPackage = args:
     let
-      fetchPackage = { url, hash }: fetchzip {
-        inherit url hash;
-      };
-
-      vendorPackage = name: p: ''
-        cp --no-preserve=all -r ${fetchPackage p} ./build/packages/${name}
-      '';
-
       aikenNixLockPath = "${args.src}/aiken-nix.lock";
 
-      aikenNixLock =
+      aikenNixLock = builtins.fromJSON (
         if builtins.pathExists aikenNixLockPath
         then builtins.readFile aikenNixLockPath
-        else throw "File ${aikenNixLockPath} does not exist. Run `aiken2nix` in root of your Aiken project to create it. Make sure to add it to git when using flakes.";
+        else throw "aiken2nix: error: ${aikenNixLockPath} file does not exist. Run `aiken2nix` in root of your Aiken project to create it. Make sure to add it to git when using flakes."
+      );
     in
     stdenv.mkDerivation (args // {
       nativeBuildInputs = [
@@ -75,11 +87,8 @@ let
       configurePhase = ''
         runHook preConfigure
 
-        mkdir -p ./build/packages
-        cat aiken.lock | yj -tj | jq '{packages: .requirements}' | yj -jt > ./build/packages/packages.toml
-        ${builtins.concatStringsSep "\n"
-          (lib.mapAttrsToList vendorPackage (builtins.fromJSON aikenNixLock))}
-        
+        ${vendorAikenPackages aikenNixLock}
+
         runHook postConfigure
       '';
 
