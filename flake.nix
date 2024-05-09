@@ -64,13 +64,9 @@
         ./tests
       ] ++ (builtins.attrValues flakeModules);
 
-      # `nix flake show --impure` hack
-      systems =
-        if builtins.hasAttr "currentSystem" builtins
-        then [ builtins.currentSystem ]
-        else inputs.nixpkgs.lib.systems.flakeExposed;
+      systems = inputs.nixpkgs.lib.systems.flakeExposed;
 
-      herculesCI.ciSystems = [ "x86_64-linux" ];
+      herculesCI.ciSystems = [ "x86_64-linux" "x86_64-darwin" ];
 
       hercules-ci.flake-update = {
         enable = true;
