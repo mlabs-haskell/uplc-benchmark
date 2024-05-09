@@ -70,7 +70,7 @@
         then [ builtins.currentSystem ]
         else inputs.nixpkgs.lib.systems.flakeExposed;
 
-      herculesCI.ciSystems = [ "x86_64-linux" ];
+      herculesCI.ciSystems = [ "x86_64-linux" "x86_64-darwin" ];
 
       hercules-ci.flake-update = {
         enable = true;
