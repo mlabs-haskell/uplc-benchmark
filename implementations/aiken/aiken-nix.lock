@@ -1,6 +1,9 @@
 {
-  "aiken-lang-stdlib": {
-    "url": "https://github.com/aiken-lang/stdlib/archive/1.7.0.tar.gz",
-    "hash": "sha256-Z9RELxqKExxYG1JqIy9Do/+ict/UU8zAAo/ne+mprzw="
+  "aiken_lock_hash": "21bda2671e075927bbfcafb4b7585b1ff7cb9e44f50bc1bee84cb2c1673d8d01",
+  "sources": {
+    "aiken-lang-stdlib": {
+      "url": "https://github.com/aiken-lang/stdlib/archive/1.7.0.tar.gz",
+      "hash": "sha256-Z9RELxqKExxYG1JqIy9Do/+ict/UU8zAAo/ne+mprzw="
+    }
   }
 }

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -24,7 +25,7 @@ def to_sri(h):
     ).stdout.strip()
 
 
-res = {}
+srcs = {}
 
 with open("aiken.lock", "rb") as f:
     data = tomllib.load(f)
@@ -40,7 +41,7 @@ with open("aiken.lock", "rb") as f:
                 hash = to_sri(nix_prefetch_url(url))
                 print(f"  {hash}", file=sys.stderr)
 
-                res[name] = {
+                srcs[name] = {
                     "url": url,
                     "hash": hash,
                 }
@@ -48,5 +49,14 @@ with open("aiken.lock", "rb") as f:
                 print(f"Unknown source type: '{unknown}'")
                 sys.exit(1)
 
+
+with open("aiken.lock", "rb") as f:
+    aiken_lock_hash = hashlib.file_digest(f, "sha256").hexdigest()
+
+
 with open("aiken-nix.lock", "w") as f:
+    res = {
+        "aiken_lock_hash": aiken_lock_hash,
+        "sources": srcs,
+    }
     json.dump(res, f, indent=2)
