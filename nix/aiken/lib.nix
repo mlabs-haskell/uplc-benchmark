@@ -9,6 +9,7 @@
 , yj
 , jq
 , aiken-src
+, darwin
 }:
 
 let
@@ -20,7 +21,11 @@ let
 
     buildInputs = [
       openssl
-    ];
+    ] ++ lib.optionals (stdenv.isDarwin) (with darwin.apple_sdk.frameworks; [
+      Security
+      CoreServices
+      SystemConfiguration
+    ]);
 
     nativeBuildInputs = [
       pkg-config
