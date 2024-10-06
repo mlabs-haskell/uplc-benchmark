@@ -1,4 +1,4 @@
-OPSHIN_FLAGS := --constant-folding
+OPSHIN_FLAGS := -fconstant-folding
 
 build/lp_minting_policy: src/lp_minting_policy.py
 	rm -rf $@
