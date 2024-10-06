@@ -12,7 +12,9 @@
           cp ${self'.packages.dex-specification}/dex.pdf static/constant-product-dex-spec.pdf
           cp ${self'.packages.data-files}/* .
 
-          sed --in-place '/<!-- SCRIPT_SIZE_TABLE -->/r script_size.md' comparison.md
+          for f in *.md; do
+              sed --in-place "/<!-- $f -->/r $f" comparison.md
+          done
         '';
       };
     };

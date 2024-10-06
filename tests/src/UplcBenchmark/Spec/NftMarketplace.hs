@@ -1,4 +1,4 @@
-module UplcBenchmark.Spec.NftMarketplace (specForScript) where
+module UplcBenchmark.Spec.NftMarketplace (specForScript, mkValidBuyOneTest, mkCancelOneTest) where
 
 import LambdaBuffers.NftMarketplace (
   NftMarketplaceDatum (NftMarketplaceDatum),
@@ -205,36 +205,43 @@ invalidCancelOneNoKey =
       , withSpendingUTXO validatedOrderUTxO
       ]
 
+mkTest :: NftMarketplaceRedeemer -> String -> ScriptContext -> ScriptResult -> Script -> ScriptCase
+mkTest redeemer testName context expectedResult script =
+  let
+    apply =
+      uncheckedApplyDataToScript context
+        . uncheckedApplyDataToScript redeemer
+        . uncheckedApplyDataToScript validatedOrderDatum
+    Script applied = apply script
+   in
+    ScriptCase testName expectedResult applied applied
+
+mkBuyTest :: String -> ScriptContext -> ScriptResult -> Script -> ScriptCase
+mkBuyTest = mkTest NftMarketplaceRedeemer'Buy
+
+mkCancelTest :: String -> ScriptContext -> ScriptResult -> Script -> ScriptCase
+mkCancelTest = mkTest NftMarketplaceRedeemer'Cancel
+
+mkValidBuyOneTest :: Script -> ScriptCase
+mkValidBuyOneTest = mkBuyTest "Buy one" validBuyOne ScriptSuccess
+
+mkCancelOneTest :: Script -> ScriptCase
+mkCancelOneTest = mkCancelTest "Cancel one" validCancelOne ScriptSuccess
+
 specForScript :: Script -> TestTree
 specForScript script =
-  let
-    mkTest :: NftMarketplaceRedeemer -> String -> ScriptContext -> ScriptResult -> TestTree
-    mkTest redeemer testName context expectedResult =
-      let
-        apply =
-          uncheckedApplyDataToScript context
-            . uncheckedApplyDataToScript redeemer
-            . uncheckedApplyDataToScript validatedOrderDatum
-        Script applied = apply script
-       in
-        testScript $ ScriptCase testName expectedResult applied applied
-
-    mkBuyTest :: String -> ScriptContext -> ScriptResult -> TestTree
-    mkBuyTest = mkTest NftMarketplaceRedeemer'Buy
-
-    mkCancelTest :: String -> ScriptContext -> ScriptResult -> TestTree
-    mkCancelTest = mkTest NftMarketplaceRedeemer'Cancel
-   in
-    testGroup
-      "NFT Marketplace"
-      [ mkBuyTest "Buy one" validBuyOne ScriptSuccess
+  testGroup
+    "NFT Marketplace"
+    $ fmap
+      (testScript . ($ script))
+      [ mkValidBuyOneTest
       , mkBuyTest "Invalid buy one - no datum" invalidOneNoDatum ScriptFailure
       , mkBuyTest "Invalid buy one - hash datum" invalidOneHashDatum ScriptFailure
       , mkBuyTest "Invalid buy one - pay too little" invalidOnePayTooLittle ScriptFailure
       , mkBuyTest "Invalid buy one - pay too much" invalidOnePayTooMuch ScriptFailure
       , mkBuyTest "Invalid buy one - pay with junk" invalidOnePayWithJunk ScriptFailure
       , mkBuyTest "Invalid buy one - no payment" invalidNoPayment ScriptFailure
-      , mkCancelTest "Cancel one" validCancelOne ScriptSuccess
+      , mkCancelOneTest
       , mkCancelTest "Cancel one - wrong key" invalidCancelOneWrongKey ScriptFailure
       , mkCancelTest "Cancel one - no key" invalidCancelOneNoKey ScriptFailure
       ]

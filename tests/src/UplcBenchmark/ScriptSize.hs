@@ -63,15 +63,6 @@ mkSizeReport binPath = do
 sizeReportsToGnuPlotDat :: [SizeReport] -> String
 sizeReportsToGnuPlotDat reports = header (head reports) <> "\n" <> go reports
   where
-    -- goFiles :: Int -> [Sized] -> String
-    -- goFiles _ [] = ""
-    -- goFiles x (sized:restOfSized) =
-    --   mconcat
-    --   [ show x
-    --   ,
-    --   , go (x + 1) restOfSized
-    --   ]
-
     header :: SizeReport -> String
     header report =
       mconcat
