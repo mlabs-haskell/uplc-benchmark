@@ -25,7 +25,7 @@
       };
     };
     lambda-buffers = {
-      url = "github:mlabs-haskell/lambda-buffers";
+      url = "github:mlabs-haskell/lambda-buffers/22728a271aa5e2e0907ec2ce0f60e56aea2e2ebd";
       flake = false;
     };
     aiken = {
@@ -33,7 +33,7 @@
       flake = false;
     };
     plutus-test = {
-      url = "github:mlabs-haskell/plutus-test";
+      url = "github:mlabs-haskell/plutus-test/113db0cb55b9a9c0f52d9ffb41cfd620700172b8";
       flake = false;
     };
   };
