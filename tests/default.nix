@@ -37,6 +37,16 @@
           } ''
           ${uplc-benchmark-data}/bin/uplc-benchmark-data
 
+          cp ${./budget_template.plt} ./budget_template.plt
+          for f in budget_*.csv; do
+            run=$(basename --suffix=.csv $f)
+            cp budget_template.plt $run.plt
+            substituteInPlace $run.plt \
+              --replace-fail "RUN_NAME" $run
+            gnuplot $run.plt
+            rm $run.plt
+          done
+
           cp ${./script_size.plt} ./script_size.plt
           gnuplot script_size.plt
           mkdir $out

@@ -707,11 +707,11 @@
     "plutus-test": {
       "flake": false,
       "locked": {
-        "lastModified": 1713141100,
-        "narHash": "sha256-ql3pA7llAkycUr2FU2PUHXSnZKgRqFipQFwQT5JDRqo=",
+        "lastModified": 1728250646,
+        "narHash": "sha256-3VS1Lf3K2yoj1IXqxcGM2sbmIO1TxRs1Iw81aFipzBQ=",
         "owner": "mlabs-haskell",
         "repo": "plutus-test",
-        "rev": "113db0cb55b9a9c0f52d9ffb41cfd620700172b8",
+        "rev": "40b5f8a9eaa2786cdb40b5ae6628c0b5af20280d",
         "type": "github"
       },
       "original": {

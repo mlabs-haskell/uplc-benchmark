@@ -112,7 +112,8 @@ library
     UplcBenchmark.Spec.PoolNftPolicy
     UplcBenchmark.Spec.PoolValidator
     UplcBenchmark.ScriptSize
-    
+    UplcBenchmark.ExecutionUnits
+
 test-suite uplc-benchmark-tests
   import:          lang, deps
   type:            exitcode-stdio-1.0
