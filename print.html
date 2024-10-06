@@ -188,8 +188,8 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <div style="break-before: page; page-break-before: always;"></div><h1 id="comparison"><a class="header" href="#comparison">Comparison</a></h1>
 <h2 id="script-size-bytes"><a class="header" href="#script-size-bytes">Script size (bytes)</a></h2>
 <p>Script sizes are compared by compiling each script to CBOR and taking its binary size in bytes. Validators are compiled without traces if language supports it (Opshin does not) and are not passed through any external UPLC optimizer.</p>
-<p><img src="./script_size.png" alt="Script size plot" /></p>
-<!-- SCRIPT_SIZE_TABLE -->
+<p><img src="./script_size.png" alt="size plot" /></p>
+<!-- script_size.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>lp-minting-policy.bin</th><th>nft-marketplace-validator.bin</th><th>nft-minting-policy.bin</th><th>pool-validator.bin</th></tr></thead><tbody>
 <tr><td>Plutarch</td><td>334</td><td>1219</td><td>640</td><td>1631</td></tr>
 <tr><td>Aiken</td><td>535</td><td>795</td><td>781</td><td>1550</td></tr>
@@ -198,6 +198,29 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 </tbody></table>
 </div>
 <p><a href="./script_size.csv">Raw script size data</a></p>
+<h2 id="execution-units"><a class="header" href="#execution-units">Execution Units</a></h2>
+<h3 id="nft-marketplace---buy-one"><a class="header" href="#nft-marketplace---buy-one">NFT Marketplace - buy one</a></h3>
+<p><img src="./budget_buy_one.png" alt="execution_units plot" /></p>
+<!-- budget_buy_one.md -->
+<div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
+<tr><td>Plutarch</td><td>44577866</td><td>125010</td></tr>
+<tr><td>Aiken</td><td>30655882</td><td>80452</td></tr>
+<tr><td>PlutusTx</td><td>216310996</td><td>739238</td></tr>
+<tr><td>Opshin</td><td>60101506</td><td>192397</td></tr>
+</tbody></table>
+</div>
+<p><a href="./budget_buy_one.csv">Raw execution units data</a></p>
+<h3 id="nft-marketplace---cancel-one"><a class="header" href="#nft-marketplace---cancel-one">NFT Marketplace - cancel one</a></h3>
+<p><img src="./budget_cancel_one.png" alt="execution_units plot" /></p>
+<!-- budget_cancel_one.md -->
+<div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
+<tr><td>Plutarch</td><td>38719357</td><td>115390</td></tr>
+<tr><td>Aiken</td><td>24005842</td><td>71296</td></tr>
+<tr><td>PlutusTx</td><td>133127717</td><td>443664</td></tr>
+<tr><td>Opshin</td><td>43609505</td><td>143722</td></tr>
+</tbody></table>
+</div>
+<p><a href="./budget_cancel_one.csv">Raw execution units data</a></p>
 
                     </main>
 
