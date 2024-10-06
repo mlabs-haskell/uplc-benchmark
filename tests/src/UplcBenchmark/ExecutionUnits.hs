@@ -1,4 +1,4 @@
-module UplcBenchmark.ExecutionUnits (profileScripts, profiledToCsv, Profiled) where
+module UplcBenchmark.ExecutionUnits (writeProfileFile, profileScripts, profiledToCsv, Profiled) where
 
 import Data.Kind (Type)
 import GHC.Stack (HasCallStack)
@@ -15,6 +15,11 @@ import UntypedPlutusCore.Evaluation.Machine.Cek qualified as Cek
 
 import UplcBenchmark (Implementation (Implementation), getEnv, implementations)
 import UplcBenchmark.ScriptLoader (loadScriptFromFile)
+
+writeProfileFile :: FilePath -> FilePath -> (Script -> ScriptCase) -> IO ()
+writeProfileFile outFile scriptFile mkTest = do
+  profiled <- profileScripts scriptFile mkTest
+  writeFile outFile $ profiledToCsv profiled
 
 profileScripts :: (HasCallStack) => FilePath -> (Script -> ScriptCase) -> IO [Profiled]
 profileScripts scriptPath mkTest = traverse (profileScript scriptPath mkTest) implementations
