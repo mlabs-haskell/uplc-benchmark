@@ -1,4 +1,4 @@
-module UplcBenchmark.Spec.LpPolicy (specForScript) where
+module UplcBenchmark.Spec.LpPolicy (specForScript, mkValidMintOneNft, mkValidMintTwoNfts) where
 
 import Plutarch (Script (Script))
 import Plutarch.Test.Program (
@@ -109,29 +109,37 @@ invalidMintWrongName ownSymbol =
           ]
     ]
 
+mkTest :: String -> (CurrencySymbol -> ScriptContext) -> ScriptResult -> Script -> ScriptCase
+mkTest testName context expectedResult script =
+  let
+    withParameter = uncheckedApplyDataToScript poolNftSymbol script
+
+    ownSymbol = scriptSymbol withParameter
+
+    apply =
+      uncheckedApplyDataToScript (context ownSymbol)
+        . uncheckedApplyDataToScript unitRedeemer
+
+    Script applied = apply withParameter
+   in
+    ScriptCase testName expectedResult applied applied
+
+mkValidMintOneNft :: Script -> ScriptCase
+mkValidMintOneNft = mkTest "Valid mint - one NFT" validMint ScriptSuccess
+
+mkValidMintTwoNfts :: Script -> ScriptCase
+mkValidMintTwoNfts = mkTest "Valid mint - two NFTs" validMintTwoNfts ScriptSuccess
+
 specForScript :: Script -> TestTree
 specForScript script =
   let
-    mkTest :: String -> (CurrencySymbol -> ScriptContext) -> ScriptResult -> TestTree
-    mkTest testName context expectedResult =
-      let
-        withParameter = uncheckedApplyDataToScript poolNftSymbol script
-
-        ownSymbol = scriptSymbol withParameter
-
-        apply =
-          uncheckedApplyDataToScript (context ownSymbol)
-            . uncheckedApplyDataToScript unitRedeemer
-
-        Script applied = apply withParameter
-       in
-        testScript $ ScriptCase testName expectedResult applied applied
-   in
-    testGroup
-      "LP Minting Policy"
-      [ mkTest "Valid mint - one NFT" validMint ScriptSuccess
-      , mkTest "Valid mint - two NFTs" validMintTwoNfts ScriptSuccess
-      , mkTest "Invalid mint - don't spend NFT" invalidMintNoNft ScriptFailure
-      , mkTest "Invalid mint - one of two NFTs" invalidMintOneOfTwoNfts ScriptFailure
-      , mkTest "Invalid mint - wrong NFT name" invalidMintWrongName ScriptFailure
-      ]
+   in testGroup
+        "LP Minting Policy"
+        $ fmap
+          (testScript . ($ script))
+          [ mkValidMintOneNft
+          , mkValidMintTwoNfts
+          , mkTest "Invalid mint - don't spend NFT" invalidMintNoNft ScriptFailure
+          , mkTest "Invalid mint - one of two NFTs" invalidMintOneOfTwoNfts ScriptFailure
+          , mkTest "Invalid mint - wrong NFT name" invalidMintWrongName ScriptFailure
+          ]

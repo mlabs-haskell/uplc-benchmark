@@ -1,4 +1,4 @@
-module UplcBenchmark.Spec.PoolNftPolicy (specForScript) where
+module UplcBenchmark.Spec.PoolNftPolicy (specForScript, mkValidMint) where
 
 import LambdaBuffers.Dex (NftMintingPolicyRedeemer (NftMintingPolicyRedeemer'CreatePool))
 import Plutarch (Script (Script))
@@ -122,25 +122,29 @@ invalidMintIdxTooHigh ownSymbol =
               ]
         ]
 
+mkTest :: String -> (CurrencySymbol -> ScriptContext) -> ScriptResult -> Script -> ScriptCase
+mkTest testName context expectedResult script =
+  let
+    ownSymbol = scriptSymbol script
+
+    apply =
+      uncheckedApplyDataToScript (context ownSymbol)
+        . uncheckedApplyDataToScript redeemer
+
+    Script applied = apply script
+   in
+    ScriptCase testName expectedResult applied applied
+
+mkValidMint :: Script -> ScriptCase
+mkValidMint = mkTest "Valid mint" validMint ScriptSuccess
+
 specForScript :: Script -> TestTree
 specForScript script =
-  let
-    mkTest :: String -> (CurrencySymbol -> ScriptContext) -> ScriptResult -> TestTree
-    mkTest testName context expectedResult =
-      let
-        ownSymbol = scriptSymbol script
-
-        apply =
-          uncheckedApplyDataToScript (context ownSymbol)
-            . uncheckedApplyDataToScript redeemer
-
-        Script applied = apply script
-       in
-        testScript $ ScriptCase testName expectedResult applied applied
-   in
-    testGroup
-      "NFT Minting Policy"
-      [ mkTest "Valid mint" validMint ScriptSuccess
+  testGroup
+    "NFT Minting Policy"
+    $ fmap
+      (testScript . ($ script))
+      [ mkValidMint
       , mkTest "Invalid mint - more than one minted" invalidMintMoreThanOne ScriptFailure
       , mkTest "Invalid mint - invalid name" invalidMintInvalidName ScriptFailure
       , mkTest "Invalid mint - no initial spend" invalidMintNoInitialSpend ScriptFailure

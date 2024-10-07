@@ -1,4 +1,4 @@
-module UplcBenchmark.Spec.PoolValidator (specForScript) where
+module UplcBenchmark.Spec.PoolValidator (specForScript, mkWithdraw, mkDeposit, mkSwapBForA, mkSwapAForB) where
 
 import LambdaBuffers.Dex (
   DexDatum (
@@ -399,35 +399,48 @@ invalidWithdrawModifiedDatum =
             ]
       ]
 
+mkTest :: DexRedeemer -> String -> ScriptContext -> ScriptResult -> Script -> ScriptCase
+mkTest redeemer testName context expectedResult script =
+  let
+    apply =
+      uncheckedApplyDataToScript context
+        . uncheckedApplyDataToScript redeemer
+        . uncheckedApplyDataToScript poolDatum
+    Script applied = apply script
+   in
+    ScriptCase testName expectedResult applied applied
+
+mkSwapTest :: String -> ScriptContext -> ScriptResult -> Script -> ScriptCase
+mkSwapTest = mkTest DexRedeemer'Swap
+
+mkDepositTest :: String -> ScriptContext -> ScriptResult -> Script -> ScriptCase
+mkDepositTest = mkTest DexRedeemer'DepositLiquidity
+
+mkWithdrawTest :: String -> ScriptContext -> ScriptResult -> Script -> ScriptCase
+mkWithdrawTest = mkTest DexRedeemer'WithdrawLiquidity
+
+mkSwapAForB :: Script -> ScriptCase
+mkSwapAForB = mkSwapTest "Valid Swap - A for B" validSwapAForB ScriptSuccess
+
+mkSwapBForA :: Script -> ScriptCase
+mkSwapBForA = mkSwapTest "Valid Swap - B for A" validSwapBForA ScriptSuccess
+
+mkDeposit :: Script -> ScriptCase
+mkDeposit = mkDepositTest "Valid Deposit" validDeposit ScriptSuccess
+
+mkWithdraw :: Script -> ScriptCase
+mkWithdraw = mkWithdrawTest "Valid Withdraw" validWithdraw ScriptSuccess
+
 specForScript :: Script -> TestTree
 specForScript script =
-  let
-    mkTest :: DexRedeemer -> String -> ScriptContext -> ScriptResult -> TestTree
-    mkTest redeemer testName context expectedResult =
-      let
-        apply =
-          uncheckedApplyDataToScript context
-            . uncheckedApplyDataToScript redeemer
-            . uncheckedApplyDataToScript poolDatum
-        Script applied = apply script
-       in
-        testScript $ ScriptCase testName expectedResult applied applied
-
-    mkSwapTest :: String -> ScriptContext -> ScriptResult -> TestTree
-    mkSwapTest = mkTest DexRedeemer'Swap
-
-    mkDepositTest :: String -> ScriptContext -> ScriptResult -> TestTree
-    mkDepositTest = mkTest DexRedeemer'DepositLiquidity
-
-    mkWithdrawTest :: String -> ScriptContext -> ScriptResult -> TestTree
-    mkWithdrawTest = mkTest DexRedeemer'WithdrawLiquidity
-   in
-    testGroup
-      "Pool Validator"
-      [ testGroup
-          "Swap"
-          [ mkSwapTest "Valid Swap - A for B" validSwapAForB ScriptSuccess
-          , mkSwapTest "Valid Swap - B for A" validSwapBForA ScriptSuccess
+  testGroup
+    "Pool Validator"
+    [ testGroup
+        "Swap"
+        $ fmap
+          (testScript . ($ script))
+          [ mkSwapAForB
+          , mkSwapBForA
           , mkSwapTest "Invalid Swap - no fee" invalidSwapNoFee ScriptFailure
           , mkSwapTest "Invalid Swap - steal NFT" invalidSwapStealNft ScriptFailure
           , mkSwapTest "Invalid Swap - no datum" invalidSwapNoDatum ScriptFailure
@@ -436,22 +449,26 @@ specForScript script =
           , mkSwapTest "Invalid Swap - drain pool" invalidSwapDrainPool ScriptFailure
           , mkSwapTest "Invalid Swap - no self output" invalidSwapNoSelfOutput ScriptFailure
           ]
-      , testGroup
-          "Deposit"
-          [ mkDepositTest "Valid Deposit" validDeposit ScriptSuccess
+    , testGroup
+        "Deposit"
+        $ fmap
+          (testScript . ($ script))
+          [ mkDeposit
           , mkDepositTest "Invalid Deposit - mint but no deposit" invalidDepositNoDeposit ScriptFailure
           , mkDepositTest "Invalid Deposit - not deposit enough" invalidDepositNotEnough ScriptFailure
           , mkDepositTest "Invalid Deposit - steal NFT" invalidDepositStealNft ScriptFailure
           , mkDepositTest "Invalid Deposit - no datum" invalidDepositNoDatum ScriptFailure
           , mkDepositTest "Invalid Deposit - modified datum" invalidDepositModifiedDatum ScriptFailure
           ]
-      , testGroup
-          "Withdraw"
-          [ mkWithdrawTest "Valid Withdraw" validWithdraw ScriptSuccess
+    , testGroup
+        "Withdraw"
+        $ fmap
+          (testScript . ($ script))
+          [ mkWithdraw
           , mkWithdrawTest "Invalid Withdraw - mint but no withdraw" invalidWithdrawNoWithdraw ScriptFailure
           , mkWithdrawTest "Invalid Withdraw - withdraw too much" invalidWithdrawTooMuch ScriptFailure
           , mkWithdrawTest "Invalid Withdraw - steal NFT" invalidWithdrawStealNft ScriptFailure
           , mkWithdrawTest "Invalid Withdraw - no datum" invalidWithdrawNoDatum ScriptFailure
           , mkWithdrawTest "Invalid Withdraw - modified datum" invalidWithdrawModifiedDatum ScriptFailure
           ]
-      ]
+    ]

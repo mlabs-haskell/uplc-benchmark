@@ -14,6 +14,76 @@ Script sizes are compared by compiling each script to CBOR and taking its binary
 
 ## Execution Units
 
+### LP Policy - mint one
+
+![execution_units plot](./budget_lp_mint_one_nft.png)
+
+
+<!-- budget_lp_mint_one_nft.md -->
+
+
+[Raw execution units data](./budget_lp_mint_one_nft.csv)
+
+### LP Policy - mint two
+
+![execution_units plot](./budget_lp_mint_two_nfts.png)
+
+
+<!-- budget_lp_mint_two_nfts.md -->
+
+
+[Raw execution units data](./budget_lp_mint_two_nfts.csv)
+
+### Pool NFT Policy - mint
+
+![execution_units plot](./budget_nft_mint.png)
+
+
+<!-- budget_nft_mint.md -->
+
+
+[Raw execution units data](./budget_nft_mint.csv)
+
+### Pool Validator - swap A for B
+
+![execution_units plot](./budget_swap_a_for_b.png)
+
+
+<!-- budget_swap_a_for_b.md -->
+
+
+[Raw execution units data](./budget_swap_a_for_b.csv)
+
+### Pool Validator - swap B for A
+
+![execution_units plot](./budget_swap_b_for_a.png)
+
+
+<!-- budget_swap_b_for_a.md -->
+
+
+[Raw execution units data](./budget_swap_b_for_a.csv)
+
+### Pool Validator - deposit
+
+![execution_units plot](./budget_deposit.png)
+
+
+<!-- budget_deposit.md -->
+
+
+[Raw execution units data](./budget_deposit.csv)
+
+### Pool Validator - withdraw
+
+![execution_units plot](./budget_withdraw.png)
+
+
+<!-- budget_withdraw.md -->
+
+
+[Raw execution units data](./budget_withdraw.csv)
+
 ### NFT Marketplace - buy one
 
 ![execution_units plot](./budget_buy_one.png)
