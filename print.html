@@ -199,6 +199,83 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 </div>
 <p><a href="./script_size.csv">Raw script size data</a></p>
 <h2 id="execution-units"><a class="header" href="#execution-units">Execution Units</a></h2>
+<h3 id="lp-policy---mint-one"><a class="header" href="#lp-policy---mint-one">LP Policy - mint one</a></h3>
+<p><img src="./budget_lp_mint_one_nft.png" alt="execution_units plot" /></p>
+<!-- budget_lp_mint_one_nft.md -->
+<div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
+<tr><td>Plutarch</td><td>21866156</td><td>54994</td></tr>
+<tr><td>Aiken</td><td>29089646</td><td>83264</td></tr>
+<tr><td>PlutusTx</td><td>112521772</td><td>369282</td></tr>
+<tr><td>Opshin</td><td>49371325</td><td>153098</td></tr>
+</tbody></table>
+</div>
+<p><a href="./budget_lp_mint_one_nft.csv">Raw execution units data</a></p>
+<h3 id="lp-policy---mint-two"><a class="header" href="#lp-policy---mint-two">LP Policy - mint two</a></h3>
+<p><img src="./budget_lp_mint_two_nfts.png" alt="execution_units plot" /></p>
+<!-- budget_lp_mint_two_nfts.md -->
+<div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
+<tr><td>Plutarch</td><td>37756572</td><td>90081</td></tr>
+<tr><td>Aiken</td><td>45968980</td><td>130219</td></tr>
+<tr><td>PlutusTx</td><td>129561365</td><td>424596</td></tr>
+<tr><td>Opshin</td><td>78653774</td><td>234077</td></tr>
+</tbody></table>
+</div>
+<p><a href="./budget_lp_mint_two_nfts.csv">Raw execution units data</a></p>
+<h3 id="pool-nft-policy---mint"><a class="header" href="#pool-nft-policy---mint">Pool NFT Policy - mint</a></h3>
+<p><img src="./budget_nft_mint.png" alt="execution_units plot" /></p>
+<!-- budget_nft_mint.md -->
+<div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
+<tr><td>Plutarch</td><td>29497361</td><td>76787</td></tr>
+<tr><td>Aiken</td><td>37167751</td><td>99173</td></tr>
+<tr><td>PlutusTx</td><td>153008441</td><td>504397</td></tr>
+<tr><td>Opshin</td><td>56304254</td><td>182358</td></tr>
+</tbody></table>
+</div>
+<p><a href="./budget_nft_mint.csv">Raw execution units data</a></p>
+<h3 id="pool-validator---swap-a-for-b"><a class="header" href="#pool-validator---swap-a-for-b">Pool Validator - swap A for B</a></h3>
+<p><img src="./budget_swap_a_for_b.png" alt="execution_units plot" /></p>
+<!-- budget_swap_a_for_b.md -->
+<div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
+<tr><td>Plutarch</td><td>153757103</td><td>376495</td></tr>
+<tr><td>Aiken</td><td>160591359</td><td>442544</td></tr>
+<tr><td>PlutusTx</td><td>434605339</td><td>1492262</td></tr>
+<tr><td>Opshin</td><td>328459639</td><td>936125</td></tr>
+</tbody></table>
+</div>
+<p><a href="./budget_swap_a_for_b.csv">Raw execution units data</a></p>
+<h3 id="pool-validator---swap-b-for-a"><a class="header" href="#pool-validator---swap-b-for-a">Pool Validator - swap B for A</a></h3>
+<p><img src="./budget_swap_b_for_a.png" alt="execution_units plot" /></p>
+<!-- budget_swap_b_for_a.md -->
+<div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
+<tr><td>Plutarch</td><td>153757103</td><td>376495</td></tr>
+<tr><td>Aiken</td><td>160591359</td><td>442544</td></tr>
+<tr><td>PlutusTx</td><td>434605339</td><td>1492262</td></tr>
+<tr><td>Opshin</td><td>328459639</td><td>936125</td></tr>
+</tbody></table>
+</div>
+<p><a href="./budget_swap_b_for_a.csv">Raw execution units data</a></p>
+<h3 id="pool-validator---deposit"><a class="header" href="#pool-validator---deposit">Pool Validator - deposit</a></h3>
+<p><img src="./budget_deposit.png" alt="execution_units plot" /></p>
+<!-- budget_deposit.md -->
+<div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
+<tr><td>Plutarch</td><td>155335291</td><td>379259</td></tr>
+<tr><td>Aiken</td><td>166710755</td><td>461160</td></tr>
+<tr><td>PlutusTx</td><td>488135151</td><td>1682058</td></tr>
+<tr><td>Opshin</td><td>332265515</td><td>940848</td></tr>
+</tbody></table>
+</div>
+<p><a href="./budget_deposit.csv">Raw execution units data</a></p>
+<h3 id="pool-validator---withdraw"><a class="header" href="#pool-validator---withdraw">Pool Validator - withdraw</a></h3>
+<p><img src="./budget_withdraw.png" alt="execution_units plot" /></p>
+<!-- budget_withdraw.md -->
+<div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
+<tr><td>Plutarch</td><td>156466269</td><td>381663</td></tr>
+<tr><td>Aiken</td><td>167841733</td><td>463564</td></tr>
+<tr><td>PlutusTx</td><td>489532650</td><td>1686860</td></tr>
+<tr><td>Opshin</td><td>333153004</td><td>943450</td></tr>
+</tbody></table>
+</div>
+<p><a href="./budget_withdraw.csv">Raw execution units data</a></p>
 <h3 id="nft-marketplace---buy-one"><a class="header" href="#nft-marketplace---buy-one">NFT Marketplace - buy one</a></h3>
 <p><img src="./budget_buy_one.png" alt="execution_units plot" /></p>
 <!-- budget_buy_one.md -->
