@@ -13,6 +13,7 @@ set yrange [0:*]
 set y2tics
 set format y2 "%'.0f"
 set ytics nomirror
+set y2range [0:*]
 
 # Grid
 set style data histograms
