@@ -4,7 +4,7 @@ This project contains language-agnostic unit tests.
 
 ## Usage
 
-Dev shell will provide environment variables that point to validator implementations. For testing purposes they can be overritten locally. Env variables must point to directories with `.bin` files.
+Dev shell will provide environment variables that point to validator implementations. For testing purposes they can be overwritten locally. Env variables must point to directories with `.bin` files.
 - `UPLC_BENCHMARK_BIN_PLUTARCH`
 - `UPLC_BENCHMARK_BIN_AIKEN`
 - `UPLC_BENCHMARK_BIN_PLUTUS_TX`
