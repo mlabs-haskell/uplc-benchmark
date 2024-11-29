@@ -1,5 +1,9 @@
 # Comparison
 
+While trying to implement all validators as closely to each other as possible there are some differences that impact measured script size and execution units.
+- Plutarch while decoding Data-encoded types is checking for invariants such as hashes lengths, map key ordering etc. which leads to higher start up cost visible in NFT Marketplace validator.
+- Opshin does expose option to compile without tracing so that is included in the final size. All implementations use traces in their source code but remaining allow to strip it with a compilation flag.
+
 ## Script size (bytes)
 
 Script sizes are compared by compiling each script to CBOR and taking its binary size in bytes. Validators are compiled without traces if language supports it (Opshin does not) and are not passed through any external UPLC optimizer.
@@ -13,6 +17,8 @@ Script sizes are compared by compiling each script to CBOR and taking its binary
 [Raw script size data](./script_size.csv)
 
 ## Execution Units
+
+Execution units are abstract units of CEK machine. Despite being called CPU and Memory they *DO NOT* mean CPU cycles or allocated bytes, these are abstract, deterministic units of the virtual machine that executes UPLC.
 
 ### LP Policy - mint one
 
