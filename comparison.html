@@ -174,6 +174,11 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="comparison"><a class="header" href="#comparison">Comparison</a></h1>
+<p>While trying to implement all validators as closely to each other as possible there are some differences that impact measured script size and execution units.</p>
+<ul>
+<li>Plutarch while decoding Data-encoded types is checking for invariants such as hashes lengths, map key ordering etc. which leads to higher start up cost visible in NFT Marketplace validator.</li>
+<li>Opshin does expose option to compile without tracing so that is included in the final size. All implementations use traces in their source code but remaining allow to strip it with a compilation flag.</li>
+</ul>
 <h2 id="script-size-bytes"><a class="header" href="#script-size-bytes">Script size (bytes)</a></h2>
 <p>Script sizes are compared by compiling each script to CBOR and taking its binary size in bytes. Validators are compiled without traces if language supports it (Opshin does not) and are not passed through any external UPLC optimizer.</p>
 <p><img src="./script_size.png" alt="size plot" /></p>
@@ -187,6 +192,7 @@
 </div>
 <p><a href="./script_size.csv">Raw script size data</a></p>
 <h2 id="execution-units"><a class="header" href="#execution-units">Execution Units</a></h2>
+<p>Execution units are abstract units of CEK machine. Despite being called CPU and Memory they <em>DO NOT</em> mean CPU cycles or allocated bytes, these are abstract, deterministic units of the virtual machine that executes UPLC.</p>
 <h3 id="lp-policy---mint-one"><a class="header" href="#lp-policy---mint-one">LP Policy - mint one</a></h3>
 <p><img src="./budget_lp_mint_one_nft.png" alt="execution_units plot" /></p>
 <!-- budget_lp_mint_one_nft.md -->
