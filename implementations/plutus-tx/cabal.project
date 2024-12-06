@@ -15,6 +15,3 @@ benchmarks: true
 
 tests: true
 test-show-details: direct
-
-constraints:
-  , nothunks < 0.2
