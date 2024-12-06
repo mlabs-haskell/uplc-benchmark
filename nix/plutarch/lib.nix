@@ -34,7 +34,7 @@ in
 args:
 mkHaskellPackage (args // {
   externalRepositories = {
-    "https://input-output-hk.github.io/cardano-haskell-packages" = cardanoPackages;
+    "https://chap.intersectmbo.org" = cardanoPackages;
   } // (args.externalRepositories or { });
 
   externalDependencies = [
