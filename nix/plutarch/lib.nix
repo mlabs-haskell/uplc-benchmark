@@ -39,6 +39,5 @@ mkHaskellPackage (args // {
 
   externalDependencies = [
     "${plutarchPackage}"
-    "${plutarchPackage}/plutarch-extra"
   ] ++ (args.externalDependencies or [ ]);
 })
