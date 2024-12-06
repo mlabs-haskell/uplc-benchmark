@@ -24,10 +24,10 @@ let
   };
 
   cardanoPackages = fetchFromGitHub {
-    owner = "input-output-hk";
+    owner = "IntersectMBO";
     repo = "cardano-haskell-packages";
-    rev = "3df392af2a61d61bdac1afd9c3674f27d6aa8efc"; # branch: repo
-    hash = "sha256-vvm56KzA6jEkG3mvwh1LEdK4H4FKxeoOJNz90H8l8dQ=";
+    rev = "e062328804c933d296e5956c989b326ea3c69eeb"; # branch: repo
+    hash = "sha256-IH5nYTjx+CYAK4zQAkOs475X+AOhP/GPgwXm5LQHsEE=";
   };
 in
 
