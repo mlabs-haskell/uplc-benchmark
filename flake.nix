@@ -66,7 +66,7 @@
 
       systems = inputs.nixpkgs.lib.systems.flakeExposed;
 
-      herculesCI.ciSystems = [ "x86_64-linux" "x86_64-darwin" ];
+      herculesCI.ciSystems = [ "x86_64-linux" ];
 
       hercules-ci.flake-update = {
         enable = true;
