@@ -6,15 +6,15 @@ let
   plutarchPackage = fetchFromGitHub {
     owner = "Plutonomicon";
     repo = "plutarch-plutus";
-    rev = "96de13396a469f652b48735c80b8f55b37b8b396"; # branch: staging
-    hash = "sha256-NFYBw/QGvsE58fJqlTP2+nFPsWnsI9rJbeHSOEeOhUw=";
+    rev = "v1.10.0";
+    hash = "sha256-lU2JF9KYvzEPfVLHdLkrM1hTTuc9NYi2hQPFnLDm2d8=";
   };
 
   cardanoPackages = fetchFromGitHub {
     owner = "IntersectMBO";
     repo = "cardano-haskell-packages";
-    rev = "e062328804c933d296e5956c989b326ea3c69eeb"; # branch: repo
-    hash = "sha256-IH5nYTjx+CYAK4zQAkOs475X+AOhP/GPgwXm5LQHsEE=";
+    rev = "3167b742cea332e1c978d8ecc69ef8d6bd0d6e19"; # branch: repo
+    hash = "sha256-oCObuK/TY71lL+vDiRT0/Hhrsq4GRC7n8kcKBeonoUk=";
   };
 in
 

@@ -24,10 +24,6 @@
         hci-effects.follows = "hci-effects";
       };
     };
-    lambda-buffers = {
-      url = "github:mlabs-haskell/lambda-buffers";
-      flake = false;
-    };
     aiken = {
       url = "github:aiken-lang/aiken?ref=v1.0.24-alpha";
       flake = false;
@@ -57,11 +53,11 @@
         ./implementations/aiken
         ./implementations/opshin
         ./implementations/plutarch
-        ./implementations/plutus-tx
+        # ./implementations/plutus-tx
         ./specifications
-        ./types
-        ./website
-        ./tests
+        # ./types
+        # ./website
+        # ./tests
       ] ++ (builtins.attrValues flakeModules);
 
       systems = inputs.nixpkgs.lib.systems.flakeExposed;

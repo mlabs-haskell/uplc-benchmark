@@ -4,9 +4,6 @@
       plutarch-implementation = config.libPlutarch.mkPackage {
         name = "plutarch-implementation";
         src = ./.;
-        externalDependencies = [
-          self'.packages.uplc-benchmark-types-plutarch
-        ];
       };
     in
     {

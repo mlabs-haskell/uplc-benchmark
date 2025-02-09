@@ -103,9 +103,7 @@ common deps
     , plutus-core
     , plutus-ledger-api
     , text
-    , uplc-benchmark-types-plutarch-lb
     , pprelude
-    , lbf-plutus-plutarch
 
 library
   import:          lang, deps, plutarch-prelude
