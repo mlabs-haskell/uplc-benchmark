@@ -1,48 +1,46 @@
 module UplcBenchmark.NftMintingPolicy (pnftMintingPolicy) where
 
-import LambdaBuffers.Dex.Plutarch (
-  NftMintingPolicyRedeemer (
-    NftMintingPolicyRedeemer'CreatePool
-  ),
- )
-import Plutarch.Api.V2 (
-  PMintingPolicy,
+import Data.Kind (Type)
+import GHC.Generics qualified as GHC
+import Generics.SOP qualified as SOP
+import Plutarch.LedgerApi.V2 (
+  PScriptContext (PScriptContext),
   PScriptPurpose (PMinting),
   PTokenName (PTokenName),
-  PTxInInfo,
-  PTxOutRef,
+  PTxId (PTxId),
+  PTxInInfo (PTxInInfo),
+  PTxInfo (PTxInfo),
+  PTxOutRef (PTxOutRef),
  )
 import Plutarch.Monadic qualified as P
 
-import UplcBenchmark.Utils (
-  passert,
-  pintegerToByteString,
-  ptryDecodeData,
-  ptryGetOwnMint,
- )
+import UplcBenchmark.Utils (passert, pintegerToByteString, ptryGetOwnMint)
 
-pnftMintingPolicy :: ClosedTerm PMintingPolicy
+type NftMintingPolicyRedeemer :: S -> Type
+newtype NftMintingPolicyRedeemer s = NftMintingPolicyRedeemer (Term s PTxOutRef)
+  deriving stock (GHC.Generic)
+  deriving anyclass (SOP.Generic, PEq, PIsData)
+  deriving (PlutusType) via DeriveNewtypePlutusType NftMintingPolicyRedeemer
+
+pnftMintingPolicy :: ClosedTerm (PAsData NftMintingPolicyRedeemer :--> PAsData PScriptContext :--> POpaque)
 pnftMintingPolicy = plam $ \rawRedeemer ctx' -> P.do
-  NftMintingPolicyRedeemer'CreatePool initialSpend' <-
-    pmatch $ ptryDecodeData @NftMintingPolicyRedeemer rawRedeemer
-  initialSpend <- plet $ pfromData initialSpend'
+  NftMintingPolicyRedeemer initialSpend <- pmatch (pfromData rawRedeemer)
 
   expectedNftName <- plet $ pderiveNftName # initialSpend
 
-  ctx <- pletFields @'["txInfo", "purpose"] ctx'
-  txInfo <- pletFields @'["inputs", "mint"] ctx.txInfo
+  PScriptContext txInfo purpose <- pmatch (pfromData ctx')
+  PTxInfo inputs _ _ _ mint _ _ _ _ _ _ _ <- pmatch txInfo
 
-  PMinting ownSymbol' <- pmatch ctx.purpose
-  ownSymbol <- plet $ pfromData $ pfield @"_0" # ownSymbol'
-  ownMint <- plet $ ptryGetOwnMint # ownSymbol # txInfo.mint
+  PMinting ownSymbol <- pmatch purpose
+  ownMint <- plet $ ptryGetOwnMint # pfromData ownSymbol # pfromData mint
   PCons mintedNfts mintedRest <- pmatch (pto ownMint)
 
   let mintedNftName = pfromData $ pfstBuiltin # mintedNfts
   let mintedNftAmount = pfromData $ psndBuiltin # mintedNfts
 
-  isInitialSpend <- plet $ plam $ \(txInInfo' :: Term s PTxInInfo) -> P.do
-    txInInfo <- pletFields @'["outRef"] txInInfo'
-    txInInfo.outRef #== initialSpend
+  isInitialSpend <- plet $ plam $ \txInInfo -> P.do
+    PTxInInfo outRef _ <- pmatch (pfromData txInInfo)
+    outRef #== initialSpend
 
   passert "Minted NFT more than one NFT" (mintedNftAmount #== 1)
 
@@ -50,13 +48,13 @@ pnftMintingPolicy = plam $ \rawRedeemer ctx' -> P.do
 
   passert "Minted more than one token name" (pnull # mintedRest)
 
-  passert "Initial spend was not spent" (pany # isInitialSpend # txInfo.inputs)
+  passert "Initial spend was not spent" (pany # isInitialSpend # pfromData inputs)
 
-  popaque $ pconstant ()
+  popaque $ pconstant @PUnit ()
 
 pderiveNftName :: ClosedTerm (PTxOutRef :--> PTokenName)
-pderiveNftName = phoistAcyclic $ plam $ \txOutRef' -> P.do
-  txOutRef <- pletFields @'["id", "idx"] txOutRef'
-  let txId = pfield @"_0" # txOutRef.id
-      idxPart = pintegerToByteString # txOutRef.idx
-  pcon $ PTokenName (txId <> idxPart)
+pderiveNftName = phoistAcyclic $ plam $ \txOutRef -> P.do
+  PTxOutRef txId' idx <- pmatch txOutRef
+  PTxId txId <- pmatch txId'
+  let idxPart = pintegerToByteString # pfromData idx
+  pcon $ PTokenName (pfromData txId <> idxPart)

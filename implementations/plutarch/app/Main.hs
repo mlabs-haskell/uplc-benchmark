@@ -2,8 +2,10 @@ module Main (main) where
 
 import Data.ByteString qualified as BS (writeFile)
 import Data.ByteString.Short (fromShort)
+import Data.Kind (Type)
 import Data.Text qualified as Text
-import Plutarch (ClosedTerm, Config (Config), TracingMode (NoTracing), compile)
+import Plutarch.Internal.Term (Config (NoTracing), compile)
+import Plutarch.Prelude (S, Term)
 import Plutarch.Script (serialiseScript)
 import System.IO (hPutStrLn, stderr)
 
@@ -16,16 +18,18 @@ ePutStrLn :: String -> IO ()
 ePutStrLn = hPutStrLn stderr
 
 compilationConfig :: Config
-compilationConfig = Config NoTracing
+compilationConfig = NoTracing
 
-compileToFile :: ClosedTerm a -> FilePath -> IO ()
+compileToFile :: forall (a :: S -> Type). (forall (s :: S). Term s a) -> FilePath -> IO ()
 compileToFile term fp = do
+  ePutStrLn $ "info: compiling '" <> fp <> "'"
   case compile compilationConfig term of
     Right script -> do
       let serialised = fromShort $ serialiseScript script
       BS.writeFile fp serialised
+      ePutStrLn $ "info: serialized '" <> fp <> "'"
     Left err -> do
-      ePutStrLn $ "error: could not compile '" <> fp <> "'."
+      ePutStrLn $ "error: could not compile '" <> fp <> "'"
       ePutStrLn $ Text.unpack err
 
 main :: IO ()

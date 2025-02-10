@@ -100,10 +100,12 @@ common deps
     , bytestring
     , mtl
     , plutarch
+    , plutarch-ledger-api
     , plutus-core
     , plutus-ledger-api
     , text
     , pprelude
+    , generics-sop
 
 library
   import:          lang, deps, plutarch-prelude

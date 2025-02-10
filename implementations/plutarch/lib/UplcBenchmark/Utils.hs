@@ -12,34 +12,33 @@ module UplcBenchmark.Utils (
 )
 where
 
-import LambdaBuffers.Plutus.V1.Plutarch (AssetClass)
-import Plutarch.Api.V1.AssocMap (PMap, pempty, pfindWithDefault, pforgetSorted)
-import Plutarch.Api.V1.Value (pvalueOf)
-import Plutarch.Api.V2 (
+import Data.Kind (Type)
+import Plutarch.LedgerApi.AssocMap (PMap, pempty, pfindWithDefault, pforgetSorted)
+import Plutarch.LedgerApi.V2 (
   PCurrencySymbol,
   PMaybeData (PDJust, PDNothing),
   PTokenName,
-  PTxInInfo,
-  PTxOut,
+  PTxInInfo (PTxInInfo),
+  PTxOut (PTxOut),
   PTxOutRef,
   PValue,
  )
-import Plutarch.Monadic qualified as P
+import Plutarch.LedgerApi.Value (PAssetClass (PAssetClass), pvalueOf)
 
 ptryDecodeData ::
-  forall (a :: PType) (s :: S).
+  forall (a :: S -> Type) (s :: S).
   (PTryFrom PData (PAsData a), PIsData a) =>
   Term s PData ->
   Term s a
 ptryDecodeData = pfromData . unTermCont . fmap fst . tcont . ptryFrom
 
 passert ::
-  forall (a :: PType) (s :: S).
+  forall (a :: S -> Type) (s :: S).
   Term s PString ->
   Term s PBool ->
   Term s a ->
   Term s a
-passert msg cond x = pif cond x $ ptraceError msg
+passert msg cond x = pif cond x $ ptraceInfoError msg
 
 pallBoth ::
   (PIsData k, PIsData v) =>
@@ -64,36 +63,35 @@ pintegerToByteString = phoistAcyclic $ plam $ \n -> pfix # plam go # n # mempty
       Term s (PInteger :--> PByteString :--> PByteString) ->
       Term s PInteger ->
       Term s (PByteString :--> PByteString)
-    go self n = plam $ \rest -> P.do
+    go self n = plam $ \rest -> FooBar.do
       pif
         (n #< 256)
-        (pconsBS # n # rest)
-        (self # (pdiv # n # 256) #$ pconsBS # (pmod # n # 256) # rest)
+        (pconsBS # (pintegerToByte # n) # rest)
+        (self # (pdiv # n # 256) #$ pconsBS # (pintegerToByte # (pmod # n # 256)) # rest)
 
 -- | Like `pfind` but throws an error if doesn't find anything
-ptryFind :: (PIsListLike l a) => Term s ((a :--> PBool) :--> l a :--> a)
+ptryFind :: forall a l s. (PIsListLike l a) => Term s ((a :--> PBool) :--> l a :--> a)
 ptryFind = phoistAcyclic $
   pfix #$ plam $ \self f xs ->
     pelimList
       (\y ys -> pif (f # y) y (self # f # ys))
-      (ptraceError "ptryFind: no match")
+      (ptraceInfoError "ptryFind: no match")
       xs
 
-ptryFindInput :: Term s (PTxOutRef :--> PBuiltinList PTxInInfo :--> PTxInInfo)
+ptryFindInput :: Term s (PTxOutRef :--> PBuiltinList (PAsData PTxInInfo) :--> PAsData PTxInInfo)
 ptryFindInput = phoistAcyclic $
   plam $ \outRef lst ->
-    ptryFind # plam (\txInInfo -> pfield @"outRef" # txInInfo #== outRef) # lst
+    ptryFind @(PAsData PTxInInfo) # plam (\txInInfo -> pmatch (pfromData txInInfo) $ \(PTxInInfo outRef' _) -> outRef' #== outRef) # lst
 
-pvalueOfAssetClass :: Term s (PValue anyKey anyAmount :--> AssetClass :--> PInteger)
-pvalueOfAssetClass = phoistAcyclic $ plam $ \value asset' -> P.do
-  asset <- pletFields @'["_0", "_1"] asset'
-  pvalueOf # value # asset._0 # asset._1
+pvalueOfAssetClass :: Term s (PValue anyKey anyAmount :--> PAssetClass :--> PInteger)
+pvalueOfAssetClass = phoistAcyclic $ plam $ \value asset' -> pmatch asset' $ \(PAssetClass asset) -> P.do
+  pvalueOf # value # (pfromData $ pfstBuiltin # asset) # (pfromData $ psndBuiltin # asset)
 
-ptryFindOutputWithAsset :: Term s (AssetClass :--> PBuiltinList PTxOut :--> PTxOut)
+ptryFindOutputWithAsset :: Term s (PAssetClass :--> PBuiltinList (PAsData PTxOut) :--> PAsData PTxOut)
 ptryFindOutputWithAsset = phoistAcyclic $ plam $ \token outputs -> P.do
-  ptryFind # plam (\txOut -> pvalueOfAssetClass # (pfield @"value" # txOut) # token #> 0) # outputs
+  ptryFind # plam (\txOut -> pmatch (pfromData txOut) $ \(PTxOut _ txOutValue _ _) -> pvalueOfAssetClass # pfromData txOutValue # token #> 0) # outputs
 
 pisPDNothing :: Term s (PMaybeData a :--> PBool)
 pisPDNothing = phoistAcyclic $ plam $ \m -> pmatch m $ \case
-  PDNothing _ -> pconstant True
+  PDNothing -> pconstant True
   PDJust _ -> pconstant False

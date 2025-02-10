@@ -6,8 +6,8 @@ let
   plutarchPackage = fetchFromGitHub {
     owner = "Plutonomicon";
     repo = "plutarch-plutus";
-    rev = "v1.10.0";
-    hash = "sha256-lU2JF9KYvzEPfVLHdLkrM1hTTuc9NYi2hQPFnLDm2d8=";
+    rev = "9a7ef03b398d7b1f95e801deb0216ef880d0f76a";
+    hash = "sha256-MCoTB5Hukch9HaWvW6q7fpAhnfFOIYaEgW12rjCfcrU=";
   };
 
   cardanoPackages = fetchFromGitHub {
@@ -26,5 +26,6 @@ mkHaskellPackage (args // {
 
   externalDependencies = [
     "${plutarchPackage}"
+    "${plutarchPackage}/plutarch-ledger-api"
   ] ++ (args.externalDependencies or [ ]);
 })
