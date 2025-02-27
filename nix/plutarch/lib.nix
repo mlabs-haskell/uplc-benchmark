@@ -6,8 +6,8 @@ let
   plutarchPackage = fetchFromGitHub {
     owner = "Plutonomicon";
     repo = "plutarch-plutus";
-    rev = "9a7ef03b398d7b1f95e801deb0216ef880d0f76a";
-    hash = "sha256-MCoTB5Hukch9HaWvW6q7fpAhnfFOIYaEgW12rjCfcrU=";
+    rev = "7b346d00596531d3682204e226f7457d51849a21";
+    hash = "sha256-k6Sm8DqSvaRDbNsIivzbw/1JrWuiDT7xoVll9ZqGgXM=";
   };
 
   cardanoPackages = fetchFromGitHub {
