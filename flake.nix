@@ -52,7 +52,7 @@
         ./implementations/aiken
         ./implementations/opshin
         ./implementations/plutarch
-        # ./implementations/plutus-tx
+        ./implementations/plutus-tx
         ./specifications
         # ./types
         # ./website
