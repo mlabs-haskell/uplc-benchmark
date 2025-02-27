@@ -2,12 +2,6 @@
 from opshin.prelude import *
 
 
-@dataclass()
-class NftMintingPolicyRedeemer(PlutusData):
-    CONSTR_ID = 0
-    initial_spend: TxOutRef
-
-
 def int_to_bs(n: int) -> List[int]:
     acc: List[int] = []
     while n != 0:
@@ -24,9 +18,7 @@ def derive_nft_name(ref: TxOutRef) -> TokenName:
     return ref.id.tx_id + bytes(int_to_bs(ref.idx))
 
 
-def validator(redeemer: NftMintingPolicyRedeemer, context: ScriptContext) -> None:
-    initial_spend: TxOutRef = redeemer.initial_spend
-
+def validator(initial_spend: TxOutRef, context: ScriptContext) -> None:
     purpose = context.purpose
     if isinstance(purpose, Minting):
         own_symbol = purpose.policy_id
@@ -43,5 +35,5 @@ def validator(redeemer: NftMintingPolicyRedeemer, context: ScriptContext) -> Non
     ), "Minted NFT name does not match derived name"
 
     assert any(
-        [redeemer.initial_spend == inp.out_ref for inp in context.tx_info.inputs]
+        [initial_spend == inp.out_ref for inp in context.tx_info.inputs]
     ), "Initial spent is not spent"
