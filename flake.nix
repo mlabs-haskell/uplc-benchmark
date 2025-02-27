@@ -9,7 +9,6 @@
     pre-commit-hooks-nix = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.nixpkgs-stable.follows = "nixpkgs";
     };
     hci-effects = {
       url = "github:hercules-ci/hercules-ci-effects";
