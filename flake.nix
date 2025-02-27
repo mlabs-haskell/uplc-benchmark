@@ -54,7 +54,7 @@
         ./implementations/plutarch
         ./implementations/plutus-tx
         ./specifications
-        # ./website
+        ./website
         ./tests
       ] ++ (builtins.attrValues flakeModules);
 
