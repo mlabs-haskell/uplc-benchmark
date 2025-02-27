@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
@@ -30,15 +30,17 @@
 
         <!-- Custom theme stylesheets -->
 
-    </head>
-    <body class="sidebar-visible no-js">
-    <div id="body-container">
+
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
-
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
@@ -60,19 +62,16 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
+            const html = document.documentElement;
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add("js");
         </script>
 
         <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
             var sidebar = null;
             var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
@@ -82,45 +81,25 @@
                 sidebar = 'hidden';
             }
             sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="specifications.html"><strong aria-hidden="true">2.</strong> Specifications</a></li><li class="chapter-item expanded "><a href="comparison.html" class="active"><strong aria-hidden="true">3.</strong> Comparison</a></li></ol>
-            </div>
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
             </div>
         </nav>
 
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
-
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -184,10 +163,10 @@
 <p><img src="./script_size.png" alt="size plot" /></p>
 <!-- script_size.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>lp-minting-policy.bin</th><th>nft-marketplace-validator.bin</th><th>nft-minting-policy.bin</th><th>pool-validator.bin</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>334</td><td>1219</td><td>640</td><td>1631</td></tr>
-<tr><td>Aiken</td><td>535</td><td>795</td><td>781</td><td>1550</td></tr>
-<tr><td>PlutusTx</td><td>1848</td><td>3433</td><td>2379</td><td>3171</td></tr>
-<tr><td>Opshin</td><td>1412</td><td>2634</td><td>2002</td><td>4169</td></tr>
+<tr><td>Plutarch</td><td>336</td><td>313</td><td>415</td><td>1063</td></tr>
+<tr><td>Aiken</td><td>535</td><td>795</td><td>699</td><td>1550</td></tr>
+<tr><td>PlutusTx</td><td>1691</td><td>3039</td><td>2000</td><td>3019</td></tr>
+<tr><td>Opshin</td><td>1412</td><td>2619</td><td>1962</td><td>4196</td></tr>
 </tbody></table>
 </div>
 <p><a href="./script_size.csv">Raw script size data</a></p>
@@ -197,10 +176,10 @@
 <p><img src="./budget_lp_mint_one_nft.png" alt="execution_units plot" /></p>
 <!-- budget_lp_mint_one_nft.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>21866156</td><td>54994</td></tr>
-<tr><td>Aiken</td><td>29089646</td><td>83264</td></tr>
-<tr><td>PlutusTx</td><td>112521772</td><td>369282</td></tr>
-<tr><td>Opshin</td><td>49371325</td><td>153098</td></tr>
+<tr><td>Plutarch</td><td>18262734</td><td>50394</td></tr>
+<tr><td>Aiken</td><td>23520151</td><td>83264</td></tr>
+<tr><td>PlutusTx</td><td>66588364</td><td>278572</td></tr>
+<tr><td>Opshin</td><td>39169515</td><td>153098</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_lp_mint_one_nft.csv">Raw execution units data</a></p>
@@ -208,10 +187,10 @@
 <p><img src="./budget_lp_mint_two_nfts.png" alt="execution_units plot" /></p>
 <!-- budget_lp_mint_two_nfts.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>37756572</td><td>90081</td></tr>
-<tr><td>Aiken</td><td>45968980</td><td>130219</td></tr>
-<tr><td>PlutusTx</td><td>129561365</td><td>424596</td></tr>
-<tr><td>Opshin</td><td>78653774</td><td>234077</td></tr>
+<tr><td>Plutarch</td><td>31822785</td><td>83081</td></tr>
+<tr><td>Aiken</td><td>37169783</td><td>130219</td></tr>
+<tr><td>PlutusTx</td><td>76849433</td><td>325184</td></tr>
+<tr><td>Opshin</td><td>63319892</td><td>234077</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_lp_mint_two_nfts.csv">Raw execution units data</a></p>
@@ -219,10 +198,10 @@
 <p><img src="./budget_nft_mint.png" alt="execution_units plot" /></p>
 <!-- budget_nft_mint.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>29497361</td><td>76787</td></tr>
-<tr><td>Aiken</td><td>37167751</td><td>99173</td></tr>
-<tr><td>PlutusTx</td><td>153008441</td><td>504397</td></tr>
-<tr><td>Opshin</td><td>56304254</td><td>182358</td></tr>
+<tr><td>Plutarch</td><td>15992668</td><td>41967</td></tr>
+<tr><td>Aiken</td><td>28278773</td><td>89622</td></tr>
+<tr><td>PlutusTx</td><td>66772968</td><td>281765</td></tr>
+<tr><td>Opshin</td><td>40795575</td><td>174802</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_nft_mint.csv">Raw execution units data</a></p>
@@ -230,10 +209,10 @@
 <p><img src="./budget_swap_a_for_b.png" alt="execution_units plot" /></p>
 <!-- budget_swap_a_for_b.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>153757103</td><td>376495</td></tr>
-<tr><td>Aiken</td><td>160591359</td><td>442544</td></tr>
-<tr><td>PlutusTx</td><td>434605339</td><td>1492262</td></tr>
-<tr><td>Opshin</td><td>328459639</td><td>936125</td></tr>
+<tr><td>Plutarch</td><td>102778551</td><td>233241</td></tr>
+<tr><td>Aiken</td><td>135673960</td><td>442544</td></tr>
+<tr><td>PlutusTx</td><td>292784637</td><td>1353180</td></tr>
+<tr><td>Opshin</td><td>252048642</td><td>935119</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_swap_a_for_b.csv">Raw execution units data</a></p>
@@ -241,10 +220,10 @@
 <p><img src="./budget_swap_b_for_a.png" alt="execution_units plot" /></p>
 <!-- budget_swap_b_for_a.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>153757103</td><td>376495</td></tr>
-<tr><td>Aiken</td><td>160591359</td><td>442544</td></tr>
-<tr><td>PlutusTx</td><td>434605339</td><td>1492262</td></tr>
-<tr><td>Opshin</td><td>328459639</td><td>936125</td></tr>
+<tr><td>Plutarch</td><td>102778551</td><td>233241</td></tr>
+<tr><td>Aiken</td><td>135673960</td><td>442544</td></tr>
+<tr><td>PlutusTx</td><td>292784637</td><td>1353180</td></tr>
+<tr><td>Opshin</td><td>252048642</td><td>935119</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_swap_b_for_a.csv">Raw execution units data</a></p>
@@ -252,10 +231,10 @@
 <p><img src="./budget_deposit.png" alt="execution_units plot" /></p>
 <!-- budget_deposit.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>155335291</td><td>379259</td></tr>
-<tr><td>Aiken</td><td>166710755</td><td>461160</td></tr>
-<tr><td>PlutusTx</td><td>488135151</td><td>1682058</td></tr>
-<tr><td>Opshin</td><td>332265515</td><td>940848</td></tr>
+<tr><td>Plutarch</td><td>104183634</td><td>234501</td></tr>
+<tr><td>Aiken</td><td>141343322</td><td>461160</td></tr>
+<tr><td>PlutusTx</td><td>328245188</td><td>1517862</td></tr>
+<tr><td>Opshin</td><td>257128376</td><td>940115</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_deposit.csv">Raw execution units data</a></p>
@@ -263,10 +242,10 @@
 <p><img src="./budget_withdraw.png" alt="execution_units plot" /></p>
 <!-- budget_withdraw.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>156466269</td><td>381663</td></tr>
-<tr><td>Aiken</td><td>167841733</td><td>463564</td></tr>
-<tr><td>PlutusTx</td><td>489532650</td><td>1686860</td></tr>
-<tr><td>Opshin</td><td>333153004</td><td>943450</td></tr>
+<tr><td>Plutarch</td><td>103879252</td><td>233399</td></tr>
+<tr><td>Aiken</td><td>141984086</td><td>463564</td></tr>
+<tr><td>PlutusTx</td><td>328615023</td><td>1519364</td></tr>
+<tr><td>Opshin</td><td>257672758</td><td>942717</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_withdraw.csv">Raw execution units data</a></p>
@@ -274,10 +253,10 @@
 <p><img src="./budget_buy_one.png" alt="execution_units plot" /></p>
 <!-- budget_buy_one.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>44577866</td><td>125010</td></tr>
-<tr><td>Aiken</td><td>30655882</td><td>80452</td></tr>
-<tr><td>PlutusTx</td><td>216310996</td><td>739238</td></tr>
-<tr><td>Opshin</td><td>60101506</td><td>192397</td></tr>
+<tr><td>Plutarch</td><td>12256664</td><td>28669</td></tr>
+<tr><td>Aiken</td><td>26655340</td><td>80452</td></tr>
+<tr><td>PlutusTx</td><td>127041829</td><td>557062</td></tr>
+<tr><td>Opshin</td><td>45869696</td><td>192397</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_buy_one.csv">Raw execution units data</a></p>
@@ -285,10 +264,10 @@
 <p><img src="./budget_cancel_one.png" alt="execution_units plot" /></p>
 <!-- budget_cancel_one.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>38719357</td><td>115390</td></tr>
-<tr><td>Aiken</td><td>24005842</td><td>71296</td></tr>
-<tr><td>PlutusTx</td><td>133127717</td><td>443664</td></tr>
-<tr><td>Opshin</td><td>43609505</td><td>143722</td></tr>
+<tr><td>Plutarch</td><td>5756954</td><td>17509</td></tr>
+<tr><td>Aiken</td><td>19636395</td><td>71296</td></tr>
+<tr><td>PlutusTx</td><td>80367926</td><td>345018</td></tr>
+<tr><td>Opshin</td><td>31521405</td><td>142689</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_cancel_one.csv">Raw execution units data</a></p>
