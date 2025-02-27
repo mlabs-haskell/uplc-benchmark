@@ -1,38 +1,38 @@
 module UplcBenchmark.LpMintingPolicy (plpMintingPolicy) where
 
-import Plutarch.Api.V1.Value (pvalueOf)
-import Plutarch.Api.V2 (
+import Plutarch.LedgerApi.V2 (
   PCurrencySymbol,
-  PMintingPolicy,
+  PScriptContext (PScriptContext),
   PScriptPurpose (PMinting),
   PTokenName,
-  PTxInInfo,
+  PTxInInfo (PTxInInfo),
+  PTxInfo (PTxInfo),
+  PTxOut (PTxOut),
  )
+import Plutarch.LedgerApi.Value (pvalueOf)
 import Plutarch.Monadic qualified as P
 
 import UplcBenchmark.Utils (pallBoth, passert, ptryGetOwnMint)
 
-plpMintingPolicy :: ClosedTerm (PAsData PCurrencySymbol :--> PMintingPolicy)
-plpMintingPolicy = plam $ \poolNftCs _redeemer ctx' -> P.do
-  ctx <- pletFields @'["txInfo", "purpose"] ctx'
+plpMintingPolicy :: ClosedTerm (PAsData PCurrencySymbol :--> PData :--> PAsData PScriptContext :--> POpaque)
+plpMintingPolicy = plam $ \poolNftCs _redeemer ctx -> P.do
+  PScriptContext txInfo purpose <- pmatch (pfromData ctx)
 
-  PMinting ownSymbol' <- pmatch ctx.purpose
-  ownSymbol <- plet $ pfromData $ pfield @"_0" # ownSymbol'
+  PMinting ownSymbol <- pmatch purpose
 
-  inputHasNft :: Term s (PTokenName :--> PTxInInfo :--> PBool) <- plet $ plam $ \poolNftTn txInInfo' -> P.do
-    txInInfo <- pletFields @'["resolved"] txInInfo'
-    txOut <- pletFields @'["value"] txInInfo.resolved
-    pvalueOf # txOut.value # pfromData poolNftCs # poolNftTn #== 1
+  inputHasNft :: Term s (PTokenName :--> PAsData PTxInInfo :--> PBool) <- plet $ plam $ \poolNftTn txInInfo -> P.do
+    (PTxInInfo _ resolved) <- pmatch (pfromData txInInfo)
+    (PTxOut _ value _ _) <- pmatch resolved
+    pvalueOf # pfromData value # pfromData poolNftCs # poolNftTn #== 1
 
-  txInfo <- pletFields @'["inputs", "mint"] ctx.txInfo
-  ownMint <- plet $ ptryGetOwnMint # ownSymbol # txInfo.mint
+  PTxInfo inputs _ _ _ mint _ _ _ _ _ _ _ <- pmatch txInfo
+  ownMint <- plet $ ptryGetOwnMint # pfromData ownSymbol # pfromData mint
 
   isValidMint :: Term s (PTokenName :--> PInteger :--> PBool) <- plet $ plam $ \mintedLpName _mintedLpAmount ->
-    -- brackets are redundant, but formatter is horrible without
-    pany # (inputHasNft # mintedLpName) # txInfo.inputs
+    pany # (inputHasNft # mintedLpName) # pfromData inputs
 
   -- For each entry in minting list, we must mint exactly one token (so no burning as well)
   -- and spend an input with corresponding NFT
   passert "NFT corresponding to LP must be spent" (pallBoth # isValidMint # ownMint)
 
-  popaque $ pconstant ()
+  popaque $ pconstant @PUnit ()

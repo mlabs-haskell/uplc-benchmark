@@ -1,22 +1,7 @@
 module UplcBenchmark.Spec.PoolValidator (specForScript, mkWithdraw, mkDeposit, mkSwapBForA, mkSwapAForB) where
 
-import LambdaBuffers.Dex (
-  DexDatum (
-    DexDatum,
-    dexDatum'lpToken,
-    dexDatum'mintedLpTokens,
-    dexDatum'poolNft,
-    dexDatum'swapFee,
-    dexDatum'tokenA,
-    dexDatum'tokenB
-  ),
-  DexRedeemer (
-    DexRedeemer'DepositLiquidity,
-    DexRedeemer'Swap,
-    DexRedeemer'WithdrawLiquidity
-  ),
- )
-import Plutarch (Script (Script))
+import Data.Kind (Type)
+import Plutarch.Script (Script (Script))
 import Plutarch.Test.Program (
   ScriptCase (ScriptCase),
   ScriptResult (ScriptFailure, ScriptSuccess),
@@ -40,23 +25,57 @@ import PlutusLedgerApi.V1.Value (
 import PlutusLedgerApi.V2 (
   CurrencySymbol (CurrencySymbol),
   ScriptContext,
-  TokenName,
+  ToData (toBuiltinData),
+  TokenName (TokenName),
  )
 import Test.Tasty (TestTree, testGroup)
+
 import UplcBenchmark.ScriptLoader (uncheckedApplyDataToScript)
 import UplcBenchmark.Spec.ContextBuilder.Utils (mkHash28)
+
+type DexDatum :: Type
+data DexDatum = DexDatum
+  { dexDatum'tokenA :: AssetClass
+  , dexDatum'tokenB :: AssetClass
+  , dexDatum'poolNft :: AssetClass
+  , dexDatum'lpToken :: CurrencySymbol
+  , dexDatum'mintedLpTokens :: Integer
+  , dexDatum'swapFee :: Integer
+  }
+
+instance ToData DexDatum where
+  toBuiltinData (DexDatum tokenA' tokenB' poolNft' lpToken' mintedLpTokens swapFee) =
+    toBuiltinData
+      [ toBuiltinData tokenA'
+      , toBuiltinData tokenB'
+      , toBuiltinData poolNft'
+      , toBuiltinData lpToken'
+      , toBuiltinData mintedLpTokens
+      , toBuiltinData swapFee
+      ]
+
+type DexRedeemer :: Type
+data DexRedeemer
+  = DexRedeemer'Swap
+  | DexRedeemer'DepositLiquidity
+  | DexRedeemer'WithdrawLiquidity
+
+instance ToData DexRedeemer where
+  toBuiltinData DexRedeemer'Swap = toBuiltinData (0 :: Integer)
+  toBuiltinData DexRedeemer'DepositLiquidity = toBuiltinData (1 :: Integer)
+  toBuiltinData DexRedeemer'WithdrawLiquidity = toBuiltinData (2 :: Integer)
 
 lpToken :: CurrencySymbol
 lpToken = CurrencySymbol $ mkHash28 1
 
 tokenA :: AssetClass
-tokenA = AssetClass (CurrencySymbol $ mkHash28 2, "A")
+tokenA = AssetClass (CurrencySymbol $ mkHash28 2, TokenName "A")
 
 tokenB :: AssetClass
-tokenB = AssetClass (CurrencySymbol $ mkHash28 3, "B")
+tokenB = AssetClass (CurrencySymbol $ mkHash28 3, TokenName "B")
 
 poolNftName :: TokenName
-poolNftName = "NFT"
+poolNftName = TokenName "NFT"
 
 poolNft :: AssetClass
 poolNft = AssetClass (CurrencySymbol $ mkHash28 4, poolNftName)

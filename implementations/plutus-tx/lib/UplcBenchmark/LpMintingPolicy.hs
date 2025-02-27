@@ -17,6 +17,7 @@ import PlutusLedgerApi.V2 (
  )
 import PlutusTx.Prelude (
   Bool,
+  BuiltinUnit,
   Integer,
   all,
   any,
@@ -28,7 +29,7 @@ import PlutusTx.Prelude (
 import UplcBenchmark.Utils (getOwnMint)
 
 {-# INLINE lpMintingPolicy #-}
-lpMintingPolicy :: BuiltinData -> BuiltinData -> BuiltinData -> ()
+lpMintingPolicy :: BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
 lpMintingPolicy rawPoolNftCs _rawRedeemer rawCtx =
   let
     !ctx :: ScriptContext = unsafeFromBuiltinData rawCtx

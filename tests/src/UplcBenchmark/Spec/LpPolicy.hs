@@ -1,6 +1,6 @@
 module UplcBenchmark.Spec.LpPolicy (specForScript, mkValidMintOneNft, mkValidMintTwoNfts) where
 
-import Plutarch (Script (Script))
+import Plutarch.Script (Script (Script))
 import Plutarch.Test.Program (
   ScriptCase (ScriptCase),
   ScriptResult (ScriptFailure, ScriptSuccess),

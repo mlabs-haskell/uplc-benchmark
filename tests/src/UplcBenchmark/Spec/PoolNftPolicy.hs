@@ -1,7 +1,7 @@
 module UplcBenchmark.Spec.PoolNftPolicy (specForScript, mkValidMint) where
 
-import LambdaBuffers.Dex (NftMintingPolicyRedeemer (NftMintingPolicyRedeemer'CreatePool))
-import Plutarch (Script (Script))
+import Data.Kind (Type)
+import Plutarch.Script (Script (Script))
 import Plutarch.Test.Program (
   ScriptCase (ScriptCase),
   ScriptResult (ScriptFailure, ScriptSuccess),
@@ -19,14 +19,20 @@ import PlutusLedgerApi.V2 (
   BuiltinByteString,
   CurrencySymbol,
   ScriptContext,
+  ToData,
   TokenName (TokenName),
   TxId (TxId),
   TxOutRef (TxOutRef),
  )
 import PlutusTx.Builtins (consByteString, emptyByteString)
 import Test.Tasty (TestTree, testGroup)
+
 import UplcBenchmark.ScriptLoader (uncheckedApplyDataToScript)
 import UplcBenchmark.Spec.ContextBuilder.Utils (mkHash32, scriptSymbol)
+
+type NftMintingPolicyRedeemer :: Type
+newtype NftMintingPolicyRedeemer = NftMintingPolicyRedeemer'CreatePool TxOutRef
+  deriving newtype (ToData)
 
 redeemer :: NftMintingPolicyRedeemer
 redeemer = NftMintingPolicyRedeemer'CreatePool initialSpend
@@ -74,7 +80,7 @@ invalidMintInvalidName :: CurrencySymbol -> ScriptContext
 invalidMintInvalidName ownSymbol =
   withNftMinting
     ownSymbol
-    [ mintSingletonWith redeemer ownSymbol "I'm invalid" 1
+    [ mintSingletonWith redeemer ownSymbol (TokenName "I'm invalid") 1
     , input $
         mconcat
           [ withRef initialSpend

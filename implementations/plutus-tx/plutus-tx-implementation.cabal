@@ -85,13 +85,11 @@ common deps
     , base
     , bytestring
     , mtl
-    , plutarch
-    , plutus-core
+    , plutus-core >=1.40.0.0 && <1.41
     , plutus-ledger-api
     , plutus-tx
     , plutus-tx-plugin
     , text
-    , uplc-benchmark-types-plutus-lb
 
 library
   import:          lang, deps

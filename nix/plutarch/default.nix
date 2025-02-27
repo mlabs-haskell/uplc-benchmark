@@ -19,7 +19,6 @@ in
         libPlutarch = {
           mkPackage = pkgs.callPackage ./lib.nix {
             mkHaskellPackage = simpleHaskellNix.mkPackage;
-            inherit (config.libUtils) applyPatches;
           };
         };
       };

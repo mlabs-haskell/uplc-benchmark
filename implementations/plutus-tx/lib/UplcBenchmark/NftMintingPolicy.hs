@@ -3,7 +3,7 @@
 
 module UplcBenchmark.NftMintingPolicy (nftMintingPolicy) where
 
-import LambdaBuffers.Dex (NftMintingPolicyRedeemer (NftMintingPolicyRedeemer'CreatePool))
+import Data.Kind (Type)
 import PlutusLedgerApi.V2 (
   BuiltinByteString,
   BuiltinData,
@@ -19,6 +19,7 @@ import PlutusLedgerApi.V2 (
   unsafeFromBuiltinData,
  )
 import PlutusTx.Prelude (
+  BuiltinUnit,
   Integer,
   any,
   appendByteString,
@@ -35,6 +36,10 @@ import PlutusTx.Prelude (
  )
 import UplcBenchmark.Utils (fromJustTrace, getOwnMint)
 
+type NftMintingPolicyRedeemer :: Type
+newtype NftMintingPolicyRedeemer = NftMintingPolicyRedeemer'CreatePool TxOutRef
+  deriving newtype (FromData)
+
 {-# INLINE integerToByteString #-}
 integerToByteString :: Integer -> BuiltinByteString
 integerToByteString = go emptyByteString
@@ -48,12 +53,12 @@ integerToByteString = go emptyByteString
 {-# INLINE deriveNftName #-}
 deriveNftName :: TxOutRef -> TokenName
 deriveNftName txOutRef =
-  let !idPart = getTxId $ txOutRefId txOutRef
-      !idxPart = integerToByteString $ txOutRefIdx txOutRef
+  let idPart = getTxId $ txOutRefId txOutRef
+      idxPart = integerToByteString $ txOutRefIdx txOutRef
    in TokenName (appendByteString idPart idxPart)
 
 {-# INLINE nftMintingPolicy #-}
-nftMintingPolicy :: BuiltinData -> BuiltinData -> ()
+nftMintingPolicy :: BuiltinData -> BuiltinData -> BuiltinUnit
 nftMintingPolicy rawRedeemer rawCtx =
   let !ctx :: ScriptContext = unsafeFromBuiltinData rawCtx
       !redeemer :: NftMintingPolicyRedeemer =

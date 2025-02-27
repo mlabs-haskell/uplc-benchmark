@@ -2,10 +2,10 @@ module UplcBenchmark.ExecutionUnits (writeProfileFile, profileScripts, profiledT
 
 import Data.Kind (Type)
 import GHC.Stack (HasCallStack)
-import Plutarch (Script)
+import Plutarch.Script (Script)
 import Plutarch.Test.Program (ScriptCase (ScriptCase))
 import PlutusCore.Evaluation.Machine.ExBudget (ExBudget (ExBudget))
-import PlutusCore.Evaluation.Machine.ExBudgetingDefaults (defaultCekParameters)
+import PlutusCore.Evaluation.Machine.ExBudgetingDefaults (defaultCekParametersForTesting)
 import PlutusCore.Evaluation.Machine.ExMemory (ExCPU (ExCPU), ExMemory (ExMemory))
 import System.FilePath ((</>))
 import UntypedPlutusCore (DefaultFun, DefaultUni, termMapNames)
@@ -56,6 +56,6 @@ profiledToCsv profiled =
 
 evalTerm :: (HasCallStack) => Term NamedDeBruijn DefaultUni DefaultFun () -> ExBudget
 evalTerm term =
-  case Cek.runCekDeBruijn defaultCekParameters Cek.counting Cek.logEmitter term of
+  case Cek.runCekDeBruijn defaultCekParametersForTesting Cek.counting Cek.logEmitter term of
     (Right _, Cek.CountingSt budget, _logs) -> budget
     (Left err, _, t) -> error $ "evalTerm: Script failure: " <> show err <> ". Log: " <> show t

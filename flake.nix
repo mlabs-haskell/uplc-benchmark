@@ -9,7 +9,6 @@
     pre-commit-hooks-nix = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.nixpkgs-stable.follows = "nixpkgs";
     };
     hci-effects = {
       url = "github:hercules-ci/hercules-ci-effects";
@@ -23,10 +22,6 @@
         pre-commit-hooks-nix.follows = "pre-commit-hooks-nix";
         hci-effects.follows = "hci-effects";
       };
-    };
-    lambda-buffers = {
-      url = "github:mlabs-haskell/lambda-buffers";
-      flake = false;
     };
     aiken = {
       url = "github:aiken-lang/aiken?ref=v1.0.24-alpha";
@@ -59,14 +54,13 @@
         ./implementations/plutarch
         ./implementations/plutus-tx
         ./specifications
-        ./types
         ./website
         ./tests
       ] ++ (builtins.attrValues flakeModules);
 
       systems = inputs.nixpkgs.lib.systems.flakeExposed;
 
-      herculesCI.ciSystems = [ "x86_64-linux" "x86_64-darwin" ];
+      herculesCI.ciSystems = [ "x86_64-linux" ];
 
       hercules-ci.flake-update = {
         enable = true;

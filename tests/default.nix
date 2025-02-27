@@ -8,7 +8,6 @@
         externalDependencies = [
           "${self.inputs.plutus-test}/plutus-context-builder"
           "${self.inputs.plutus-test}/plutus-unit"
-          self'.packages.uplc-benchmark-types-plutus
         ];
       };
 

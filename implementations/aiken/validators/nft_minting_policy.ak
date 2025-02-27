@@ -1,6 +1,4 @@
-use aiken/builtin.{choose_data, head_list, null_list, tail_list, un_constr_data}
 use aiken/bytearray.{concat, push}
-use aiken/cbor.{diagnostic}
 use aiken/dict.{to_list}
 use aiken/list.{any, head, tail}
 use aiken/transaction.{Mint, OutputReference, ScriptContext}
@@ -11,29 +9,8 @@ type NftMintingPolicyRedeemer {
 }
 
 fn decode_NftMintingPolicyRedeemer(data: Data) -> NftMintingPolicyRedeemer {
-  trace diagnostic(data)
-
-  choose_data(
-    data,
-    fn(data) {
-      let constr = un_constr_data(data)
-      let constr_idx = constr.1st
-      let lst = constr.2nd
-      expect initial_spend: OutputReference = head_list(lst)
-      let lst = tail_list(lst)
-      if null_list(lst) && constr_idx == 0 {
-        NftMintingPolicyRedeemer { initial_spend }
-      } else {
-        fail
-      }
-    },
-    fn(_) { fail },
-    fn(_) { fail },
-    fn(_) { fail },
-    fn(_) { fail },
-  )(
-    data,
-  )
+  expect initial_spend: OutputReference = data
+  NftMintingPolicyRedeemer { initial_spend }
 }
 
 fn int_to_bs(n: Int, acc: ByteArray) -> ByteArray {

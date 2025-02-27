@@ -90,15 +90,17 @@ common deps
     , mtl
     , optics
     , plutarch
+    , plutarch-ledger-api
     , plutus-context-builder
     , plutus-unit
+    , memory
+    , cryptonite
     , plutus-core
     , plutus-ledger-api
     , plutus-tx
     , tagged
     , tasty
     , text
-    , uplc-benchmark-types-plutus-lb
 
 library
   import:          lang, deps

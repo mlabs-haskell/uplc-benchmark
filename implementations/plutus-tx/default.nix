@@ -1,12 +1,20 @@
 {
-  perSystem = { pkgs, self', config, ... }:
+  perSystem = { pkgs, self', config, simpleHaskellNix, ... }:
     let
-      plutus-tx-implementation = config.libPlutarch.mkPackage {
+      cardanoPackages = pkgs.fetchFromGitHub {
+        owner = "IntersectMBO";
+        repo = "cardano-haskell-packages";
+        rev = "3167b742cea332e1c978d8ecc69ef8d6bd0d6e19"; # branch: repo
+        hash = "sha256-oCObuK/TY71lL+vDiRT0/Hhrsq4GRC7n8kcKBeonoUk=";
+      };
+
+      plutus-tx-implementation = simpleHaskellNix.mkPackage {
         name = "plutus-tx-implementation";
         src = ./.;
-        externalDependencies = [
-          self'.packages.uplc-benchmark-types-plutus
-        ];
+
+        externalRepositories = {
+          "https://chap.intersectmbo.org" = cardanoPackages;
+        };
       };
     in
     {

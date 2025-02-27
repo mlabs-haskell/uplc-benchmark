@@ -1,16 +1,15 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns -Wno-unused-top-binds #-}
 
 module UplcBenchmark.PoolValidator (poolValidator) where
 
-import LambdaBuffers.Dex (
-  DexDatum (DexDatum),
-  DexRedeemer (DexRedeemer'DepositLiquidity, DexRedeemer'Swap, DexRedeemer'WithdrawLiquidity),
- )
+import Data.Kind (Type)
 import PlutusLedgerApi.V1.Value (AssetClass (unAssetClass), assetClassValueOf, valueOf)
 import PlutusLedgerApi.V2 (
   BuiltinData,
+  CurrencySymbol,
   Datum (getDatum),
+  FromData (fromBuiltinData),
   OutputDatum (OutputDatum),
   ScriptContext (scriptContextPurpose, scriptContextTxInfo),
   ScriptPurpose (Spending),
@@ -20,11 +19,96 @@ import PlutusLedgerApi.V2 (
   fromBuiltinData,
   unsafeFromBuiltinData,
  )
-import PlutusTx.Prelude (Bool, Integer, check, find, snd, traceIfFalse, ($), (&&), (*), (+), (-), (.), (<), (<=), (==), (>))
+import PlutusTx.Builtins (chooseData, unsafeDataAsI, unsafeDataAsList)
+import PlutusTx.Prelude (
+  Applicative ((<*>)),
+  Bool,
+  BuiltinUnit,
+  Integer,
+  Maybe (Just, Nothing),
+  check,
+  const,
+  find,
+  snd,
+  traceIfFalse,
+  ($),
+  (&&),
+  (*),
+  (+),
+  (-),
+  (.),
+  (<),
+  (<$>),
+  (<=),
+  (==),
+  (>),
+ )
 import UplcBenchmark.Utils (fromJustTrace)
 
+type DexDatum :: Type
+data DexDatum = DexDatum
+  { tokenA :: AssetClass
+  , tokenB :: AssetClass
+  , poolNft :: AssetClass
+  , lpToken :: CurrencySymbol
+  , mintedLpTokens :: Integer
+  , swapFee :: Integer
+  }
+
+instance FromData DexDatum where
+  {-# INLINEABLE fromBuiltinData #-}
+  fromBuiltinData d =
+    chooseData
+      d
+      (const Nothing)
+      (const Nothing)
+      ( \d' ->
+          case unsafeDataAsList d' of
+            [tokenA, tokenB, poolNft, lpToken, mintedLpTokens, swapFee] ->
+              DexDatum
+                <$> fromBuiltinData tokenA
+                <*> fromBuiltinData tokenB
+                <*> fromBuiltinData poolNft
+                <*> fromBuiltinData lpToken
+                <*> fromBuiltinData mintedLpTokens
+                <*> fromBuiltinData swapFee
+            _ -> Nothing
+      )
+      (const Nothing)
+      (const Nothing)
+      d
+
+type DexRedeemer :: Type
+data DexRedeemer
+  = DexRedeemer'Swap
+  | DexRedeemer'DepositLiquidity
+  | DexRedeemer'WithdrawLiquidity
+
+instance FromData DexRedeemer where
+  {-# INLINEABLE fromBuiltinData #-}
+  fromBuiltinData d =
+    chooseData
+      d
+      (const Nothing)
+      (const Nothing)
+      (const Nothing)
+      ( \d' ->
+          let i = unsafeDataAsI d'
+           in if i == 0
+                then Just DexRedeemer'Swap
+                else
+                  if i == 1
+                    then Just DexRedeemer'DepositLiquidity
+                    else
+                      if i == 2
+                        then Just DexRedeemer'WithdrawLiquidity
+                        else Nothing
+      )
+      (const Nothing)
+      d
+
 {-# INLINE poolValidator #-}
-poolValidator :: BuiltinData -> BuiltinData -> BuiltinData -> ()
+poolValidator :: BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
 poolValidator rawDatum rawRedeemer rawCtx =
   let
     !redeemer :: DexRedeemer = fromJustTrace "Redeemer decoding failed" $ fromBuiltinData rawRedeemer
@@ -133,6 +217,7 @@ poolValidator rawDatum rawRedeemer rawCtx =
          in
           commonChecks && invalidMintedLp && notMint && validSwap
 
+{-# INLINEABLE checkSwap #-}
 checkSwap ::
   Integer ->
   Integer ->
