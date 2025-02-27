@@ -54,9 +54,8 @@
         ./implementations/plutarch
         ./implementations/plutus-tx
         ./specifications
-        # ./types
         # ./website
-        # ./tests
+        ./tests
       ] ++ (builtins.attrValues flakeModules);
 
       systems = inputs.nixpkgs.lib.systems.flakeExposed;

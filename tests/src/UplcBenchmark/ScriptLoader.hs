@@ -6,7 +6,7 @@ where
 
 import Data.ByteString qualified as ByteString
 import Data.ByteString.Short (toShort)
-import Plutarch (Script (Script))
+import Plutarch.Script (Script (Script))
 import PlutusCore qualified as PLC
 import PlutusLedgerApi.Common (uncheckedDeserialiseUPLC)
 import PlutusLedgerApi.V2 (ToData, toData)

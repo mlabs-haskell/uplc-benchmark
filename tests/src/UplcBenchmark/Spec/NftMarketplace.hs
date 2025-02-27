@@ -1,10 +1,9 @@
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+
 module UplcBenchmark.Spec.NftMarketplace (specForScript, mkValidBuyOneTest, mkCancelOneTest) where
 
-import LambdaBuffers.NftMarketplace (
-  NftMarketplaceDatum (NftMarketplaceDatum),
-  NftMarketplaceRedeemer (NftMarketplaceRedeemer'Buy, NftMarketplaceRedeemer'Cancel),
- )
-import Plutarch (Script (Script))
+import Data.Kind (Type)
+import Plutarch.Script (Script (Script))
 import Plutarch.Test.Program (
   ScriptCase (ScriptCase),
   ScriptResult (ScriptFailure, ScriptSuccess),
@@ -29,20 +28,38 @@ import PlutusLedgerApi.V2 (
   Address,
   PubKeyHash (PubKeyHash),
   ScriptContext,
+  ToData (toBuiltinData),
   TxId (TxId),
   TxOutRef (TxOutRef),
+  Value,
   adaSymbol,
   adaToken,
   singleton,
  )
 import Test.Tasty (TestTree, testGroup)
+
 import UplcBenchmark.ScriptLoader (uncheckedApplyDataToScript)
-import UplcBenchmark.Spec.ContextBuilder.Utils (
-  junkSymbol,
-  junkToken,
-  mkHash28,
-  mkHash32,
- )
+import UplcBenchmark.Spec.ContextBuilder.Utils (junkSymbol, junkToken, mkHash28, mkHash32)
+
+type NftMarketplaceDatum :: Type
+data NftMarketplaceDatum = NftMarketplaceDatum
+  { price :: Value
+  , seller :: Address
+  , cancelKey :: PubKeyHash
+  }
+
+instance ToData NftMarketplaceDatum where
+  toBuiltinData (NftMarketplaceDatum price seller cancelKey) =
+    toBuiltinData [toBuiltinData price, toBuiltinData seller, toBuiltinData cancelKey]
+
+type NftMarketplaceRedeemer :: Type
+data NftMarketplaceRedeemer
+  = NftMarketplaceRedeemer'Buy
+  | NftMarketplaceRedeemer'Cancel
+
+instance ToData NftMarketplaceRedeemer where
+  toBuiltinData NftMarketplaceRedeemer'Buy = toBuiltinData (0 :: Integer)
+  toBuiltinData NftMarketplaceRedeemer'Cancel = toBuiltinData (1 :: Integer)
 
 validatedUTxORef :: TxOutRef
 validatedUTxORef = TxOutRef (TxId $ mkHash32 0) 42
