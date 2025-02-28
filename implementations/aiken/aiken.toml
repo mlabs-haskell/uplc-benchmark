@@ -2,6 +2,7 @@ name = "mlabs-haskell/uplc-benchmark"
 version = "0.0.0"
 license = "GPL-3.0-or-later"
 description = "Aiken contracts for project 'mlabs-haskell/uplc-benchmark'"
+compiler = "v1.0.29-alpha"
 
 [repository]
 user = "mlabs-haskell"
@@ -10,5 +11,5 @@ platform = "github"
 
 [[dependencies]]
 name = "aiken-lang/stdlib"
-version = "1.7.0"
+version = "1.9.0"
 source = "github"
