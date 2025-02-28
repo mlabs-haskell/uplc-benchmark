@@ -13,16 +13,11 @@ validator(pool_nft_cs: PolicyId) {
       }
 
     transaction.mint
-      |> value.from_minted_value(_)
+      |> value.from_minted_value
       |> value.tokens(own_symbol)
-      |> dict.foldr(
-          True,
-          fn(minted_lp_name, _minted_lp_quantity, accum) {
-            and {
+      |> dict.foldr(True, fn(minted_lp_name, _minted_lp_quantity, accum) { and {
               accum,
               list.any(transaction.inputs, has_nft(minted_lp_name, _)),
-            }
-          },
-        )
+            } })
   }
 }

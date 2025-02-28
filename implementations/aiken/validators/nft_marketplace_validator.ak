@@ -22,10 +22,9 @@ validator {
             transaction.outputs,
             fn(output) {
               when output.datum is {
-                InlineDatum(inline_datum) ->
-		  and {
+                InlineDatum(inline_datum) -> and {
                     output.address == seller,
-		    as_data(output.value) == price,
+                    as_data(output.value) == price,
                     inline_datum == as_data(own_input),
                   }
                 _ -> False
@@ -36,7 +35,8 @@ validator {
       }
       // Cancel
       1 -> {
-        let signed_by_owner = list.has(transaction.extra_signatories, cancel_key)
+        let signed_by_owner =
+          list.has(transaction.extra_signatories, cancel_key)
         signed_by_owner
       }
       _ -> fail

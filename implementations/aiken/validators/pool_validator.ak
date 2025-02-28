@@ -1,7 +1,7 @@
 use aiken/list
 use aiken/math
-use aiken/transaction/value.{AssetName, PolicyId}
 use aiken/transaction.{InlineDatum, ScriptContext, Spend}
+use aiken/transaction/value.{AssetName, PolicyId}
 
 // The uniswap fee is 0.3%; here it is multiplied by 1000, so that the
 // on-chain code deals only in integers.
@@ -29,21 +29,11 @@ type Datum =
   (AssetClass, AssetClass, AssetClass, PolicyId, Int, Int)
 
 validator {
-  fn spend(
-    datum: Datum,
-    redeemer: Int,
-    ctx: ScriptContext,
-  ) {
+  fn spend(datum: Datum, redeemer: Int, ctx: ScriptContext) {
     expect ScriptContext { purpose: Spend(own_input_ref), transaction } = ctx
 
-    let (
-      token_a,
-      token_b,
-      pool_nft,
-      lp_token,
-      minted_lp_tokens,
-      swap_fee,
-    ) = datum
+    let (token_a, token_b, pool_nft, lp_token, minted_lp_tokens, swap_fee) =
+      datum
 
     expect Some(own_input) =
       list.find(
