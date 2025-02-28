@@ -12,6 +12,7 @@ coverage/
 
 # output of build
 dist
+out
 
 *.cpupfile
 *.heapprofile
