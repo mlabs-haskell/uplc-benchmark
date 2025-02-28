@@ -53,6 +53,7 @@
         ./implementations/opshin
         ./implementations/plutarch
         ./implementations/plutus-tx
+        ./implementations/plu-ts
         ./specifications
         ./website
         ./tests
