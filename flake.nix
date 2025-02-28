@@ -116,7 +116,7 @@
                 logfile = "/dev/null";
               };
               deadnix.edit = true;
-              typos.ignored-words = [ "wheres" ];
+              typos.ignored-words = [ "wheres" "buidl" ];
             };
 
             excludes = [

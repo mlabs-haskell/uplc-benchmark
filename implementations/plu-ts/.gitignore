@@ -1,6 +1,6 @@
-# dependecies can be retreived via ```npm install``` as long ```package.json``` is present
+# dependencies can be retrieved via ```npm install``` as long ```package.json``` is present
 node_modules/
-# can be retreived by running tests
+# can be retrieved by running tests
 coverage/
 
 .vscode*
