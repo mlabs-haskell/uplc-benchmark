@@ -82,4 +82,5 @@ implementations =
   , Implementation "Aiken" "UPLC_BENCHMARK_BIN_AIKEN"
   , Implementation "PlutusTx" "UPLC_BENCHMARK_BIN_PLUTUS_TX"
   , Implementation "Opshin" "UPLC_BENCHMARK_BIN_OPSHIN"
+  , Implementation "Plu-Ts" "UPLC_BENCHMARK_BIN_PLU_TS"
   ]
