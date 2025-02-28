@@ -24,7 +24,7 @@
       };
     };
     aiken = {
-      url = "github:aiken-lang/aiken?ref=v1.0.24-alpha";
+      url = "github:aiken-lang/aiken?ref=v1.0.29-alpha";
       flake = false;
     };
     plutus-test = {
