@@ -1,37 +1,23 @@
-use aiken/dict.{to_list}
-use aiken/list.{all, any}
+use aiken/dict
+use aiken/list
 use aiken/transaction.{Input, Mint, ScriptContext}
-use aiken/transaction/value.{
-  AssetName, PolicyId, from_minted_value, quantity_of, tokens,
-}
-
-// aiken doesn't allow nested functions
-fn has_nft(
-  pool_nft_cs: PolicyId,
-  pool_nft_tn: AssetName,
-  tx_in_info: Input,
-) -> Bool {
-  quantity_of(tx_in_info.output.value, pool_nft_cs, pool_nft_tn) == 1
-}
+use aiken/transaction/value.{AssetName, PolicyId}
 
 validator(pool_nft_cs: PolicyId) {
-  fn mint(_: Data, context: ScriptContext) -> Bool {
-    expect Mint(own_symbol) = context.purpose
+  fn mint(_: Data, ctx: ScriptContext) -> Bool {
+    expect ScriptContext { purpose: Mint(own_symbol), transaction } = ctx
 
-    let own_mint =
-      to_list(tokens(from_minted_value(context.transaction.mint), own_symbol))
-    let is_valid =
-      all(
-        own_mint,
-        fn(minted_pair) {
-          let minted_lp_name = minted_pair.1st
-          any(
-            context.transaction.inputs,
-            fn(input) { has_nft(pool_nft_cs, minted_lp_name, input) },
-          )
-        },
-      )
+    let has_nft =
+      fn(pool_nft_tn: AssetName, tx_in_info: Input) -> Bool {
+        value.quantity_of(tx_in_info.output.value, pool_nft_cs, pool_nft_tn) == 1
+      }
 
-    is_valid
+    transaction.mint
+      |> value.from_minted_value
+      |> value.tokens(own_symbol)
+      |> dict.foldr(True, fn(minted_lp_name, _minted_lp_quantity, accum) { and {
+              accum,
+              list.any(transaction.inputs, has_nft(minted_lp_name, _)),
+            } })
   }
 }
