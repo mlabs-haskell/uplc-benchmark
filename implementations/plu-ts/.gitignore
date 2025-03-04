@@ -1,0 +1,21 @@
+# dependencies can be retrieved via ```npm install``` as long ```package.json``` is present
+node_modules/
+# can be retrieved by running tests
+coverage/
+
+.vscode*
+
+.npmrc*
+
+# npm pack
+*.tgz
+
+# output of build
+dist
+out
+
+*.cpupfile
+*.heapprofile
+
+# anything that has .env
+*.env*

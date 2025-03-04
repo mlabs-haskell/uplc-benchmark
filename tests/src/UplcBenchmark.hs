@@ -36,40 +36,42 @@ getEnv env = do
 type Implementation :: Type
 data Implementation = Implementation String FilePath
 
-type MissingValidatorFile :: Type
-data MissingValidatorFile = MissingValidatorFile
+type TestFail :: Type
+newtype TestFail = TestFail String
 
-instance IsTest MissingValidatorFile where
-  run _ _ _ = pure $ Result (Failure TestFailed) "File does not exist" "" 0.0 (ResultDetailsPrinter $ \_ _ -> pure ())
+instance IsTest TestFail where
+  run _ (TestFail message) _ = pure $ Result (Failure TestFailed) message "" 0.0 (ResultDetailsPrinter $ \_ _ -> pure ())
   testOptions = Tagged []
 
 mkTestForImplementation :: Implementation -> IO TestTree
 mkTestForImplementation (Implementation testName baseFilePathEnv) = do
-  baseFilePath <- getEnv baseFilePathEnv
-  let mkTestTreeForScript mkTest scriptPath = do
-        scriptExists <- doesFileExist (baseFilePath </> scriptPath)
-        if scriptExists
-          then do
-            script <- loadScriptFromFile (baseFilePath </> scriptPath)
-            pure $ mkTest script
-          else pure $ SingleTest scriptPath MissingValidatorFile
+  lookupEnv baseFilePathEnv >>= \case
+    Nothing -> pure $ SingleTest testName $ TestFail ("Variable `" <> baseFilePathEnv <> "` not set")
+    Just baseFilePath -> do
+      let mkTestTreeForScript mkTest scriptPath = do
+            scriptExists <- doesFileExist (baseFilePath </> scriptPath)
+            if scriptExists
+              then do
+                script <- loadScriptFromFile (baseFilePath </> scriptPath)
+                pure $ mkTest script
+              else pure $ SingleTest scriptPath (TestFail ("File `" <> (baseFilePath </> scriptPath) <> "` does not exist"))
 
-  nftMarketplaceTests <- mkTestTreeForScript NftMarketplace.specForScript "nft-marketplace-validator.bin"
-  lpMintingPolicyTests <- mkTestTreeForScript LpPolicy.specForScript "lp-minting-policy.bin"
-  nftMintingPolicyTests <- mkTestTreeForScript PoolNftPolicy.specForScript "nft-minting-policy.bin"
-  poolValidatorTests <- mkTestTreeForScript PoolValidator.specForScript "pool-validator.bin"
+      nftMarketplaceTests <- mkTestTreeForScript NftMarketplace.specForScript "nft-marketplace-validator.bin"
+      lpMintingPolicyTests <- mkTestTreeForScript LpPolicy.specForScript "lp-minting-policy.bin"
+      nftMintingPolicyTests <- mkTestTreeForScript PoolNftPolicy.specForScript "nft-minting-policy.bin"
+      poolValidatorTests <- mkTestTreeForScript PoolValidator.specForScript "pool-validator.bin"
 
-  pure $
-    testGroup
-      testName
-      [ nftMarketplaceTests
-      , testGroup
-          "DEX"
-          [ lpMintingPolicyTests
-          , nftMintingPolicyTests
-          , poolValidatorTests
+      pure $
+        testGroup
+          testName
+          [ nftMarketplaceTests
+          , testGroup
+              "DEX"
+              [ lpMintingPolicyTests
+              , nftMintingPolicyTests
+              , poolValidatorTests
+              ]
           ]
-      ]
 
 getBinPath :: Implementation -> IO BinPath
 getBinPath (Implementation testName baseFilePathEnv) = do
@@ -82,4 +84,5 @@ implementations =
   , Implementation "Aiken" "UPLC_BENCHMARK_BIN_AIKEN"
   , Implementation "PlutusTx" "UPLC_BENCHMARK_BIN_PLUTUS_TX"
   , Implementation "Opshin" "UPLC_BENCHMARK_BIN_OPSHIN"
+  , Implementation "Plu-Ts" "UPLC_BENCHMARK_BIN_PLU_TS"
   ]
