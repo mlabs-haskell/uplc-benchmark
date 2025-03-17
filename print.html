@@ -176,7 +176,7 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <li>plutus-tx: 1.40.0.0</li>
 <li>plutarch: 1.10.1</li>
 <li>aiken: v1.0.29-alpha+unknown</li>
-<li>opshin: 0.24.0</li>
+<li>opshin: 0.24.1</li>
 </ul>
 <h2 id="script-size-bytes"><a class="header" href="#script-size-bytes">Script size (bytes)</a></h2>
 <p>Script sizes are compared by compiling each script to CBOR and taking its binary size in bytes. Validators are compiled without traces if language supports it (Opshin does not) and are not passed through any external UPLC optimizer.</p>
@@ -186,7 +186,7 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <tr><td>Plutarch</td><td>336</td><td>313</td><td>415</td><td>1063</td></tr>
 <tr><td>Aiken</td><td>559</td><td>621</td><td>560</td><td>1420</td></tr>
 <tr><td>PlutusTx</td><td>1691</td><td>3039</td><td>2000</td><td>3019</td></tr>
-<tr><td>Opshin</td><td>1412</td><td>2619</td><td>1962</td><td>4196</td></tr>
+<tr><td>Opshin</td><td>1268</td><td>2194</td><td>1709</td><td>3677</td></tr>
 </tbody></table>
 </div>
 <p><a href="./script_size.csv">Raw script size data</a></p>
@@ -199,7 +199,7 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <tr><td>Plutarch</td><td>18262734</td><td>50394</td></tr>
 <tr><td>Aiken</td><td>20940727</td><td>71222</td></tr>
 <tr><td>PlutusTx</td><td>66588364</td><td>278572</td></tr>
-<tr><td>Opshin</td><td>39169515</td><td>153098</td></tr>
+<tr><td>Opshin</td><td>34054605</td><td>133118</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_lp_mint_one_nft.csv">Raw execution units data</a></p>
@@ -210,7 +210,7 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <tr><td>Plutarch</td><td>31822785</td><td>83081</td></tr>
 <tr><td>Aiken</td><td>34254003</td><td>115249</td></tr>
 <tr><td>PlutusTx</td><td>76849433</td><td>325184</td></tr>
-<tr><td>Opshin</td><td>63319892</td><td>234077</td></tr>
+<tr><td>Opshin</td><td>56159018</td><td>206105</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_lp_mint_two_nfts.csv">Raw execution units data</a></p>
@@ -221,7 +221,7 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <tr><td>Plutarch</td><td>15992668</td><td>41967</td></tr>
 <tr><td>Aiken</td><td>18828380</td><td>57680</td></tr>
 <tr><td>PlutusTx</td><td>66772968</td><td>281765</td></tr>
-<tr><td>Opshin</td><td>40795575</td><td>174802</td></tr>
+<tr><td>Opshin</td><td>33852956</td><td>146554</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_nft_mint.csv">Raw execution units data</a></p>
@@ -232,7 +232,7 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <tr><td>Plutarch</td><td>102778551</td><td>233241</td></tr>
 <tr><td>Aiken</td><td>103843031</td><td>320998</td></tr>
 <tr><td>PlutusTx</td><td>292784637</td><td>1353180</td></tr>
-<tr><td>Opshin</td><td>252048642</td><td>935119</td></tr>
+<tr><td>Opshin</td><td>161728886</td><td>573607</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_swap_a_for_b.csv">Raw execution units data</a></p>
@@ -243,7 +243,7 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <tr><td>Plutarch</td><td>102778551</td><td>233241</td></tr>
 <tr><td>Aiken</td><td>103843031</td><td>320998</td></tr>
 <tr><td>PlutusTx</td><td>292784637</td><td>1353180</td></tr>
-<tr><td>Opshin</td><td>252048642</td><td>935119</td></tr>
+<tr><td>Opshin</td><td>161728886</td><td>573607</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_swap_b_for_a.csv">Raw execution units data</a></p>
@@ -254,7 +254,7 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <tr><td>Plutarch</td><td>104183634</td><td>234501</td></tr>
 <tr><td>Aiken</td><td>108022727</td><td>335146</td></tr>
 <tr><td>PlutusTx</td><td>328245188</td><td>1517862</td></tr>
-<tr><td>Opshin</td><td>257128376</td><td>940115</td></tr>
+<tr><td>Opshin</td><td>165444644</td><td>573275</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_deposit.csv">Raw execution units data</a></p>
@@ -265,7 +265,7 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <tr><td>Plutarch</td><td>103879252</td><td>233399</td></tr>
 <tr><td>Aiken</td><td>108343109</td><td>336348</td></tr>
 <tr><td>PlutusTx</td><td>328615023</td><td>1519364</td></tr>
-<tr><td>Opshin</td><td>257672758</td><td>942717</td></tr>
+<tr><td>Opshin</td><td>165989026</td><td>575877</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_withdraw.csv">Raw execution units data</a></p>
@@ -276,7 +276,7 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <tr><td>Plutarch</td><td>12256664</td><td>28669</td></tr>
 <tr><td>Aiken</td><td>18989136</td><td>48289</td></tr>
 <tr><td>PlutusTx</td><td>127041829</td><td>557062</td></tr>
-<tr><td>Opshin</td><td>45869696</td><td>192397</td></tr>
+<tr><td>Opshin</td><td>37327766</td><td>157141</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_buy_one.csv">Raw execution units data</a></p>
@@ -287,7 +287,7 @@ The purpose of Cardano onchain language benchmark project is to implement the sa
 <tr><td>Plutarch</td><td>5756954</td><td>17509</td></tr>
 <tr><td>Aiken</td><td>12502116</td><td>41565</td></tr>
 <tr><td>PlutusTx</td><td>80367926</td><td>345018</td></tr>
-<tr><td>Opshin</td><td>31521405</td><td>142689</td></tr>
+<tr><td>Opshin</td><td>23820600</td><td>111765</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_cancel_one.csv">Raw execution units data</a></p>
