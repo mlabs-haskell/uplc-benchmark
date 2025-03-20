@@ -4,20 +4,23 @@
 module UplcBenchmark.NftMintingPolicy (nftMintingPolicy) where
 
 import Data.Kind (Type)
-import PlutusLedgerApi.V2 (
+import PlutusLedgerApi.V3 (
   BuiltinByteString,
   BuiltinData,
   FromData (fromBuiltinData),
-  ScriptContext (scriptContextPurpose, scriptContextTxInfo),
-  ScriptPurpose (Minting),
+  ScriptContext (scriptContextRedeemer, scriptContextScriptInfo, scriptContextTxInfo),
+  ScriptInfo (MintingScript),
   TokenName (TokenName),
   TxId (getTxId),
   TxInInfo (txInInfoOutRef),
   TxInfo (txInfoInputs, txInfoMint),
   TxOutRef (txOutRefIdx),
+  Value (Value),
+  getRedeemer,
   txOutRefId,
   unsafeFromBuiltinData,
  )
+import PlutusLedgerApi.V3.MintValue (MintValue (UnsafeMintValue))
 import PlutusTx.Prelude (
   BuiltinUnit,
   Integer,
@@ -58,11 +61,11 @@ deriveNftName txOutRef =
    in TokenName (appendByteString idPart idxPart)
 
 {-# INLINE nftMintingPolicy #-}
-nftMintingPolicy :: BuiltinData -> BuiltinData -> BuiltinUnit
-nftMintingPolicy rawRedeemer rawCtx =
+nftMintingPolicy :: BuiltinData -> BuiltinUnit
+nftMintingPolicy rawCtx =
   let !ctx :: ScriptContext = unsafeFromBuiltinData rawCtx
       !redeemer :: NftMintingPolicyRedeemer =
-        fromJustTrace "Could not decode redeemer" $ fromBuiltinData rawRedeemer
+        fromJustTrace "Could not decode redeemer" $ fromBuiltinData $ getRedeemer $ scriptContextRedeemer ctx
 
       NftMintingPolicyRedeemer'CreatePool !initialSpend = redeemer
 
@@ -70,10 +73,10 @@ nftMintingPolicy rawRedeemer rawCtx =
 
       !txInfo = scriptContextTxInfo ctx
       !inputs = txInfoInputs txInfo
-      !mint = txInfoMint txInfo
+      UnsafeMintValue mint = txInfoMint txInfo
 
-      Minting !ownSymbol = scriptContextPurpose ctx
-      ![(!mintedNftName, !mintedNftAmount)] = getOwnMint ownSymbol mint
+      MintingScript !ownSymbol = scriptContextScriptInfo ctx
+      ![(!mintedNftName, !mintedNftAmount)] = getOwnMint ownSymbol (Value mint)
 
       isInitialSpend txInInfo = txInInfoOutRef txInInfo == initialSpend
 
