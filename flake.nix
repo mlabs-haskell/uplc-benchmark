@@ -23,10 +23,6 @@
         hci-effects.follows = "hci-effects";
       };
     };
-    aiken = {
-      url = "github:aiken-lang/aiken?ref=v1.0.29-alpha";
-      flake = false;
-    };
     plutus-test = {
       url = "github:mlabs-haskell/plutus-test";
       flake = false;

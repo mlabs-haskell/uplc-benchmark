@@ -16,23 +16,6 @@
         "type": "github"
       }
     },
-    "aiken": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1717664547,
-        "narHash": "sha256-fikXypc9HKil4Ut4jdgQtTTy/CHEogEpDprwdTgd9b4=",
-        "owner": "aiken-lang",
-        "repo": "aiken",
-        "rev": "16fb02ee49879deb16ebacefa3b26ee5a57b7f8b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "aiken-lang",
-        "ref": "v1.0.29-alpha",
-        "repo": "aiken",
-        "type": "github"
-      }
-    },
     "cabal-32": {
       "flake": false,
       "locked": {
@@ -688,7 +671,6 @@
     },
     "root": {
       "inputs": {
-        "aiken": "aiken",
         "flake-parts": "flake-parts",
         "hci-effects": "hci-effects",
         "nixpkgs": "nixpkgs",

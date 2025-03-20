@@ -1,6 +1,5 @@
 { lib
 , flake-parts-lib
-, inputs
 , ...
 }:
 let
@@ -11,9 +10,7 @@ in
   options = {
     perSystem = mkPerSystemOption ({ config, pkgs, ... }:
       let
-        libAiken = pkgs.callPackage ./lib.nix {
-          aiken-src = inputs.aiken;
-        };
+        libAiken = pkgs.callPackage ./lib.nix { };
       in
       {
         options = {
