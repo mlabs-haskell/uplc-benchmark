@@ -1,31 +1,27 @@
-use aiken/hash.{Blake2b_224, Hash}
-use aiken/list
-use aiken/transaction.{InlineDatum, ScriptContext, Spend}
-use aiken/transaction/credential.{Address, VerificationKey}
+use aiken/collection/list
+use aiken/crypto.{VerificationKeyHash}
+use cardano/address.{Address}
+use cardano/assets
+use cardano/transaction.{InlineDatum, Transaction}
 
 type Datum =
-  (Data, Address, Hash<Blake2b_224, VerificationKey>)
+  (Data, Address, VerificationKeyHash)
 
-fn as_data(data: Data) -> Data {
-  data
-}
-
-validator {
-  fn spend(datum: Datum, redeemer: Int, ctx: ScriptContext) {
-    expect ScriptContext { purpose: Spend(own_input), transaction } = ctx
-    let (price, seller, cancel_key) = datum
+validator nft_marketplace_validator {
+  spend(datum: Option<Datum>, redeemer: Int, own_input: Data, self: Transaction) {
+    expect Some((price, seller, cancel_key)) = datum
     when redeemer is {
       // Buy
       0 -> {
         let has_valid_payment =
           list.any(
-            transaction.outputs,
+            self.outputs,
             fn(output) {
               when output.datum is {
                 InlineDatum(inline_datum) -> and {
                     output.address == seller,
-                    as_data(output.value) == price,
-                    inline_datum == as_data(own_input),
+                    assets.match(output.value, price, ==),
+                    inline_datum == own_input,
                   }
                 _ -> False
               }
@@ -35,11 +31,14 @@ validator {
       }
       // Cancel
       1 -> {
-        let signed_by_owner =
-          list.has(transaction.extra_signatories, cancel_key)
+        let signed_by_owner = list.has(self.extra_signatories, cancel_key)
         signed_by_owner
       }
       _ -> fail
     }
+  }
+
+  else(_) {
+    fail
   }
 }
