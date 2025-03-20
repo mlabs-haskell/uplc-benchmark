@@ -2,7 +2,7 @@ set terminal png size 800,800
 set output "script_size.png"
 
 set datafile separator ','
-set key top left
+set key top right
 set style data histogram
 set style histogram cluster gap 1
 set style fill solid border rgb "black"
