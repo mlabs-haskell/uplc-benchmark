@@ -23,10 +23,10 @@ import Plutus.ContextBuilder (
   withSpendingUTXO,
   withValue,
  )
-import PlutusLedgerApi.V1.Address (pubKeyHashAddress)
-import PlutusLedgerApi.V2 (
+import PlutusLedgerApi.V3 (
   Address,
   PubKeyHash (PubKeyHash),
+  Redeemer (Redeemer),
   ScriptContext,
   ToData (toBuiltinData),
   TxId (TxId),
@@ -38,6 +38,7 @@ import PlutusLedgerApi.V2 (
  )
 import Test.Tasty (TestTree, testGroup)
 
+import PlutusLedgerApi.V1.Address (pubKeyHashAddress)
 import UplcBenchmark.ScriptLoader (uncheckedApplyDataToScript)
 import UplcBenchmark.Spec.ContextBuilder.Utils (junkSymbol, junkToken, mkHash28, mkHash32)
 
@@ -69,6 +70,7 @@ validatedOrderUTxO =
   mconcat
     [ withRef validatedUTxORef
     , withRedeemer NftMarketplaceRedeemer'Buy
+    , withInlineDatum validatedOrderDatum
     ]
 
 validPaymentUTxO :: UTXO
@@ -134,109 +136,106 @@ validatedOrderDatum =
     validSellerAddress
     validCancelPubKeyHash
 
-validBuyOne :: ScriptContext
-validBuyOne =
-  buildSpending' $
+validBuyOne :: Redeemer -> ScriptContext
+validBuyOne redeemer =
+  buildSpending' redeemer $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output validPaymentUTxO
       ]
 
-invalidOneNoDatum :: ScriptContext
-invalidOneNoDatum =
-  buildSpending' $
+invalidOneNoDatum :: Redeemer -> ScriptContext
+invalidOneNoDatum redeemer =
+  buildSpending' redeemer $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output invalidPaymentUTxONoDatum
       ]
 
-invalidOneHashDatum :: ScriptContext
-invalidOneHashDatum =
-  buildSpending' $
+invalidOneHashDatum :: Redeemer -> ScriptContext
+invalidOneHashDatum redeemer =
+  buildSpending' redeemer $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output invalidPaymentUTxOHashDatum
       ]
 
-invalidOnePayTooLittle :: ScriptContext
-invalidOnePayTooLittle =
-  buildSpending' $
+invalidOnePayTooLittle :: Redeemer -> ScriptContext
+invalidOnePayTooLittle redeemer =
+  buildSpending' redeemer $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output invalidPaymentUTxOTooLittle
       ]
 
-invalidOnePayTooMuch :: ScriptContext
-invalidOnePayTooMuch =
-  buildSpending' $
+invalidOnePayTooMuch :: Redeemer -> ScriptContext
+invalidOnePayTooMuch redeemer =
+  buildSpending' redeemer $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output invalidPaymentUTxOTooMuch
       ]
 
-invalidOnePayWithJunk :: ScriptContext
-invalidOnePayWithJunk =
-  buildSpending' $
+invalidOnePayWithJunk :: Redeemer -> ScriptContext
+invalidOnePayWithJunk redeemer =
+  buildSpending' redeemer $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output invalidPaymentUTxOWithJunk
       ]
 
-invalidNoPayment :: ScriptContext
-invalidNoPayment =
-  buildSpending' $
+invalidNoPayment :: Redeemer -> ScriptContext
+invalidNoPayment redeemer =
+  buildSpending' redeemer $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       ]
 
-validCancelOne :: ScriptContext
-validCancelOne =
-  buildSpending' $
+validCancelOne :: Redeemer -> ScriptContext
+validCancelOne redeemer =
+  buildSpending' redeemer $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , signedWith validCancelPubKeyHash
       ]
 
-invalidCancelOneWrongKey :: ScriptContext
-invalidCancelOneWrongKey =
-  buildSpending' $
+invalidCancelOneWrongKey :: Redeemer -> ScriptContext
+invalidCancelOneWrongKey redeemer =
+  buildSpending' redeemer $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , signedWith junkPubKeyHash
       ]
 
-invalidCancelOneNoKey :: ScriptContext
-invalidCancelOneNoKey =
-  buildSpending' $
+invalidCancelOneNoKey :: Redeemer -> ScriptContext
+invalidCancelOneNoKey redeemer =
+  buildSpending' redeemer $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       ]
 
-mkTest :: NftMarketplaceRedeemer -> String -> ScriptContext -> ScriptResult -> Script -> ScriptCase
+mkTest :: NftMarketplaceRedeemer -> String -> (Redeemer -> ScriptContext) -> ScriptResult -> Script -> ScriptCase
 mkTest redeemer testName context expectedResult script =
   let
-    apply =
-      uncheckedApplyDataToScript context
-        . uncheckedApplyDataToScript redeemer
-        . uncheckedApplyDataToScript validatedOrderDatum
+    apply = uncheckedApplyDataToScript (context $ Redeemer $ toBuiltinData redeemer)
     Script applied = apply script
    in
     ScriptCase testName expectedResult applied applied
 
-mkBuyTest :: String -> ScriptContext -> ScriptResult -> Script -> ScriptCase
+mkBuyTest :: String -> (Redeemer -> ScriptContext) -> ScriptResult -> Script -> ScriptCase
 mkBuyTest = mkTest NftMarketplaceRedeemer'Buy
 
-mkCancelTest :: String -> ScriptContext -> ScriptResult -> Script -> ScriptCase
+mkCancelTest :: String -> (Redeemer -> ScriptContext) -> ScriptResult -> Script -> ScriptCase
 mkCancelTest = mkTest NftMarketplaceRedeemer'Cancel
 
 mkValidBuyOneTest :: Script -> ScriptCase
