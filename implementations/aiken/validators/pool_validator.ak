@@ -1,3 +1,4 @@
+use aiken/collection/dict.{Dict}
 use aiken/collection/list
 use aiken/math
 use cardano/assets.{AssetName, PolicyId}
@@ -27,6 +28,44 @@ pub type AssetClass {
 
 type Datum =
   (AssetClass, AssetClass, AssetClass, PolicyId, Int, Int)
+
+fn collect_amounts(
+  value: Pairs<PolicyId, Dict<AssetName, Int>>,
+  token_a: AssetClass,
+  token_b: AssetClass,
+  return: fn(Int, Int) -> a,
+) -> a {
+  when value is {
+    [head, ..tail] ->
+      if head.1st == token_a.symbol {
+        expect Some(amount_a) = dict.get(head.2nd, token_a.name)
+        collect_next(tail, token_b, return(amount_a, _))
+      } else if head.1st == token_b.symbol {
+        expect Some(amount_b) = dict.get(head.2nd, token_b.name)
+        collect_next(tail, token_b, return(_, amount_b))
+      } else {
+        collect_amounts(tail, token_a, token_b, return)
+      }
+    [] -> fail @"empty"
+  }
+}
+
+fn collect_next(
+  value: Pairs<PolicyId, Dict<AssetName, Int>>,
+  token: AssetClass,
+  return: fn(Int) -> a,
+) -> a {
+  when value is {
+    [head, ..tail] ->
+      if head.1st == token.symbol {
+        expect Some(amount) = dict.get(head.2nd, token.name)
+        return(amount)
+      } else {
+        collect_next(tail, token, return)
+      }
+    [] -> fail @"empty next"
+  }
+}
 
 validator pool_validator {
   spend(
@@ -66,15 +105,25 @@ validator pool_validator {
         pool_nft.name,
       )
 
-    let in_a_amount =
-      assets.quantity_of(own_input.output.value, token_a.symbol, token_a.name)
-    let in_b_amount =
-      assets.quantity_of(own_input.output.value, token_b.symbol, token_b.name)
+    let
+      in_a_amount,
+      in_b_amount,
+    <-
+      collect_amounts(
+        dict.to_pairs(assets.to_dict(own_input.output.value)),
+        token_a,
+        token_b,
+      )
 
-    let out_a_amount =
-      assets.quantity_of(own_output.value, token_a.symbol, token_a.name)
-    let out_b_amount =
-      assets.quantity_of(own_output.value, token_b.symbol, token_b.name)
+    let
+      out_a_amount,
+      out_b_amount,
+    <-
+      collect_amounts(
+        dict.to_pairs(assets.to_dict(own_output.value)),
+        token_a,
+        token_b,
+      )
 
     expect InlineDatum(output_datum) = own_output.datum
     expect (
