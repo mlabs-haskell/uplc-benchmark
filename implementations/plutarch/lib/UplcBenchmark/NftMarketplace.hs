@@ -3,15 +3,16 @@ module UplcBenchmark.NftMarketplace (pnftMarketplaceValidator) where
 import Data.Kind (Type)
 import GHC.Generics qualified as GHC
 import Generics.SOP qualified as SOP
-import Plutarch.LedgerApi.V2 (
+import Plutarch.LedgerApi.V3 (
   AmountGuarantees (NoGuarantees, Positive),
   KeyGuarantees (Sorted, Unsorted),
   PAddress,
   PDatum (PDatum),
+  PMaybeData (PDJust),
   POutputDatum (POutputDatum),
   PPubKeyHash,
   PScriptContext (PScriptContext),
-  PScriptPurpose (PSpending),
+  PScriptInfo (PSpendingScript),
   PTxInfo (PTxInfo),
   PTxOut (PTxOut),
  )
@@ -20,7 +21,7 @@ import Plutarch.Monadic qualified as P
 import Plutarch.Repr.Data (DeriveAsDataRec (DeriveAsDataRec))
 import Plutarch.Repr.Tag (DeriveAsTag (DeriveAsTag))
 import Plutarch.Unsafe (punsafeCoerce)
-import UplcBenchmark.Utils (passert)
+import UplcBenchmark.Utils (passert, punsafeCastDatum, punsafeCastRedeemer)
 
 type NftMarketplaceDatum :: S -> Type
 data NftMarketplaceDatum s = NftMarketplaceDatum
@@ -40,15 +41,16 @@ data NftMarketplaceRedeemer s
   deriving anyclass (SOP.Generic, PEq, PIsData)
   deriving (PlutusType, PLiftable) via DeriveAsTag NftMarketplaceRedeemer
 
-pnftMarketplaceValidator :: ClosedTerm (PAsData NftMarketplaceDatum :--> PAsData NftMarketplaceRedeemer :--> PAsData PScriptContext :--> POpaque)
-pnftMarketplaceValidator = plam $ \datum redeemer ctx' -> P.do
-  NftMarketplaceDatum price seller cancelKey <- pmatch (pfromData datum)
-  PScriptContext txInfo purpose <- pmatch (pfromData ctx')
+pnftMarketplaceValidator :: ClosedTerm (PAsData PScriptContext :--> POpaque)
+pnftMarketplaceValidator = plam $ \ctx' -> P.do
+  PScriptContext txInfo redeemer info <- pmatch (pfromData ctx')
+  PSpendingScript ownInput datum' <- pmatch info
+  PDJust datum <- pmatch datum'
+  NftMarketplaceDatum price seller cancelKey <- pmatch (pfromData $ punsafeCastDatum $ pfromData datum)
 
-  pmatch (pfromData redeemer) $ \case
+  pmatch (pfromData $ punsafeCastRedeemer redeemer) $ \case
     NftMarketplaceRedeemer'Buy -> P.do
-      PTxInfo _ _ outputs _ _ _ _ _ _ _ _ _ <- pmatch txInfo
-      PSpending ownInput <- pmatch purpose
+      PTxInfo _ _ outputs _ _ _ _ _ _ _ _ _ _ _ _ _ <- pmatch txInfo
 
       paymentDatum <- plet $ pcon $ PDatum $ pto $ pdata ownInput
 
@@ -64,7 +66,7 @@ pnftMarketplaceValidator = plam $ \datum redeemer ctx' -> P.do
       passert "Must have a valid payment" hasValidPayment
       popaque $ pconstant @PUnit ()
     NftMarketplaceRedeemer'Cancel -> P.do
-      PTxInfo _ _ _ _ _ _ _ _ signatories _ _ _ <- pmatch txInfo
+      PTxInfo _ _ _ _ _ _ _ _ signatories _ _ _ _ _ _ _ <- pmatch txInfo
       let signedByCancelKey = pany # (plam $ \key -> cancelKey #== key) # pfromData signatories
       passert "Must be signed by cancel key" signedByCancelKey
       popaque $ pconstant @PUnit ()

@@ -3,10 +3,11 @@ module UplcBenchmark.PoolValidator (ppoolValidator) where
 import Data.Kind (Type)
 import GHC.Generics qualified as GHC
 import Generics.SOP qualified as SOP
-import Plutarch.LedgerApi.V2 (
+import Plutarch.LedgerApi.V3 (
+  PMaybeData (PDJust),
   POutputDatum (POutputDatum),
   PScriptContext (PScriptContext),
-  PScriptPurpose (PSpending),
+  PScriptInfo (PSpendingScript),
   PTxInInfo (PTxInInfo),
   PTxInfo (PTxInfo),
   PTxOut (PTxOut),
@@ -21,6 +22,8 @@ import UplcBenchmark.Utils (
   pisPDNothing,
   ptryFindInput,
   ptryFindOutputWithAsset,
+  punsafeCastDatum,
+  punsafeCastRedeemer,
   pvalueOfAssetClass,
  )
 
@@ -49,14 +52,15 @@ data DexRedeemer s
 -- TODO: PTryFrom
 
 -- FIXME: compile does not halt
-ppoolValidator :: ClosedTerm (PAsData DexDatum :--> PAsData DexRedeemer :--> PAsData PScriptContext :--> POpaque)
-ppoolValidator = plam $ \datum redeemer ctx' -> P.do
-  DexDatum inTokenA inTokenB inPoolNft' inLpToken inMintedLpTokens inSwapFee <- pmatch (pfromData datum)
+ppoolValidator :: ClosedTerm (PAsData PScriptContext :--> POpaque)
+ppoolValidator = plam $ \ctx' -> P.do
+  PScriptContext txInfo redeemer info <- pmatch (pfromData ctx')
+  PTxInfo inputs _ outputs _ mint _ _ _ _ _ _ _ _ _ _ _ <- pmatch txInfo
+  PSpendingScript ownTxOutRef datum' <- pmatch info
+  PDJust datum <- pmatch datum'
+  DexDatum inTokenA inTokenB inPoolNft' inLpToken inMintedLpTokens inSwapFee <- pmatch (pfromData $ punsafeCastDatum $ pfromData datum)
   inPoolNft <- plet $ pfromData inPoolNft'
   nftAndLpTokenName <- plet $ pmatch inPoolNft $ \(PAssetClass inPoolNft'') -> psndBuiltin # inPoolNft''
-  PScriptContext txInfo purpose <- pmatch (pfromData ctx')
-  PTxInfo inputs _ outputs _ mint _ _ _ _ _ _ _ <- pmatch txInfo
-  PSpending ownTxOutRef <- pmatch purpose
 
   (PTxInInfo _ ownInputResolved) <- pmatch $ pfromData (ptryFindInput # ownTxOutRef # pfromData inputs)
   (PTxOut _ ownInputValue _ _) <- pmatch ownInputResolved
@@ -87,7 +91,7 @@ ppoolValidator = plam $ \datum redeemer ctx' -> P.do
   passert "Invalid output datum: lpToken" (inLpToken #== outLpToken)
   passert "Invalid output datum: swapFee" (inSwapFee #== outSwapFee)
 
-  pmatch (pfromData redeemer) $ \case
+  pmatch (pfromData $ punsafeCastRedeemer redeemer) $ \case
     -- NOTE: Can we just make these two checks be the same?
     DexRedeemer'DepositLiquidity -> P.do
       passert
