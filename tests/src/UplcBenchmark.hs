@@ -81,5 +81,5 @@ implementations =
   [ Implementation "Plutarch" "UPLC_BENCHMARK_BIN_PLUTARCH"
   , Implementation "Aiken" "UPLC_BENCHMARK_BIN_AIKEN"
   , Implementation "PlutusTx" "UPLC_BENCHMARK_BIN_PLUTUS_TX"
-  , Implementation "Opshin" "UPLC_BENCHMARK_BIN_OPSHIN"
+  -- , Implementation "Opshin" "UPLC_BENCHMARK_BIN_OPSHIN"
   ]

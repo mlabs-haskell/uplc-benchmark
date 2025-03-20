@@ -9,14 +9,18 @@ module UplcBenchmark.Utils (
   pvalueOfAssetClass,
   ptryFindOutputWithAsset,
   pisPDNothing,
+  punsafeCastDatum,
+  punsafeCastRedeemer,
 )
 where
 
 import Data.Kind (Type)
 import Plutarch.LedgerApi.AssocMap (PMap, pempty, pfindWithDefault, pforgetSorted)
-import Plutarch.LedgerApi.V2 (
+import Plutarch.LedgerApi.V3 (
   PCurrencySymbol,
+  PDatum,
   PMaybeData (PDJust, PDNothing),
+  PRedeemer,
   PTokenName,
   PTxInInfo (PTxInInfo),
   PTxOut (PTxOut),
@@ -24,6 +28,7 @@ import Plutarch.LedgerApi.V2 (
   PValue,
  )
 import Plutarch.LedgerApi.Value (PAssetClass (PAssetClass), pvalueOf)
+import Plutarch.Unsafe (punsafeCoerce)
 
 ptryDecodeData ::
   forall (a :: S -> Type) (s :: S).
@@ -95,3 +100,12 @@ pisPDNothing :: Term s (PMaybeData a :--> PBool)
 pisPDNothing = phoistAcyclic $ plam $ \m -> pmatch m $ \case
   PDNothing -> pconstant True
   PDJust _ -> pconstant False
+
+punsafeCastData :: forall a s. Term s PData -> Term s (PAsData a)
+punsafeCastData = punsafeCoerce
+
+punsafeCastRedeemer :: forall a s. Term s PRedeemer -> Term s (PAsData a)
+punsafeCastRedeemer redeemer = punsafeCastData $ pto redeemer
+
+punsafeCastDatum :: forall a s. Term s PDatum -> Term s (PAsData a)
+punsafeCastDatum datum = punsafeCastData $ pto datum

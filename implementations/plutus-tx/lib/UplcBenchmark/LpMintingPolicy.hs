@@ -4,17 +4,19 @@
 module UplcBenchmark.LpMintingPolicy (lpMintingPolicy) where
 
 import PlutusLedgerApi.V1.Value (valueOf)
-import PlutusLedgerApi.V2 (
+import PlutusLedgerApi.V3 (
   BuiltinData,
   CurrencySymbol,
-  ScriptContext (scriptContextPurpose, scriptContextTxInfo),
-  ScriptPurpose (Minting),
+  ScriptContext (scriptContextScriptInfo, scriptContextTxInfo),
+  ScriptInfo (MintingScript),
   TokenName,
   TxInInfo (txInInfoResolved),
   TxInfo (txInfoInputs, txInfoMint),
   TxOut (txOutValue),
   UnsafeFromData (unsafeFromBuiltinData),
+  Value (Value),
  )
+import PlutusLedgerApi.V3.MintValue (MintValue (UnsafeMintValue))
 import PlutusTx.Prelude (
   Bool,
   BuiltinUnit,
@@ -29,12 +31,12 @@ import PlutusTx.Prelude (
 import UplcBenchmark.Utils (getOwnMint)
 
 {-# INLINE lpMintingPolicy #-}
-lpMintingPolicy :: BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
-lpMintingPolicy rawPoolNftCs _rawRedeemer rawCtx =
+lpMintingPolicy :: BuiltinData -> BuiltinData -> BuiltinUnit
+lpMintingPolicy rawPoolNftCs rawCtx =
   let
     !ctx :: ScriptContext = unsafeFromBuiltinData rawCtx
     !poolNftCs :: CurrencySymbol = unsafeFromBuiltinData rawPoolNftCs
-    Minting !ownSymbol = scriptContextPurpose ctx
+    MintingScript !ownSymbol = scriptContextScriptInfo ctx
 
     inputHasNft :: TokenName -> TxInInfo -> Bool
     inputHasNft poolNftTn txIn =
@@ -43,13 +45,13 @@ lpMintingPolicy rawPoolNftCs _rawRedeemer rawCtx =
 
     !txInfo = scriptContextTxInfo ctx
     !inputs = txInfoInputs txInfo
-    !mint = txInfoMint txInfo
+    UnsafeMintValue mint = txInfoMint txInfo
 
     isValidMint :: (TokenName, Integer) -> Bool
     isValidMint (mintedLpName, _mintedLpAmount) =
       any (inputHasNft mintedLpName) inputs
 
-    !ownMint = getOwnMint ownSymbol mint
+    !ownMint = getOwnMint ownSymbol (Value mint)
 
     validMint :: Bool
     !validMint = all isValidMint ownMint

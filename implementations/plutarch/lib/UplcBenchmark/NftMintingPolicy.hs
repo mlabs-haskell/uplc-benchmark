@@ -3,9 +3,9 @@ module UplcBenchmark.NftMintingPolicy (pnftMintingPolicy) where
 import Data.Kind (Type)
 import GHC.Generics qualified as GHC
 import Generics.SOP qualified as SOP
-import Plutarch.LedgerApi.V2 (
+import Plutarch.LedgerApi.V3 (
   PScriptContext (PScriptContext),
-  PScriptPurpose (PMinting),
+  PScriptInfo (PMintingScript),
   PTokenName (PTokenName),
   PTxId (PTxId),
   PTxInInfo (PTxInInfo),
@@ -14,7 +14,7 @@ import Plutarch.LedgerApi.V2 (
  )
 import Plutarch.Monadic qualified as P
 
-import UplcBenchmark.Utils (passert, pintegerToByteString, ptryGetOwnMint)
+import UplcBenchmark.Utils (passert, pintegerToByteString, ptryGetOwnMint, punsafeCastRedeemer)
 
 type NftMintingPolicyRedeemer :: S -> Type
 newtype NftMintingPolicyRedeemer s = NftMintingPolicyRedeemer (Term s PTxOutRef)
@@ -22,16 +22,13 @@ newtype NftMintingPolicyRedeemer s = NftMintingPolicyRedeemer (Term s PTxOutRef)
   deriving anyclass (SOP.Generic, PEq, PIsData)
   deriving (PlutusType) via DeriveNewtypePlutusType NftMintingPolicyRedeemer
 
-pnftMintingPolicy :: ClosedTerm (PAsData NftMintingPolicyRedeemer :--> PAsData PScriptContext :--> POpaque)
-pnftMintingPolicy = plam $ \rawRedeemer ctx' -> P.do
-  NftMintingPolicyRedeemer initialSpend <- pmatch (pfromData rawRedeemer)
-
+pnftMintingPolicy :: ClosedTerm (PAsData PScriptContext :--> POpaque)
+pnftMintingPolicy = plam $ \ctx' -> P.do
+  PScriptContext txInfo redeemer info <- pmatch (pfromData ctx')
+  NftMintingPolicyRedeemer initialSpend <- pmatch (pfromData $ punsafeCastRedeemer redeemer)
   expectedNftName <- plet $ pderiveNftName # initialSpend
-
-  PScriptContext txInfo purpose <- pmatch (pfromData ctx')
-  PTxInfo inputs _ _ _ mint _ _ _ _ _ _ _ <- pmatch txInfo
-
-  PMinting ownSymbol <- pmatch purpose
+  PTxInfo inputs _ _ _ mint _ _ _ _ _ _ _ _ _ _ _ <- pmatch txInfo
+  PMintingScript ownSymbol <- pmatch info
   ownMint <- plet $ ptryGetOwnMint # pfromData ownSymbol # pfromData mint
   PCons mintedNfts mintedRest <- pmatch (pto ownMint)
 
@@ -55,6 +52,6 @@ pnftMintingPolicy = plam $ \rawRedeemer ctx' -> P.do
 pderiveNftName :: ClosedTerm (PTxOutRef :--> PTokenName)
 pderiveNftName = phoistAcyclic $ plam $ \txOutRef -> P.do
   PTxOutRef txId' idx <- pmatch txOutRef
-  PTxId txId <- pmatch txId'
+  PTxId txId <- pmatch $ pfromData txId'
   let idxPart = pintegerToByteString # pfromData idx
-  pcon $ PTokenName (pfromData txId <> idxPart)
+  pcon $ PTokenName (txId <> idxPart)

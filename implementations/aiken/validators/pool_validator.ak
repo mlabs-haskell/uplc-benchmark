@@ -1,7 +1,7 @@
-use aiken/list
+use aiken/collection/list
 use aiken/math
-use aiken/transaction.{InlineDatum, ScriptContext, Spend}
-use aiken/transaction/value.{AssetName, PolicyId}
+use cardano/assets.{AssetName, PolicyId}
+use cardano/transaction.{InlineDatum, OutputReference, Transaction}
 
 // The uniswap fee is 0.3%; here it is multiplied by 1000, so that the
 // on-chain code deals only in integers.
@@ -28,44 +28,53 @@ pub type AssetClass {
 type Datum =
   (AssetClass, AssetClass, AssetClass, PolicyId, Int, Int)
 
-validator {
-  fn spend(datum: Datum, redeemer: Int, ctx: ScriptContext) {
-    expect ScriptContext { purpose: Spend(own_input_ref), transaction } = ctx
-
-    let (token_a, token_b, pool_nft, lp_token, minted_lp_tokens, swap_fee) =
-      datum
+validator pool_validator {
+  spend(
+    datum: Option<Datum>,
+    redeemer: Int,
+    own_input_ref: OutputReference,
+    self: Transaction,
+  ) {
+    expect Some((
+      token_a,
+      token_b,
+      pool_nft,
+      lp_token,
+      minted_lp_tokens,
+      swap_fee,
+    )) = datum
 
     expect Some(own_input) =
       list.find(
-        transaction.inputs,
+        self.inputs,
         fn(input) { input.output_reference == own_input_ref },
       )
 
     expect Some(own_output) =
       list.find(
-        transaction.outputs,
+        self.outputs,
         fn(output) {
-          value.quantity_of(output.value, pool_nft.symbol, pool_nft.name) == 1
+          assets.quantity_of(output.value, pool_nft.symbol, pool_nft.name) == 1
         },
       )
 
     let new_minted_lp =
-      value.quantity_of(
-        value.from_minted_value(transaction.mint),
+      assets.quantity_of(
+        self.mint,
         lp_token,
         // lp name == nft name
         pool_nft.name,
       )
 
     let in_a_amount =
-      value.quantity_of(own_input.output.value, token_a.symbol, token_a.name)
+      assets.quantity_of(own_input.output.value, token_a.symbol, token_a.name)
     let in_b_amount =
-      value.quantity_of(own_input.output.value, token_b.symbol, token_b.name)
+      assets.quantity_of(own_input.output.value, token_b.symbol, token_b.name)
 
     let out_a_amount =
-      value.quantity_of(own_output.value, token_a.symbol, token_a.name)
+      assets.quantity_of(own_output.value, token_a.symbol, token_a.name)
     let out_b_amount =
-      value.quantity_of(own_output.value, token_b.symbol, token_b.name)
+      assets.quantity_of(own_output.value, token_b.symbol, token_b.name)
 
     expect InlineDatum(output_datum) = own_output.datum
     expect (
@@ -78,7 +87,7 @@ validator {
     ): Datum = output_datum
 
     let common_checks = and {
-        (value.quantity_of(
+        (assets.quantity_of(
           own_input.output.value,
           pool_nft.symbol,
           pool_nft.name,
@@ -128,5 +137,9 @@ validator {
       }
       _ -> fail
     }
+  }
+
+  else(_) {
+    fail
   }
 }

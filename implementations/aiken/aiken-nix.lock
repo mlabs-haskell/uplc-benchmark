@@ -1,9 +1,9 @@
 {
-  "aiken_lock_hash": "4534b24c77e7e10926d925ce984b1fcc88e1d8cfa8d6c9eb76878285e9cd79a8",
+  "aiken_lock_hash": "4abb962129ab4c4e99492643d49fc1af28faf9047e2a93efa796176ec520ec3a",
   "sources": {
     "aiken-lang-stdlib": {
-      "url": "https://github.com/aiken-lang/stdlib/archive/1.9.0.tar.gz",
-      "hash": "sha256-XJoWvldcUzILC4OKoV5Q5/xSr7mMXZTEyjNcR/7SHHw="
+      "url": "https://github.com/aiken-lang/stdlib/archive/2.2.0.tar.gz",
+      "hash": "sha256-BDaM+JdswlPasHsI03rLl4OR7u5HsbAd3/VFaoiDTh4="
     }
   }
 }

@@ -1,35 +1,27 @@
-use aiken/bytearray
-use aiken/dict
-use aiken/list
-use aiken/transaction.{Input, Mint, OutputReference, ScriptContext}
-use aiken/transaction/value.{AssetName}
-
-fn int_to_bs(n: Int, acc: ByteArray) -> ByteArray {
-  if n < 256 {
-    bytearray.push(acc, n)
-  } else {
-    int_to_bs(n / 256, bytearray.push(acc, n % 256))
-  }
-}
+use aiken/collection/dict
+use aiken/collection/list
+use aiken/primitive/bytearray
+use cardano/assets.{AssetName, PolicyId}
+use cardano/transaction.{OutputReference, Transaction}
 
 fn derive_nft_name(ref: OutputReference) -> AssetName {
-  bytearray.concat(ref.transaction_id.hash, int_to_bs(ref.output_index, ""))
+  bytearray.concat(
+    ref.transaction_id,
+    bytearray.from_int_big_endian(ref.output_index, 0),
+  )
 }
 
-validator {
-  fn mint(redeemer: OutputReference, ctx: ScriptContext) {
-    expect ScriptContext { purpose: Mint(own_symbol), transaction } = ctx
-
+validator nft_minting_policy {
+  mint(redeemer: OutputReference, own_symbol: PolicyId, self: Transaction) {
     expect [Pair(minted_nft_name, 1)] =
-      dict.to_pairs(
-        value.tokens(value.from_minted_value(transaction.mint), own_symbol),
-      )
+      dict.to_pairs(assets.tokens(self.mint, own_symbol))
 
     expect minted_nft_name == derive_nft_name(redeemer)
 
-    list.any(
-      transaction.inputs,
-      fn(input) { input.output_reference == redeemer },
-    )
+    list.any(self.inputs, fn(input) { input.output_reference == redeemer })
+  }
+
+  else(_) {
+    fail
   }
 }

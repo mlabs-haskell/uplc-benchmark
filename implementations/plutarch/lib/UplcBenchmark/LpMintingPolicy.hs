@@ -1,9 +1,9 @@
 module UplcBenchmark.LpMintingPolicy (plpMintingPolicy) where
 
-import Plutarch.LedgerApi.V2 (
+import Plutarch.LedgerApi.V3 (
   PCurrencySymbol,
   PScriptContext (PScriptContext),
-  PScriptPurpose (PMinting),
+  PScriptInfo (PMintingScript),
   PTokenName,
   PTxInInfo (PTxInInfo),
   PTxInfo (PTxInfo),
@@ -14,18 +14,18 @@ import Plutarch.Monadic qualified as P
 
 import UplcBenchmark.Utils (pallBoth, passert, ptryGetOwnMint)
 
-plpMintingPolicy :: ClosedTerm (PAsData PCurrencySymbol :--> PData :--> PAsData PScriptContext :--> POpaque)
-plpMintingPolicy = plam $ \poolNftCs _redeemer ctx -> P.do
-  PScriptContext txInfo purpose <- pmatch (pfromData ctx)
+plpMintingPolicy :: ClosedTerm (PAsData PCurrencySymbol :--> PAsData PScriptContext :--> POpaque)
+plpMintingPolicy = plam $ \poolNftCs ctx -> P.do
+  PScriptContext txInfo _ purpose <- pmatch (pfromData ctx)
 
-  PMinting ownSymbol <- pmatch purpose
+  PMintingScript ownSymbol <- pmatch purpose
 
   inputHasNft :: Term s (PTokenName :--> PAsData PTxInInfo :--> PBool) <- plet $ plam $ \poolNftTn txInInfo -> P.do
     (PTxInInfo _ resolved) <- pmatch (pfromData txInInfo)
     (PTxOut _ value _ _) <- pmatch resolved
     pvalueOf # pfromData value # pfromData poolNftCs # poolNftTn #== 1
 
-  PTxInfo inputs _ _ _ mint _ _ _ _ _ _ _ <- pmatch txInfo
+  PTxInfo inputs _ _ _ mint _ _ _ _ _ _ _ _ _ _ _ <- pmatch txInfo
   ownMint <- plet $ ptryGetOwnMint # pfromData ownSymbol # pfromData mint
 
   isValidMint :: Term s (PTokenName :--> PInteger :--> PBool) <- plet $ plam $ \mintedLpName _mintedLpAmount ->
