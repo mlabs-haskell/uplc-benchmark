@@ -1,5 +1,4 @@
 Language,lp-minting-policy.bin,nft-marketplace-validator.bin,nft-minting-policy.bin,pool-validator.bin
-Plutarch,336,313,415,1063
-Aiken,559,621,560,1420
-PlutusTx,1691,3039,2000,3019
-Opshin,1268,2194,1709,3677
+Plutarch,338,350,406,1081
+Aiken,485,662,399,1314
+PlutusTx,2938,4333,3204,4330
