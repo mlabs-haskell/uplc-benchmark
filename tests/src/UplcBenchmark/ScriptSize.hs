@@ -4,7 +4,6 @@ import Data.Aeson (ToJSON (toJSON), object, (.=))
 import Data.Kind (Type)
 import Data.List (intercalate, sort)
 import Data.String (IsString (fromString))
-import System.Directory (listDirectory)
 import System.FilePath (takeFileName, (</>))
 import System.IO (IOMode (ReadMode), hFileSize, openFile)
 
@@ -32,8 +31,9 @@ mkSized filePath = do
 
 mkSizedDirectory :: FilePath -> IO [Sized]
 mkSizedDirectory dirPath = do
-  files <- listDirectory dirPath
-  traverse (mkSized . (dirPath </>)) files
+  traverse
+    (mkSized . (dirPath </>))
+    ["nft-marketplace-validator.bin", "lp-minting-policy.bin", "nft-minting-policy.bin", "pool-validator.bin"]
 
 type BinPath :: Type
 data BinPath = BinPath
