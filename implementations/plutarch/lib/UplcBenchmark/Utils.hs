@@ -2,6 +2,7 @@ module UplcBenchmark.Utils (
   ptryDecodeData,
   passert,
   pallBoth,
+  pallBoth',
   ptryGetOwnMint,
   pintegerToByteString,
   ptryFind,
@@ -45,12 +46,21 @@ passert ::
   Term s a
 passert msg cond x = pif cond x $ ptraceInfoError msg
 
+pallBoth' ::
+  (PIsData k, PIsData v) =>
+  Term s (k :--> v :--> PBool) ->
+  Term s (PMap any k v) ->
+  Term s PBool
+pallBoth' predicate m =
+  pall # plam (\pair -> predicate # pfromData (pfstBuiltin # pair) # pfromData (psndBuiltin # pair)) # pto m
+
 pallBoth ::
   (PIsData k, PIsData v) =>
   Term s ((k :--> v :--> PBool) :--> PMap any k v :--> PBool)
-pallBoth = phoistAcyclic $
-  plam $ \predicate m ->
-    pall # plam (\pair -> predicate # pfromData (pfstBuiltin # pair) # pfromData (psndBuiltin # pair)) # pto m
+pallBoth =
+  phoistAcyclic $
+    plam $
+      pallBoth'
 
 {- | Throws error if own currency is not present in mint map, which is unreachable
 | if values are from a valid script context
