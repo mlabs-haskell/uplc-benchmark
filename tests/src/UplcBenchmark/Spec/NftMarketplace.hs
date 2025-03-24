@@ -15,6 +15,7 @@ import Plutus.ContextBuilder (
   buildSpending',
   input,
   output,
+  scriptRedeemer,
   signedWith,
   withHashDatum,
   withInlineDatum,
@@ -138,90 +139,100 @@ validatedOrderDatum =
 
 validBuyOne :: Redeemer -> ScriptContext
 validBuyOne redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output validPaymentUTxO
+      , scriptRedeemer redeemer
       ]
 
 invalidOneNoDatum :: Redeemer -> ScriptContext
 invalidOneNoDatum redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output invalidPaymentUTxONoDatum
+      , scriptRedeemer redeemer
       ]
 
 invalidOneHashDatum :: Redeemer -> ScriptContext
 invalidOneHashDatum redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output invalidPaymentUTxOHashDatum
+      , scriptRedeemer redeemer
       ]
 
 invalidOnePayTooLittle :: Redeemer -> ScriptContext
 invalidOnePayTooLittle redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output invalidPaymentUTxOTooLittle
+      , scriptRedeemer redeemer
       ]
 
 invalidOnePayTooMuch :: Redeemer -> ScriptContext
 invalidOnePayTooMuch redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output invalidPaymentUTxOTooMuch
+      , scriptRedeemer redeemer
       ]
 
 invalidOnePayWithJunk :: Redeemer -> ScriptContext
 invalidOnePayWithJunk redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , output invalidPaymentUTxOWithJunk
+      , scriptRedeemer redeemer
       ]
 
 invalidNoPayment :: Redeemer -> ScriptContext
 invalidNoPayment redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
+      , scriptRedeemer redeemer
       ]
 
 validCancelOne :: Redeemer -> ScriptContext
 validCancelOne redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , signedWith validCancelPubKeyHash
+      , scriptRedeemer redeemer
       ]
 
 invalidCancelOneWrongKey :: Redeemer -> ScriptContext
 invalidCancelOneWrongKey redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
       , signedWith junkPubKeyHash
+      , scriptRedeemer redeemer
       ]
 
 invalidCancelOneNoKey :: Redeemer -> ScriptContext
 invalidCancelOneNoKey redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input validatedOrderUTxO
       , withSpendingUTXO validatedOrderUTxO
+      , scriptRedeemer redeemer
       ]
 
 mkTest :: NftMarketplaceRedeemer -> String -> (Redeemer -> ScriptContext) -> ScriptResult -> Script -> ScriptCase

@@ -12,15 +12,15 @@ import Plutus.ContextBuilder (
   buildMinting',
   input,
   mintSingletonWith,
+  scriptRedeemer,
   withMinting,
   withRef,
  )
 import PlutusLedgerApi.V3 (
   BuiltinByteString,
   CurrencySymbol,
-  Redeemer (Redeemer),
   ScriptContext,
-  ToData (toBuiltinData),
+  ToData,
   TokenName (TokenName),
   TxId (TxId),
   TxOutRef (TxOutRef),
@@ -53,7 +53,7 @@ initialSpend = TxOutRef (TxId $ mkHash32 0) 42
 
 withNftMinting :: CurrencySymbol -> [MintingBuilder] -> ScriptContext
 withNftMinting ownSymbol builder =
-  buildMinting' (Redeemer $ toBuiltinData redeemer) $ mconcat builder <> withMinting ownSymbol
+  buildMinting' $ mconcat builder <> scriptRedeemer redeemer <> withMinting ownSymbol
 
 validMint :: CurrencySymbol -> ScriptContext
 validMint ownSymbol =

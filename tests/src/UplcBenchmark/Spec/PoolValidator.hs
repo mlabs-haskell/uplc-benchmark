@@ -13,6 +13,7 @@ import Plutus.ContextBuilder (
   input,
   mint,
   output,
+  scriptRedeemer,
   withInlineDatum,
   withSpendingUTXO,
   withValue,
@@ -103,7 +104,7 @@ poolUTxO =
 
 validSwapAForB :: Redeemer -> ScriptContext
 validSwapAForB redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -114,11 +115,12 @@ validSwapAForB redeemer =
             , withValue $ assetClassValue tokenA 500
             , withValue $ assetClassValue tokenB 4007
             ]
+      , scriptRedeemer redeemer
       ]
 
 validSwapBForA :: Redeemer -> ScriptContext
 validSwapBForA redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -129,11 +131,12 @@ validSwapBForA redeemer =
             , withValue $ assetClassValue tokenA 2004
             , withValue $ assetClassValue tokenB 1000
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidSwapNoFee :: Redeemer -> ScriptContext
 invalidSwapNoFee redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -144,11 +147,12 @@ invalidSwapNoFee redeemer =
             , withValue $ assetClassValue tokenA 500
             , withValue $ assetClassValue tokenB 4000
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidSwapStealNft :: Redeemer -> ScriptContext
 invalidSwapStealNft redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -158,11 +162,12 @@ invalidSwapStealNft redeemer =
             , withValue $ assetClassValue tokenA 500
             , withValue $ assetClassValue tokenB 4007
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidSwapNoDatum :: Redeemer -> ScriptContext
 invalidSwapNoDatum redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -172,11 +177,12 @@ invalidSwapNoDatum redeemer =
             , withValue $ assetClassValue tokenA 500
             , withValue $ assetClassValue tokenB 4007
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidSwapModifiedDatum :: Redeemer -> ScriptContext
 invalidSwapModifiedDatum redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -187,11 +193,12 @@ invalidSwapModifiedDatum redeemer =
             , withValue $ assetClassValue tokenA 500
             , withValue $ assetClassValue tokenB 4007
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidSwapUnitDatum :: Redeemer -> ScriptContext
 invalidSwapUnitDatum redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -202,11 +209,12 @@ invalidSwapUnitDatum redeemer =
             , withValue $ assetClassValue tokenA 500
             , withValue $ assetClassValue tokenB 4007
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidSwapDrainPool :: Redeemer -> ScriptContext
 invalidSwapDrainPool redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -215,19 +223,21 @@ invalidSwapDrainPool redeemer =
             [ withInlineDatum poolDatum
             , withValue $ assetClassValue poolNft 1
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidSwapNoSelfOutput :: Redeemer -> ScriptContext
 invalidSwapNoSelfOutput redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
+      , scriptRedeemer redeemer
       ]
 
 validDeposit :: Redeemer -> ScriptContext
 validDeposit redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -239,11 +249,12 @@ validDeposit redeemer =
             , withValue $ assetClassValue tokenA 1100
             , withValue $ assetClassValue tokenB 2200
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidDepositNoDeposit :: Redeemer -> ScriptContext
 invalidDepositNoDeposit redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -255,11 +266,12 @@ invalidDepositNoDeposit redeemer =
             , withValue $ assetClassValue tokenA 1000
             , withValue $ assetClassValue tokenB 2000
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidDepositNotEnough :: Redeemer -> ScriptContext
 invalidDepositNotEnough redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -271,11 +283,12 @@ invalidDepositNotEnough redeemer =
             , withValue $ assetClassValue tokenA 1050
             , withValue $ assetClassValue tokenB 2100
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidDepositStealNft :: Redeemer -> ScriptContext
 invalidDepositStealNft redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -286,11 +299,12 @@ invalidDepositStealNft redeemer =
             , withValue $ assetClassValue tokenA 1100
             , withValue $ assetClassValue tokenB 2200
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidDepositNoDatum :: Redeemer -> ScriptContext
 invalidDepositNoDatum redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -301,11 +315,12 @@ invalidDepositNoDatum redeemer =
             , withValue $ assetClassValue tokenA 1100
             , withValue $ assetClassValue tokenB 2200
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidDepositModifiedDatum :: Redeemer -> ScriptContext
 invalidDepositModifiedDatum redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -321,11 +336,12 @@ invalidDepositModifiedDatum redeemer =
             , withValue $ assetClassValue tokenA 1100
             , withValue $ assetClassValue tokenB 2200
             ]
+      , scriptRedeemer redeemer
       ]
 
 validWithdraw :: Redeemer -> ScriptContext
 validWithdraw redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -337,11 +353,12 @@ validWithdraw redeemer =
             , withValue $ assetClassValue tokenA 900
             , withValue $ assetClassValue tokenB 1800
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidWithdrawNoWithdraw :: Redeemer -> ScriptContext
 invalidWithdrawNoWithdraw redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -351,11 +368,12 @@ invalidWithdrawNoWithdraw redeemer =
             [ withInlineDatum $ poolDatum {dexDatum'mintedLpTokens = 1415 - 150}
             , withValue $ assetClassValue poolNft 1
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidWithdrawTooMuch :: Redeemer -> ScriptContext
 invalidWithdrawTooMuch redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -367,11 +385,12 @@ invalidWithdrawTooMuch redeemer =
             , withValue $ assetClassValue tokenA 500
             , withValue $ assetClassValue tokenB 1000
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidWithdrawStealNft :: Redeemer -> ScriptContext
 invalidWithdrawStealNft redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -382,11 +401,12 @@ invalidWithdrawStealNft redeemer =
             , withValue $ assetClassValue tokenA 900
             , withValue $ assetClassValue tokenB 1800
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidWithdrawNoDatum :: Redeemer -> ScriptContext
 invalidWithdrawNoDatum redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -397,11 +417,12 @@ invalidWithdrawNoDatum redeemer =
             , withValue $ assetClassValue tokenA 900
             , withValue $ assetClassValue tokenB 1800
             ]
+      , scriptRedeemer redeemer
       ]
 
 invalidWithdrawModifiedDatum :: Redeemer -> ScriptContext
 invalidWithdrawModifiedDatum redeemer =
-  buildSpending' redeemer $
+  buildSpending' $
     mconcat
       [ input poolUTxO
       , withSpendingUTXO poolUTxO
@@ -417,6 +438,7 @@ invalidWithdrawModifiedDatum redeemer =
             , withValue $ assetClassValue tokenA 900
             , withValue $ assetClassValue tokenB 1800
             ]
+      , scriptRedeemer redeemer
       ]
 
 mkTest :: DexRedeemer -> String -> (Redeemer -> ScriptContext) -> ScriptResult -> Script -> ScriptCase
