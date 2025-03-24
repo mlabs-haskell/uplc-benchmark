@@ -521,11 +521,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1742852496,
-        "narHash": "sha256-i9VdPefeM23gQgz4tP0eTaxg03r5wYE3PYrPPkkFZJc=",
+        "lastModified": 1742853386,
+        "narHash": "sha256-g1SNx+2SlwOMc0N+NO0o8nMj6Eoftfwq1ATI44lK4ss=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "914cc52c1f8cc7252a51c52b4bff00dae6d3ca91",
+        "rev": "3fa21ca3931a5454584cd349b89958689d2a9918",
         "type": "github"
       },
       "original": {
@@ -634,11 +634,11 @@
     "plutus-test": {
       "flake": false,
       "locked": {
-        "lastModified": 1742852597,
-        "narHash": "sha256-YRo7C95A99Y7ZlFbk/INX4xybiGFOu64+ogbcGMry8c=",
+        "lastModified": 1742853914,
+        "narHash": "sha256-GXjNtN1tMzjcFCMnQEr44WvSPWYp9NP67aZGQ/285xc=",
         "owner": "mlabs-haskell",
         "repo": "plutus-test",
-        "rev": "8b0af82a9d58bee209c286f6ba9b360bf5606f5e",
+        "rev": "7adc028569df15278b2110d69c77b11e53899b70",
         "type": "github"
       },
       "original": {

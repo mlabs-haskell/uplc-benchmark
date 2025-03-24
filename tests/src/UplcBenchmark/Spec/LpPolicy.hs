@@ -11,6 +11,7 @@ import Plutus.ContextBuilder (
   buildMinting',
   input,
   mintSingletonWith,
+  scriptRedeemer,
   withMinting,
   withValue,
  )
@@ -42,7 +43,7 @@ unitRedeemer = Redeemer $ toBuiltinData ()
 
 withLpMinting :: CurrencySymbol -> [MintingBuilder] -> Redeemer -> ScriptContext
 withLpMinting ownSymbol builder redeemer =
-  buildMinting' redeemer $ mconcat builder <> withMinting ownSymbol
+  buildMinting' $ mconcat builder <> scriptRedeemer redeemer <> withMinting ownSymbol
 
 validMint :: CurrencySymbol -> Redeemer -> ScriptContext
 validMint ownSymbol =
