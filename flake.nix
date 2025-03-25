@@ -1,7 +1,7 @@
 {
   description = "uplc-benchmark";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
@@ -127,6 +127,7 @@
                 pkgs.fd
                 pkgs.texlive.combined.scheme-full
                 pkgs.mdbook
+                (pkgs.ghc.overrideAttrs (_old: { enableProfiledLibs = true; }))
               ];
             };
           };
