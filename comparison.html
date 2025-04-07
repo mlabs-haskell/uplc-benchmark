@@ -31,10 +31,11 @@
         <!-- Custom theme stylesheets -->
 
 
-        <!-- Provide site root to javascript -->
+        <!-- Provide site root and default themes to javascript -->
         <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc.js"></script>
@@ -44,8 +45,8 @@
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -59,7 +60,8 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             const html = document.documentElement;
@@ -72,8 +74,8 @@
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
@@ -109,6 +111,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
@@ -164,7 +167,7 @@
 <ul>
 <li>plutus-tx: 1.40.0.0</li>
 <li>plutarch: 1.10.1</li>
-<li>aiken: v1.1.14+unknown</li>
+<li>aiken: v1.1.15+unknown</li>
 <li>opshin: 0.24.1</li>
 </ul>
 <h2 id="script-size-bytes"><a class="header" href="#script-size-bytes">Script size (bytes)</a></h2>
@@ -186,7 +189,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
 <tr><td>Plutarch</td><td>17797661</td><td>47962</td></tr>
 <tr><td>Aiken</td><td>17366314</td><td>56974</td></tr>
-<tr><td>PlutusTx</td><td>69457800</td><td>291624</td></tr>
+<tr><td>PlutusTx</td><td>65739767</td><td>276544</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_lp_mint_one_nft.csv">Raw execution units data</a></p>
@@ -196,7 +199,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
 <tr><td>Plutarch</td><td>31018976</td><td>79485</td></tr>
 <tr><td>Aiken</td><td>28936338</td><td>94149</td></tr>
-<tr><td>PlutusTx</td><td>79718869</td><td>338236</td></tr>
+<tr><td>PlutusTx</td><td>76000836</td><td>323156</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_lp_mint_two_nfts.csv">Raw execution units data</a></p>
@@ -206,7 +209,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
 <tr><td>Plutarch</td><td>15299441</td><td>40575</td></tr>
 <tr><td>Aiken</td><td>14923802</td><td>38363</td></tr>
-<tr><td>PlutusTx</td><td>67229365</td><td>284691</td></tr>
+<tr><td>PlutusTx</td><td>63511332</td><td>269611</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_nft_mint.csv">Raw execution units data</a></p>
@@ -236,7 +239,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
 <tr><td>Plutarch</td><td>102846505</td><td>230681</td></tr>
 <tr><td>Aiken</td><td>81975434</td><td>241842</td></tr>
-<tr><td>PlutusTx</td><td>332287819</td><td>1536480</td></tr>
+<tr><td>PlutusTx</td><td>328569786</td><td>1521400</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_deposit.csv">Raw execution units data</a></p>
@@ -246,7 +249,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
 <tr><td>Plutarch</td><td>103150887</td><td>231783</td></tr>
 <tr><td>Aiken</td><td>82279816</td><td>242944</td></tr>
-<tr><td>PlutusTx</td><td>332657654</td><td>1537982</td></tr>
+<tr><td>PlutusTx</td><td>328939621</td><td>1522902</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_withdraw.csv">Raw execution units data</a></p>
