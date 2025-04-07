@@ -31,7 +31,7 @@ def decode_dex_datum(raw: List[Anything]) -> DexDatum:
 
 DexRedeemerSwap: int = 0
 DexRedeemerDepositLiquidity: int = 1
-DexRedeemerWithdrawLiqudity: int = 2
+DexRedeemerWithdrawLiquidity: int = 2
 
 
 def quantity_of_asset(value: Value, asset_class: AssetClass) -> int:
@@ -128,7 +128,7 @@ def validator(
             output_datum.minted_lp_tokens * output_datum.minted_lp_tokens
             <= out_a_amount * out_b_amount
         )
-    elif redeemer == DexRedeemerWithdrawLiqudity:
+    elif redeemer == DexRedeemerWithdrawLiquidity:
         assert (
             input_datum.minted_lp_tokens + new_minted_lp
             == output_datum.minted_lp_tokens

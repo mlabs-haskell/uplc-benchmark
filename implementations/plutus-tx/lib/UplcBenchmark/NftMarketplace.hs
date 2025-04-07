@@ -124,8 +124,8 @@ nftMarketplaceValidator rawCtx =
             (txOutAddress utxo == seller)
               && (txOutValue utxo == price)
               && ( case txOutDatum utxo of
-                    OutputDatum inlineDatum -> inlineDatum == Datum paymentDatum
-                    _ -> False
+                     OutputDatum inlineDatum -> inlineDatum == Datum paymentDatum
+                     _ -> False
                  )
 
           !hasValidPayment = any isPaymentUtxo outputs
