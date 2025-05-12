@@ -13,8 +13,8 @@ let
   cardanoPackages = fetchFromGitHub {
     owner = "IntersectMBO";
     repo = "cardano-haskell-packages";
-    rev = "3167b742cea332e1c978d8ecc69ef8d6bd0d6e19"; # branch: repo
-    hash = "sha256-oCObuK/TY71lL+vDiRT0/Hhrsq4GRC7n8kcKBeonoUk=";
+    rev = "5f473b88ec38382dd9d05bdf50ecc03a26461fa8"; # branch: repo
+    hash = "sha256-Ts/+6Xlh++ePF4VjWIVdvkmnBJR5Vde1c/0KqraUv/8=";
   };
 in
 
