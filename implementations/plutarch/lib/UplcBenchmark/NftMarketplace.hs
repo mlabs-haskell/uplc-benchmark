@@ -18,8 +18,6 @@ import Plutarch.LedgerApi.V3 (
  )
 import Plutarch.LedgerApi.Value (PValue)
 import Plutarch.Monadic qualified as P
-import Plutarch.Repr.Data (DeriveAsDataRec (DeriveAsDataRec))
-import Plutarch.Repr.Tag (DeriveAsTag (DeriveAsTag))
 import Plutarch.Unsafe (punsafeCoerce)
 import UplcBenchmark.Utils (passert, punsafeCastDatum, punsafeCastRedeemer)
 
@@ -39,7 +37,7 @@ data NftMarketplaceRedeemer s
   | NftMarketplaceRedeemer'Cancel
   deriving stock (GHC.Generic, Show)
   deriving anyclass (SOP.Generic, PEq, PIsData)
-  deriving (PlutusType, PLiftable) via DeriveAsTag NftMarketplaceRedeemer
+  deriving (PlutusType) via DeriveTagPlutusType NftMarketplaceRedeemer
 
 pnftMarketplaceValidator :: ClosedTerm (PAsData PScriptContext :--> POpaque)
 pnftMarketplaceValidator = plam $ \ctx' -> P.do

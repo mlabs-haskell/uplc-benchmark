@@ -22,16 +22,15 @@ import PlutusLedgerApi.V3 (
   getRedeemer,
  )
 import PlutusTx.Builtins (chooseData, unsafeDataAsI, unsafeDataAsList)
+import PlutusTx.List (any, elem)
 import PlutusTx.Prelude (
   Applicative ((<*>)),
   Bool (False),
   BuiltinUnit,
   Eq ((==)),
   Maybe (Just, Nothing),
-  any,
   check,
   const,
-  elem,
   traceIfFalse,
   ($),
   (&&),

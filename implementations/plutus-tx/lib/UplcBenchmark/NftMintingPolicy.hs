@@ -21,10 +21,10 @@ import PlutusLedgerApi.V3 (
   unsafeFromBuiltinData,
  )
 import PlutusLedgerApi.V3.MintValue (MintValue (UnsafeMintValue))
+import PlutusTx.List (any)
 import PlutusTx.Prelude (
   BuiltinUnit,
   Integer,
-  any,
   appendByteString,
   check,
   consByteString,
