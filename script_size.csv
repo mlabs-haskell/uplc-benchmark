@@ -1,4 +1,4 @@
 Language,lp-minting-policy.bin,nft-marketplace-validator.bin,nft-minting-policy.bin,pool-validator.bin
-Plutarch,320,350,406,1081
+Plutarch,320,350,406,1084
 Aiken,485,386,399,1502
-PlutusTx,2938,4333,3204,4330
+PlutusTx,2972,4400,3243,4381

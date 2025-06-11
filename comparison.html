@@ -41,6 +41,17 @@
         <script src="toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
@@ -118,7 +129,7 @@
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -165,19 +176,19 @@
 <h2 id="versions"><a class="header" href="#versions">Versions</a></h2>
 <!-- versions.md -->
 <ul>
-<li>plutus-tx: 1.40.0.0</li>
+<li>plutus-tx: 1.45.0.0</li>
 <li>plutarch: 1.10.1</li>
-<li>aiken: v1.1.16+unknown</li>
-<li>opshin: 0.24.1</li>
+<li>aiken: v1.1.17+unknown</li>
+<li>opshin: 0.24.2</li>
 </ul>
 <h2 id="script-size-bytes"><a class="header" href="#script-size-bytes">Script size (bytes)</a></h2>
 <p>Script sizes are compared by compiling each script to CBOR and taking its binary size in bytes. Validators are compiled without traces if language supports it (Opshin does not) and are not passed through any external UPLC optimizer.</p>
 <p><img src="./script_size.png" alt="size plot" /></p>
 <!-- script_size.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>lp-minting-policy.bin</th><th>nft-marketplace-validator.bin</th><th>nft-minting-policy.bin</th><th>pool-validator.bin</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>320</td><td>350</td><td>406</td><td>1081</td></tr>
+<tr><td>Plutarch</td><td>320</td><td>350</td><td>406</td><td>1084</td></tr>
 <tr><td>Aiken</td><td>485</td><td>386</td><td>399</td><td>1502</td></tr>
-<tr><td>PlutusTx</td><td>2938</td><td>4333</td><td>3204</td><td>4330</td></tr>
+<tr><td>PlutusTx</td><td>2972</td><td>4400</td><td>3243</td><td>4381</td></tr>
 </tbody></table>
 </div>
 <p><a href="./script_size.csv">Raw script size data</a></p>
@@ -189,7 +200,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
 <tr><td>Plutarch</td><td>17797661</td><td>47962</td></tr>
 <tr><td>Aiken</td><td>17366314</td><td>56974</td></tr>
-<tr><td>PlutusTx</td><td>65739767</td><td>276544</td></tr>
+<tr><td>PlutusTx</td><td>62411767</td><td>255744</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_lp_mint_one_nft.csv">Raw execution units data</a></p>
@@ -199,7 +210,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
 <tr><td>Plutarch</td><td>31018976</td><td>79485</td></tr>
 <tr><td>Aiken</td><td>28936338</td><td>94149</td></tr>
-<tr><td>PlutusTx</td><td>76000836</td><td>323156</td></tr>
+<tr><td>PlutusTx</td><td>71808836</td><td>296956</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_lp_mint_two_nfts.csv">Raw execution units data</a></p>
@@ -207,9 +218,9 @@
 <p><img src="./budget_nft_mint.png" alt="execution_units plot" /></p>
 <!-- budget_nft_mint.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>15299441</td><td>40575</td></tr>
+<tr><td>Plutarch</td><td>15251441</td><td>40275</td></tr>
 <tr><td>Aiken</td><td>14923802</td><td>38363</td></tr>
-<tr><td>PlutusTx</td><td>63511332</td><td>269611</td></tr>
+<tr><td>PlutusTx</td><td>61111332</td><td>254611</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_nft_mint.csv">Raw execution units data</a></p>
@@ -217,9 +228,9 @@
 <p><img src="./budget_swap_a_for_b.png" alt="execution_units plot" /></p>
 <!-- budget_swap_a_for_b.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>101745804</td><td>230523</td></tr>
+<tr><td>Plutarch</td><td>101697804</td><td>230223</td></tr>
 <tr><td>Aiken</td><td>79768207</td><td>234780</td></tr>
-<tr><td>PlutusTx</td><td>296827268</td><td>1371798</td></tr>
+<tr><td>PlutusTx</td><td>287563268</td><td>1313898</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_swap_a_for_b.csv">Raw execution units data</a></p>
@@ -227,9 +238,9 @@
 <p><img src="./budget_swap_b_for_a.png" alt="execution_units plot" /></p>
 <!-- budget_swap_b_for_a.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>101745804</td><td>230523</td></tr>
+<tr><td>Plutarch</td><td>101697804</td><td>230223</td></tr>
 <tr><td>Aiken</td><td>79768207</td><td>234780</td></tr>
-<tr><td>PlutusTx</td><td>296827268</td><td>1371798</td></tr>
+<tr><td>PlutusTx</td><td>287563268</td><td>1313898</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_swap_b_for_a.csv">Raw execution units data</a></p>
@@ -237,9 +248,9 @@
 <p><img src="./budget_deposit.png" alt="execution_units plot" /></p>
 <!-- budget_deposit.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>102846505</td><td>230681</td></tr>
+<tr><td>Plutarch</td><td>102798505</td><td>230381</td></tr>
 <tr><td>Aiken</td><td>81975434</td><td>241842</td></tr>
-<tr><td>PlutusTx</td><td>328569786</td><td>1521400</td></tr>
+<tr><td>PlutusTx</td><td>318441786</td><td>1458100</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_deposit.csv">Raw execution units data</a></p>
@@ -247,9 +258,9 @@
 <p><img src="./budget_withdraw.png" alt="execution_units plot" /></p>
 <!-- budget_withdraw.md -->
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
-<tr><td>Plutarch</td><td>103150887</td><td>231783</td></tr>
+<tr><td>Plutarch</td><td>103102887</td><td>231483</td></tr>
 <tr><td>Aiken</td><td>82279816</td><td>242944</td></tr>
-<tr><td>PlutusTx</td><td>328939621</td><td>1522902</td></tr>
+<tr><td>PlutusTx</td><td>318811621</td><td>1459602</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_withdraw.csv">Raw execution units data</a></p>
@@ -259,7 +270,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
 <tr><td>Plutarch</td><td>13525181</td><td>32227</td></tr>
 <tr><td>Aiken</td><td>13389768</td><td>28583</td></tr>
-<tr><td>PlutusTx</td><td>334948111</td><td>1379416</td></tr>
+<tr><td>PlutusTx</td><td>324804111</td><td>1316016</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_buy_one.csv">Raw execution units data</a></p>
@@ -269,7 +280,7 @@
 <div class="table-wrapper"><table><thead><tr><th>Language</th><th>CPU</th><th>Memory</th></tr></thead><tbody>
 <tr><td>Plutarch</td><td>8216257</td><td>24229</td></tr>
 <tr><td>Aiken</td><td>7142519</td><td>22591</td></tr>
-<tr><td>PlutusTx</td><td>138764847</td><td>579120</td></tr>
+<tr><td>PlutusTx</td><td>134380847</td><td>551720</td></tr>
 </tbody></table>
 </div>
 <p><a href="./budget_cancel_one.csv">Raw execution units data</a></p>
