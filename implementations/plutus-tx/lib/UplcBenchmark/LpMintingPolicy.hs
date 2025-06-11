@@ -17,12 +17,11 @@ import PlutusLedgerApi.V3 (
   Value (Value),
  )
 import PlutusLedgerApi.V3.MintValue (MintValue (UnsafeMintValue))
+import PlutusTx.List (all, any)
 import PlutusTx.Prelude (
   Bool,
   BuiltinUnit,
   Integer,
-  all,
-  any,
   check,
   traceIfFalse,
   ($),

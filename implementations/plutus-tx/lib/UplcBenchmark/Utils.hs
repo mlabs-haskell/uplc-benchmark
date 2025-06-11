@@ -4,11 +4,11 @@ module UplcBenchmark.Utils (fromJustTrace, getOwnMint) where
 
 import PlutusLedgerApi.V2 (CurrencySymbol, TokenName, Value, getValue)
 import PlutusTx.AssocMap qualified as Map
+import PlutusTx.List (find)
 import PlutusTx.Prelude (
   BuiltinString,
   Integer,
   Maybe (Just, Nothing),
-  find,
   fst,
   snd,
   traceError,

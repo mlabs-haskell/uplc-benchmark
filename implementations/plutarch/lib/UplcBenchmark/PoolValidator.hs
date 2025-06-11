@@ -14,8 +14,6 @@ import Plutarch.LedgerApi.V3 (
  )
 import Plutarch.LedgerApi.Value (PAssetClass (PAssetClass), PCurrencySymbol, pvalueOf)
 import Plutarch.Monadic qualified as P
-import Plutarch.Repr.Data (DeriveAsDataRec (DeriveAsDataRec))
-import Plutarch.Repr.Tag (DeriveAsTag (DeriveAsTag))
 import Plutarch.Unsafe (punsafeCoerce)
 import UplcBenchmark.Utils (
   passert,
@@ -47,11 +45,10 @@ data DexRedeemer s
   | DexRedeemer'WithdrawLiquidity
   deriving stock (GHC.Generic, Show)
   deriving anyclass (SOP.Generic, PEq, PIsData)
-  deriving (PlutusType, PLiftable) via DeriveAsTag DexRedeemer
+  deriving (PlutusType) via DeriveTagPlutusType DexRedeemer
 
 -- TODO: PTryFrom
 
--- FIXME: compile does not halt
 ppoolValidator :: ClosedTerm (PAsData PScriptContext :--> POpaque)
 ppoolValidator = plam $ \ctx' -> P.do
   PScriptContext txInfo redeemer info <- pmatch (pfromData ctx')

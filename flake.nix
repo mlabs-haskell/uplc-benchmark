@@ -27,6 +27,14 @@
       url = "github:mlabs-haskell/plutus-test";
       flake = false;
     };
+    plutarch = {
+      url = "github:Plutonomicon/plutarch-plutus?ref=staging";
+      flake = false;
+    };
+    cardanoPackages = {
+      url = "github:IntersectMBO/cardano-haskell-packages?ref=repo";
+      flake = false;
+    };
   };
   outputs = inputs:
     let

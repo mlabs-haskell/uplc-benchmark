@@ -23,6 +23,7 @@ import PlutusLedgerApi.V3 (
  )
 import PlutusLedgerApi.V3.MintValue (MintValue (UnsafeMintValue))
 import PlutusTx.Builtins (chooseData, unsafeDataAsI, unsafeDataAsList)
+import PlutusTx.List (find)
 import PlutusTx.Prelude (
   Applicative ((<*>)),
   Bool,
@@ -31,7 +32,6 @@ import PlutusTx.Prelude (
   Maybe (Just, Nothing),
   check,
   const,
-  find,
   snd,
   traceIfFalse,
   ($),
