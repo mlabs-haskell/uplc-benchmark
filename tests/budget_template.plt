@@ -24,7 +24,7 @@ set offset graph -0.17,0,0,0
 
 # Data for plotting
 set datafile separator ","
-set key inside top right
+set key inside top left
 
 # Plotting CPU on y axis and Memory on y2 axis
 plot 'RUN_NAME.csv' using 2:xtic(1) title "CPU" , \

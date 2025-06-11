@@ -1,44 +1,14 @@
-{ rustPlatform
-, openssl
-, pkg-config
-, stdenv
+{ stdenv
 , writeShellApplication
 , python3
 , lib
 , fetchzip
 , yj
 , jq
-, aiken-src
-, darwin
+, aiken
 }:
 
 let
-  aiken = rustPlatform.buildRustPackage ({
-    pname = "aiken";
-    version = "unstable-${aiken-src.shortRev or "unknown"}";
-
-    src = aiken-src;
-
-    buildInputs = [
-      openssl
-    ] ++ lib.optionals (stdenv.isDarwin) (with darwin.apple_sdk.frameworks; [
-      Security
-      CoreServices
-      SystemConfiguration
-    ]);
-
-    nativeBuildInputs = [
-      pkg-config
-    ];
-  } // (if aiken-src ? cargoHash then {
-    inherit (aiken-src) cargoHash;
-  } else
-    lib.warn "`aiken-src.cargoHash` was not provided. Using IFD instead to obtain cargo dependencies." {
-      cargoLock = {
-        lockFile = "${aiken-src}/Cargo.lock";
-      };
-    }));
-
   mkPythonApplication = name: path: writeShellApplication {
     inherit name;
 

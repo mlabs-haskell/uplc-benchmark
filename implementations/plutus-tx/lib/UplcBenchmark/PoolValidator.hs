@@ -5,21 +5,25 @@ module UplcBenchmark.PoolValidator (poolValidator) where
 
 import Data.Kind (Type)
 import PlutusLedgerApi.V1.Value (AssetClass (unAssetClass), assetClassValueOf, valueOf)
-import PlutusLedgerApi.V2 (
+import PlutusLedgerApi.V3 (
   BuiltinData,
   CurrencySymbol,
   Datum (getDatum),
   FromData (fromBuiltinData),
   OutputDatum (OutputDatum),
-  ScriptContext (scriptContextPurpose, scriptContextTxInfo),
-  ScriptPurpose (Spending),
+  ScriptContext (scriptContextRedeemer, scriptContextScriptInfo, scriptContextTxInfo),
+  ScriptInfo (SpendingScript),
   TxInInfo (txInInfoOutRef, txInInfoResolved),
   TxInfo (txInfoInputs, txInfoMint, txInfoOutputs),
   TxOut (txOutDatum, txOutValue),
+  Value (Value),
   fromBuiltinData,
+  getRedeemer,
   unsafeFromBuiltinData,
  )
+import PlutusLedgerApi.V3.MintValue (MintValue (UnsafeMintValue))
 import PlutusTx.Builtins (chooseData, unsafeDataAsI, unsafeDataAsList)
+import PlutusTx.List (find)
 import PlutusTx.Prelude (
   Applicative ((<*>)),
   Bool,
@@ -28,7 +32,6 @@ import PlutusTx.Prelude (
   Maybe (Just, Nothing),
   check,
   const,
-  find,
   snd,
   traceIfFalse,
   ($),
@@ -108,29 +111,34 @@ instance FromData DexRedeemer where
       d
 
 {-# INLINE poolValidator #-}
-poolValidator :: BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
-poolValidator rawDatum rawRedeemer rawCtx =
+poolValidator :: BuiltinData -> BuiltinUnit
+poolValidator rawCtx =
   let
-    !redeemer :: DexRedeemer = fromJustTrace "Redeemer decoding failed" $ fromBuiltinData rawRedeemer
-    !inDatum :: DexDatum = fromJustTrace "Datum decoding failed" $ fromBuiltinData rawDatum
+    !redeemer :: DexRedeemer =
+      fromJustTrace "Redeemer decoding failed"
+        $ fromBuiltinData
+        $ getRedeemer
+        $ scriptContextRedeemer ctx
+    SpendingScript !ownInputRef rawDatum = scriptContextScriptInfo ctx
+    Just rawDatum' = rawDatum
+    !inDatum :: DexDatum = fromJustTrace "Datum decoding failed" $ fromBuiltinData $ getDatum rawDatum'
     !ctx :: ScriptContext = unsafeFromBuiltinData rawCtx
 
     !txInfo = scriptContextTxInfo ctx
     !inputs = txInfoInputs txInfo
     !outputs = txInfoOutputs txInfo
-    !mint = txInfoMint txInfo
+    UnsafeMintValue mint = txInfoMint txInfo
 
     DexDatum !inTokenA !inTokenB !inPoolNft !inLpToken !inMintedLpTokens !inSwapFee = inDatum
 
     !nftAndLpTokenName = snd $ unAssetClass inPoolNft
 
-    Spending !ownInputRef = scriptContextPurpose ctx
     !ownInput =
       txInInfoResolved
         $ fromJustTrace "Cannot find own input"
         $ find ((== ownInputRef) . txInInfoOutRef) inputs
 
-    !newMintedLp = valueOf mint inLpToken nftAndLpTokenName
+    !newMintedLp = valueOf (Value mint) inLpToken nftAndLpTokenName
 
     !ownOutput =
       fromJustTrace "Cannot find own output"

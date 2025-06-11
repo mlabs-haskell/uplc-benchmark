@@ -3,6 +3,7 @@
 While trying to implement all validators as closely to each other as possible there are some differences that impact measured script size and execution units.
 - Plutarch while decoding Data-encoded types is checking for invariants such as hashes lengths, map key ordering etc. which leads to higher start up cost visible in NFT Marketplace validator.
 - Opshin does expose option to compile without tracing so that is included in the final size. All implementations use traces in their source code but remaining allow to strip it with a compilation flag.
+- Note that opshin validators are not benchmarked currently as they do not support PlutusV3 yet. They will be restored when they will support it. We have decided to migrate to V3 as Aiken cannot target older Plutus versions.
 
 ## Versions
 

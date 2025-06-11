@@ -4,32 +4,33 @@
 module UplcBenchmark.NftMarketplace (nftMarketplaceValidator) where
 
 import Data.Kind (Type)
-import PlutusLedgerApi.V2 (
+import PlutusLedgerApi.V3 (
   Address,
   BuiltinData,
   Datum (Datum),
   FromData (fromBuiltinData),
   OutputDatum (OutputDatum),
   PubKeyHash,
-  ScriptContext (scriptContextPurpose, scriptContextTxInfo),
-  ScriptPurpose (Spending),
+  ScriptContext (scriptContextRedeemer, scriptContextScriptInfo, scriptContextTxInfo),
+  ScriptInfo (SpendingScript),
   ToData (toBuiltinData),
   TxInfo (txInfoOutputs, txInfoSignatories),
   TxOut (txOutAddress, txOutDatum, txOutValue),
   UnsafeFromData (unsafeFromBuiltinData),
   Value,
+  getDatum,
+  getRedeemer,
  )
 import PlutusTx.Builtins (chooseData, unsafeDataAsI, unsafeDataAsList)
+import PlutusTx.List (any, elem)
 import PlutusTx.Prelude (
   Applicative ((<*>)),
   Bool (False),
   BuiltinUnit,
   Eq ((==)),
   Maybe (Just, Nothing),
-  any,
   check,
   const,
-  elem,
   traceIfFalse,
   ($),
   (&&),
@@ -90,8 +91,8 @@ instance FromData NftMarketplaceRedeemer where
       d
 
 {-# INLINE nftMarketplaceValidator #-}
-nftMarketplaceValidator :: BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
-nftMarketplaceValidator rawDatum rawRedeemer rawCtx =
+nftMarketplaceValidator :: BuiltinData -> BuiltinUnit
+nftMarketplaceValidator rawCtx =
   let
     !ctx :: ScriptContext = unsafeFromBuiltinData rawCtx
 
@@ -99,10 +100,14 @@ nftMarketplaceValidator rawDatum rawRedeemer rawCtx =
     -- we're performing these checks as well.
 
     !redeemer :: NftMarketplaceRedeemer =
-      fromJustTrace "Redeemer decoding failed" $ fromBuiltinData rawRedeemer
+      fromJustTrace "Redeemer decoding failed" $ fromBuiltinData $ getRedeemer $ scriptContextRedeemer ctx
+
+    SpendingScript !ownInput rawDatum = scriptContextScriptInfo ctx
+
+    Just rawDatum' = rawDatum
 
     !datum :: NftMarketplaceDatum =
-      fromJustTrace "Datum decoding failed" $ fromBuiltinData rawDatum
+      fromJustTrace "Datum decoding failed" $ fromBuiltinData $ getDatum rawDatum'
 
     NftMarketplaceDatum !price !seller !cancelKey = datum
 
@@ -112,15 +117,14 @@ nftMarketplaceValidator rawDatum rawRedeemer rawCtx =
       NftMarketplaceRedeemer'Buy ->
         let
           !outputs = txInfoOutputs txInfo
-          Spending !ownInput = scriptContextPurpose ctx
           !paymentDatum = toBuiltinData ownInput
 
           isPaymentUtxo utxo =
             (txOutAddress utxo == seller)
               && (txOutValue utxo == price)
               && ( case txOutDatum utxo of
-                    OutputDatum inlineDatum -> inlineDatum == Datum paymentDatum
-                    _ -> False
+                     OutputDatum inlineDatum -> inlineDatum == Datum paymentDatum
+                     _ -> False
                  )
 
           !hasValidPayment = any isPaymentUtxo outputs

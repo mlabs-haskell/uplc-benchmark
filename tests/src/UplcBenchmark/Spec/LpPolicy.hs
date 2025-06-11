@@ -11,12 +11,15 @@ import Plutus.ContextBuilder (
   buildMinting',
   input,
   mintSingletonWith,
+  scriptRedeemer,
   withMinting,
   withValue,
  )
-import PlutusLedgerApi.V2 (
+import PlutusLedgerApi.V3 (
   CurrencySymbol (CurrencySymbol),
+  Redeemer (Redeemer),
   ScriptContext,
+  ToData (toBuiltinData),
   TokenName (TokenName),
   adaSymbol,
   adaToken,
@@ -35,14 +38,14 @@ poolNftName1 = TokenName "pool nft name 1"
 poolNftName2 :: TokenName
 poolNftName2 = TokenName "pool nft name 2"
 
-unitRedeemer :: ()
-unitRedeemer = ()
+unitRedeemer :: Redeemer
+unitRedeemer = Redeemer $ toBuiltinData ()
 
-withLpMinting :: CurrencySymbol -> [MintingBuilder] -> ScriptContext
-withLpMinting ownSymbol builder =
-  buildMinting' $ mconcat builder <> withMinting ownSymbol
+withLpMinting :: CurrencySymbol -> [MintingBuilder] -> Redeemer -> ScriptContext
+withLpMinting ownSymbol builder redeemer =
+  buildMinting' $ mconcat builder <> scriptRedeemer redeemer <> withMinting ownSymbol
 
-validMint :: CurrencySymbol -> ScriptContext
+validMint :: CurrencySymbol -> Redeemer -> ScriptContext
 validMint ownSymbol =
   withLpMinting
     ownSymbol
@@ -55,7 +58,7 @@ validMint ownSymbol =
           ]
     ]
 
-validMintTwoNfts :: CurrencySymbol -> ScriptContext
+validMintTwoNfts :: CurrencySymbol -> Redeemer -> ScriptContext
 validMintTwoNfts ownSymbol =
   withLpMinting
     ownSymbol
@@ -70,7 +73,7 @@ validMintTwoNfts ownSymbol =
           ]
     ]
 
-invalidMintNoNft :: CurrencySymbol -> ScriptContext
+invalidMintNoNft :: CurrencySymbol -> Redeemer -> ScriptContext
 invalidMintNoNft ownSymbol =
   withLpMinting
     ownSymbol
@@ -82,7 +85,7 @@ invalidMintNoNft ownSymbol =
           ]
     ]
 
-invalidMintOneOfTwoNfts :: CurrencySymbol -> ScriptContext
+invalidMintOneOfTwoNfts :: CurrencySymbol -> Redeemer -> ScriptContext
 invalidMintOneOfTwoNfts ownSymbol =
   withLpMinting
     ownSymbol
@@ -96,7 +99,7 @@ invalidMintOneOfTwoNfts ownSymbol =
           ]
     ]
 
-invalidMintWrongName :: CurrencySymbol -> ScriptContext
+invalidMintWrongName :: CurrencySymbol -> Redeemer -> ScriptContext
 invalidMintWrongName ownSymbol =
   withLpMinting
     ownSymbol
@@ -109,16 +112,14 @@ invalidMintWrongName ownSymbol =
           ]
     ]
 
-mkTest :: String -> (CurrencySymbol -> ScriptContext) -> ScriptResult -> Script -> ScriptCase
+mkTest :: String -> (CurrencySymbol -> Redeemer -> ScriptContext) -> ScriptResult -> Script -> ScriptCase
 mkTest testName context expectedResult script =
   let
     withParameter = uncheckedApplyDataToScript poolNftSymbol script
 
     ownSymbol = scriptSymbol withParameter
 
-    apply =
-      uncheckedApplyDataToScript (context ownSymbol)
-        . uncheckedApplyDataToScript unitRedeemer
+    apply = uncheckedApplyDataToScript (context ownSymbol unitRedeemer)
 
     Script applied = apply withParameter
    in

@@ -85,7 +85,7 @@ common deps
     , base
     , bytestring
     , mtl
-    , plutus-core >=1.40.0.0 && <1.41
+    , plutus-core >=1.45.0.0 && <1.46
     , plutus-ledger-api
     , plutus-tx
     , plutus-tx-plugin
