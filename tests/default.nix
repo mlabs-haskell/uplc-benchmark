@@ -19,9 +19,6 @@
       };
 
       uplc-benchmark-data = uplc-benchmark-tests.packages."uplc-benchmark:exe:uplc-benchmark-data";
-
-      # TODO: Remove when upstreamed to nixpkgs
-      csv2md = pkgs.python3.pkgs.callPackage ./csv2md { };
     in
     {
       checks.uplc-benchmark = uplc-benchmark-tests.checks."uplc-benchmark:test:uplc-benchmark-tests".overrideAttrs (prev: {
@@ -31,7 +28,7 @@
       packages = {
         data-files = pkgs.runCommand "data-files"
           {
-            nativeBuildInputs = [ pkgs.gnuplot csv2md ];
+            nativeBuildInputs = [ pkgs.gnuplot pkgs.csv2md ];
             env = binSources;
           } ''
           ${uplc-benchmark-data}/bin/uplc-benchmark-data
