@@ -7,7 +7,7 @@
       };
     in
     {
-      devShells.plutarch-implementation = plutarch-implementation.devShell;
+      devShells.plutarch-implementation = plutarch-implementation.devShells.default;
       packages = {
         plutarch-implementation-export =
           plutarch-implementation.packages."plutarch-implementation:exe:plutarch-implementation-export";

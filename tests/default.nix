@@ -57,7 +57,7 @@
         shellHook = config.pre-commit.installationScript;
         env = binSources;
         inputsFrom = [
-          uplc-benchmark-tests.devShell
+          uplc-benchmark-tests.devShells.default
         ];
       };
     };
