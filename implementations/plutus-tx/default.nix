@@ -17,7 +17,7 @@
     {
       devShells.plutus-tx-implementation = pkgs.mkShell {
         shellHook = config.pre-commit.installationScript;
-        inputsFrom = [ plutus-tx-implementation.devShell ];
+        inputsFrom = [ plutus-tx-implementation.devShells.default ];
       };
 
       packages = {
