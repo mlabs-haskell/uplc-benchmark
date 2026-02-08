@@ -86,11 +86,11 @@
     "cardanoPackages": {
       "flake": false,
       "locked": {
-        "lastModified": 1769787878,
-        "narHash": "sha256-bW/VR4huuZs7QxOuqOK/Cyw+Thf/O3Si/wYpmizqb2I=",
+        "lastModified": 1770542117,
+        "narHash": "sha256-SAk7Sp9b1C7EdK333Yme2gsIX++WfdIF2ZJ9ZX+x0h0=",
         "owner": "IntersectMBO",
         "repo": "cardano-haskell-packages",
-        "rev": "ccbb4f121cc92823478ccc4e3906c4d02eb1bb85",
+        "rev": "969dc72b9d9842b410a5d89647621fb5f084543b",
         "type": "github"
       },
       "original": {
@@ -155,11 +155,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1768135262,
-        "narHash": "sha256-PVvu7OqHBGWN16zSi6tEmPwwHQ4rLPU9Plvs8/1TUBY=",
+        "lastModified": 1769996383,
+        "narHash": "sha256-AnYjnFWgS49RlqX7LrC4uA+sCCDBj0Ry/WOJ5XWAsa0=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "80daad04eddbbf5a4d883996a73f3f542fa437ac",
+        "rev": "57928607ea566b5db3ad13af0e57e921e6b12381",
         "type": "github"
       },
       "original": {
@@ -591,11 +591,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1769948983,
-        "narHash": "sha256-dIW3mPUT/vSmOHsBLglWxjXTOsMNLg96RX+JlAZ1yig=",
+        "lastModified": 1770554595,
+        "narHash": "sha256-TLUmO8NDIpnviu4jy6egc0ObMpyWFX305a6ylxr3KmU=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "02a33ae79fadd05dd2c861971e75d4cd33aa42be",
+        "rev": "f715b22b00d456f1048888305ab15e8b262a0251",
         "type": "github"
       },
       "original": {
